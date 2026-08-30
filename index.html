@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<!-- ============================================================================
+     तेज़ चला मेले में — the front door.
+
+     Opening this folder used to land on the server's own list of what is in it,
+     "story" and "TCMM My Dev Game", and a child had to pick one. There is only
+     ever one way in: the book, on its title page, waiting for कहानी चलाओ. The
+     game is not a second entrance — it is where the book ends, reached through
+     आगे on Page 18, and it has to be at the root's own level for the book to
+     reach it, which is the only reason it was ever visible here.
+
+     So this hands straight over to the book. Nothing about either the story or
+     the game changes: both stay exactly where they are, and this only decides
+     what an unqualified visit to this folder means.
+
+     replace() rather than an assignment, so this page is not left in the
+     history behind the book — Back from the title page goes wherever the
+     child came from, not into a loop through here. It runs in the head, before
+     the body has anything to paint, so it is not a screen that is seen; the
+     colours below are the book's own paper, for the moment on a slow disk
+     before the handover lands and for anyone arriving with JavaScript off, who
+     gets the same thing through the refresh and the link.
+     ========================================================================= -->
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f8efdd" />
+<meta name="description" content="तेज़ चला मेले में — एक इंटरैक्टिव चित्र-कथा। An interactive animated picture book for children." />
+<title>तेज़ चला मेले में · Tez Chala Mele Mein</title>
+<link rel="icon" href="story/assets/icons/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" sizes="180x180" href="story/assets/icons/apple-touch-icon.png" />
+
+<script>location.replace("story/index.html" + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=story/index.html" />
+
+<!-- the cover starts loading from here, so the book opens on a picture that is
+     already decoded rather than on an empty frame -->
+<link rel="preload" as="image" href="story/assets/images/Cover%20Page.png" />
+
+<style>
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(120% 90% at 12% -10%, #fdf6e6 0%, rgba(253, 246, 230, 0) 60%),
+      radial-gradient(90% 70% at 92% -6%,  #e6f1f7 0%, rgba(230, 241, 247, 0) 62%),
+      radial-gradient(120% 100% at 50% 118%, #f0dfc0 0%, rgba(240, 223, 192, 0) 58%),
+      #f9f0dd;
+    color: #3b2a1c;
+    font-family: "Baloo Bhai 2", "Baloo 2", "Nirmala UI", "Noto Sans Devanagari",
+                 system-ui, sans-serif;
+  }
+  a {
+    color: inherit;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: .9rem 1.8rem;
+    border-radius: 999px;
+    background: #c4573a;
+    color: #fff;
+    box-shadow: 0 10px 22px -8px rgba(30, 20, 12, .55);
+  }
+</style>
+</head>
+
+<body>
+  <a href="story/index.html">कहानी खोलो</a>
+</body>
+</html>

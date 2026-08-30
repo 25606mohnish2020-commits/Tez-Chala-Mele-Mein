@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>तेज़ चला मेले में — मेले का सफ़र (Quiz)</title>
+<meta name="description" content="Tez Chala Mele Mein — 5 सवालों का मज़ेदार खेल। सही जवाब दो, स्टिकर जीतो और मेले तक पहुँचो!">
+
+<!-- Favicon: the game's own red skateboard (Assets/Story elements/Skateboard.png),
+     turned 30° onto the diagonal so it fills a square tab icon instead of
+     shrinking to a 16x6 sliver. -->
+<link rel="icon" type="image/png" sizes="32x32" href="Assets/Icons/skateboard-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="Assets/Icons/skateboard-64.png">
+<link rel="icon" type="image/png" sizes="180x180" href="Assets/Icons/skateboard-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="Assets/Icons/skateboard-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Scales the fixed 1920x1080 Figma artboard to any viewport -->
+<div id="fit">
+
+  <!-- the current page art, blown up and blurred, so no bare letterbox shows -->
+  <img id="backdrop" class="backdrop" src="Assets/Images/Page 19.png" alt="" aria-hidden="true">
+
+  <div id="stage">
+
+    <!-- Page plate: the exact exported Figma artwork for the current page -->
+    <img id="plate" class="plate" src="Assets/Images/Page 19.png" alt="">
+    <img id="plateNext" class="plate plate-next" src="" alt="" aria-hidden="true">
+
+    <!-- Rubs out the stretch of dashed trail the skateboard has already
+         ridden. The map plate (Page 19) has the route baked into the artwork,
+         so rather than painting over it we reveal Page 35 — the very same
+         picture, exported with no route on it — through a white stroke that
+         grows along the path. Because both plates are the same image, the
+         dirt texture underneath lines up exactly.
+
+         A pixel diff of the two plates shows they differ ONLY along the
+         dashed route and at one spot: Page 35 has a skateboard painted in at
+         the fairground, x 1560-1710 / y 238-328. That is blacked out of the
+         mask below so the eraser can never uncover it. Everything else,
+         checkpoint rings included, is identical in both files.            -->
+    <svg id="erase" class="erase" viewBox="0 0 1920 1080" aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="eraseMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
+          <g transform="translate(282.24, 210.52)">
+            <path id="erasePath" fill="none" stroke="#fff" stroke-width="36" stroke-linecap="butt"
+                  stroke-dasharray="0 99999"
+                  d="M124.806 712C171.275 696.178 334.573 680.431 604.283 694.021L1140.57 699.018L1182.81 694.5L1223.31 678.5L1257.81 658L1282.35 626.069C1325.66 536.631 1350.06 354.457 1101.22 341.266H573.461H264.774C224.944 343.764 63.5793 339.067 33.9908 300.294C-12.7943 202.195 -42.7305 5.29806 211.806 2.5H872.191L1081.78 21.4869L1162.81 57L1246.81 91.5C1274.78 100.161 1340.39 98.8334 1365.81 64.4571"/>
+          </g>
+          <rect x="1548" y="228" width="176" height="108"/>
+        </mask>
+      </defs>
+      <image href="Assets/Images/Page 35.png" x="0" y="0" width="1920" height="1080"
+             preserveAspectRatio="none" mask="url(#eraseMask)"/>
+    </svg>
+
+    <!-- ============ MAP LAYER (Figma pages 19, 20, 23, 26, 29, 32, 35) ============ -->
+    <div id="mapLayer" class="layer"></div>
+
+    <!-- The skateboard rides this trail. Geometry is Figma node 183:33
+         ("Vector 6", the dashed route), untouched; it is offset into page
+         space in game.js. Invisible — the dashes are already in the plate. -->
+    <svg id="trail" viewBox="0 0 1367.82 714.367" aria-hidden="true" focusable="false">
+      <path id="trailPath" fill="none" d="M124.806 712C171.275 696.178 334.573 680.431 604.283 694.021L1140.57 699.018L1182.81 694.5L1223.31 678.5L1257.81 658L1282.35 626.069C1325.66 536.631 1350.06 354.457 1101.22 341.266H573.461H264.774C224.944 343.764 63.5793 339.067 33.9908 300.294C-12.7943 202.195 -42.7305 5.29806 211.806 2.5H872.191L1081.78 21.4869L1162.81 57L1246.81 91.5C1274.78 100.161 1340.39 98.8334 1365.81 64.4571"/>
+    </svg>
+
+    <img id="skate" class="skate" src="Assets/Story elements/Skateboard.png" alt="स्केटबोर्ड">
+
+    <!-- ============ QUESTION LAYER (Figma pages 21, 24, 27, 30, 33) ============ -->
+    <div id="qLayer" class="layer">
+      <img id="qTmpl" class="q-tmpl" src="Assets/Story elements/Question Template.png" alt="">
+      <p id="qText" class="q-text"></p>
+      <div id="qOpts" class="q-opts"></div>
+    </div>
+
+    <!-- ============ CELEBRATION LAYER (Figma pages 22, 25, 28, 31, 34) ============ -->
+    <div id="celebLayer" class="layer">
+      <img id="celebGif" class="celeb-gif" src="" alt="">
+
+      <!-- Figma covers these five pages with "image 228" — one flat 1920x1080
+           sheet of leaves banked down the left and right edges, the middle
+           left clear for the board and the GIF. The Page 22/25/28/31/34
+           exports leave that sheet out, so the leaves are ours to animate:
+           game.js fills this box with individual leaves cut from the sheet
+           and sheds them past the GIF. -->
+      <div id="leaves" class="leaves" aria-hidden="true"></div>
+    </div>
+
+    <!-- Sparkle / confetti effects -->
+    <div id="fxLayer" class="layer fx-layer"></div>
+
+    <!-- ============ HAPPY ENDING (after the board reaches the fair) ============
+         The film is 1920x1080 24fps, exactly the artboard, so it sits inside
+         #stage and is scaled by the same transform as every page. Remuxed from
+         the supplied .mov into a faststart .mp4 (stream copy, same picture and
+         sound) because .mov is not playable in every browser. -->
+    <video id="finaleVideo" class="finale-video"
+           src="Assets/Videos/Happy Ending.mp4"
+           preload="auto" playsinline webkit-playsinline></video>
+
+  </div><!-- /#stage : nothing below is Figma artwork, it is UI chrome and
+                       therefore lives outside the artboard so it can never be
+                       cropped or scaled away -->
+
+    <!-- Finale replay button (Figma page 35) -->
+    <button id="btnReplay" class="wood-pill hidden" type="button">फिर से खेलें</button>
+
+    <!-- Minimal in-world controls -->
+    <div id="controls" class="controls">
+      <button id="btnListen" class="wood-round" type="button" title="सवाल फिर से सुनो (R)" aria-label="सवाल फिर से सुनो">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="w1" d="M16.5 8.5a5 5 0 0 1 0 7"/><path class="w2" d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      </button>
+      <button id="btnMusic" class="wood-round" type="button" title="संगीत चालू / बंद (M)" aria-label="संगीत चालू या बंद">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.6"/><circle cx="16.5" cy="16" r="2.6"/></svg>
+      </button>
+      <button id="btnFit" class="wood-round" type="button" title="पूरी स्क्रीन भरें / पूरा फ़्रेम दिखाएँ (V)" aria-label="स्क्रीन भरें या पूरा फ़्रेम दिखाएँ">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9h8v6H8z"/></svg>
+      </button>
+      <button id="btnFull" class="wood-round" type="button" title="फुलस्क्रीन (F)" aria-label="फुलस्क्रीन">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+    </div>
+
+    <!-- Start gate (needed to unlock audio playback) -->
+    <div id="startGate" class="start-gate">
+      <div class="start-card">
+        <h1 class="start-title">तेज़ चला मेले में!</h1>
+        <p class="start-sub">५ सवालों के सही जवाब दो, स्टिकर जीतो और मेले तक पहुँचो।</p>
+        <button id="btnStart" class="wood-pill big" type="button">सफ़र शुरू करें</button>
+      </div>
+    </div>
+
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

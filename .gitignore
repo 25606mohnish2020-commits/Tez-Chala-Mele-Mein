@@ -1,0 +1,30 @@
+# तेज़ चला मेले में
+#
+# The artwork, the audio and the film are the project — they are committed, not
+# ignored. There is no build step and nothing is generated, so the only things
+# that have no business in the repository are what the operating system and the
+# editors leave lying about.
+#
+# .vscode/ is deliberately NOT ignored: the three settings.json files in it pin
+# the Live Server ports the story and the game are served on, which is project
+# configuration rather than personal preference.
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# editors
+*.swp
+*~
+.idea/
+
+# logs and local scratch
+*.log
+npm-debug.log*

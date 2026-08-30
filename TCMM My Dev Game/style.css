@@ -1,0 +1,523 @@
+/* =========================================================================
+   तेज़ चला मेले में — Game section (Figma pages 19 → 35)
+   File: 50cpr8RU0OCmDWEJoBKiMn / "First Flow"
+
+   Everything is authored on a fixed 1920 x 1080 artboard using the exact
+   Figma coordinates, then scaled to the viewport, so the layout stays
+   pixel-identical to the design at any screen size. UI chrome (controls,
+   start gate, replay button) lives OUTSIDE the artboard and is sized in
+   viewport units, so it is never cropped or blown up by that scaling.
+   ========================================================================= */
+
+:root{
+  --scale-x: 1;
+  --scale-y: 1;
+
+  /* Sampled from the Figma artwork */
+  --gold:        #f7cd54;   /* question text (node 358:108) */
+  --wood-dark:   #4a2412;
+  --wood-mid:    #8a4520;
+  --wood-light:  #c9702f;
+  --wood-hi:     #e79a4a;
+  --board-cream: #f6d79b;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html,body{
+  width:100%; height:100%;
+  overflow:hidden;
+  background:#1c2a12;
+  font-family:'Baloo Bhai 2', 'Nirmala UI', system-ui, sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ---------- Scaling shell ----------
+   #stage is a flex item with a hard 1920px width. Without flex:0 0 auto the
+   browser shrinks it to the window width and overflow:hidden then crops the
+   right-hand side of every frame — the artboard MUST never shrink.           */
+#fit{
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  background:#0d1a06;
+  cursor:pointer;
+}
+
+/* The current page art, scaled to cover and blurred, so the area outside the
+   16:9 artboard is filled with the game's own colours instead of black bars. */
+.backdrop{
+  position:absolute; left:-4%; top:-4%;
+  width:108%; height:108%;
+  object-fit:cover;
+  filter:blur(40px) brightness(.66) saturate(1.1);
+  pointer-events:none; user-select:none; -webkit-user-drag:none;
+  transition:opacity .5s ease;
+}
+#fit.fill .backdrop{ opacity:0; }
+
+#stage{
+  position:relative;
+  flex:0 0 auto;                 /* never let flex shrink the artboard */
+  width:1920px; height:1080px;
+  transform-origin:center center;
+  transform:scale(var(--scale-x), var(--scale-y));
+  overflow:hidden;
+  background:#87c440;
+  box-shadow:0 0 70px rgba(0,0,0,.65);
+}
+
+/* ---------- Page plate (exported Figma artwork) ---------- */
+.plate{
+  position:absolute; left:0; top:0;
+  width:1920px; height:1080px;
+  object-fit:cover;
+  user-select:none; -webkit-user-drag:none;
+}
+.plate-next{ opacity:0; transition:opacity .45s ease; }
+.plate-next.show{ opacity:1; }
+
+.layer{
+  position:absolute; inset:0;
+  pointer-events:none;
+}
+
+#mapLayer{ transition:opacity .3s ease; }
+
+/* the "already ridden" trail eraser — sits on the plate, under the icons */
+.erase{
+  position:absolute; left:0; top:0;
+  width:1920px; height:1080px;
+  pointer-events:none;
+  transition:opacity .3s ease;
+}
+
+/* ---------- the travelling skateboard (image 201, 149 x 50) ---------- */
+/* #trail carries no pixels: it exists so the script can ask the browser for
+   points along the Figma route with getPointAtLength().                   */
+#trail{
+  position:absolute; left:0; top:0;
+  width:1px; height:1px;
+  opacity:0; overflow:visible; pointer-events:none;
+}
+
+.skate{
+  position:absolute; left:0; top:0;
+  width:149px; height:50px;
+  transform-origin:50% 50%;
+  will-change:transform;
+  filter:drop-shadow(0 6px 5px rgba(0,0,0,.38));
+  pointer-events:none; user-select:none; -webkit-user-drag:none;
+  transition:opacity .3s ease;
+}
+
+.hidden{ display:none !important; }
+
+/* =========================================================================
+   MAP LAYER  — Figma pages 19 / 20 / 23 / 26 / 29 / 32 / 35
+   Checkpoint frames (image 172/173/187/186/198) live inside "image 170"
+   which sits at (-23, -50); the coordinates below are already absolute.
+   ========================================================================= */
+
+.cp{
+  position:absolute;
+  pointer-events:none;
+  transform-origin:50% 50%;
+}
+.cp img{
+  width:100%; height:100%;
+  object-fit:contain;
+  display:block;
+  -webkit-user-drag:none;
+}
+
+/* question mark waiting inside a checkpoint (image 203) */
+.cp.qmark{ animation:qmBob 2.4s ease-in-out infinite; }
+.cp.qmark img{ filter:drop-shadow(0 4px 4px rgba(0,0,0,.25)); }
+@keyframes qmBob{
+  0%,100%{ transform:translateY(0) rotate(-2deg); }
+  50%    { transform:translateY(-8px) rotate(2deg); }
+}
+
+/* a sticker already won */
+.cp.sticker img{ filter:drop-shadow(0 6px 6px rgba(0,0,0,.3)); }
+
+/* the sticker that is being awarded right now */
+.cp.pop{ animation:stickerPop 900ms cubic-bezier(.2,1.5,.4,1) both; }
+@keyframes stickerPop{
+  0%   { transform:scale(0) rotate(-35deg); opacity:0; }
+  55%  { transform:scale(1.28) rotate(9deg); opacity:1; }
+  75%  { transform:scale(.94) rotate(-4deg); }
+  100% { transform:scale(1) rotate(0deg); opacity:1; }
+}
+
+/* a soft halo behind a freshly-won sticker */
+.cp-halo{
+  position:absolute;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,244,180,.95) 0%, rgba(255,214,64,.55) 42%, rgba(255,214,64,0) 72%);
+  animation:haloBurst 1.1s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes haloBurst{
+  0%  { transform:scale(.2); opacity:0; }
+  35% { transform:scale(1.05); opacity:1; }
+  100%{ transform:scale(1.7); opacity:0; }
+}
+
+/* =========================================================================
+   QUESTION LAYER — Figma pages 21 / 24 / 27 / 30 / 33
+   ========================================================================= */
+
+#qLayer{ opacity:0; visibility:hidden; transition:opacity .3s ease; }
+#qLayer.on{ opacity:1; visibility:visible; pointer-events:auto; }
+
+/* wooden plaque: image 270, 1262 x 421, horizontally centred */
+.q-tmpl{
+  position:absolute;
+  left:329px;                       /* Figma x for every question page */
+  width:1262px; height:421px;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));
+  -webkit-user-drag:none;
+  transform-origin:50% 50%;
+}
+.q-tmpl.in{ animation:plaqueDrop 620ms cubic-bezier(.22,1.4,.36,1) both; }
+@keyframes plaqueDrop{
+  0%  { transform:translateY(-130px) scale(.82); opacity:0; }
+  60% { transform:translateY(10px)  scale(1.04); opacity:1; }
+  100%{ transform:translateY(0)     scale(1);    opacity:1; }
+}
+
+/* question text: node 358:108 — Baloo Bhai 2 Medium 70px #f7cd54, w1360 */
+.q-text{
+  position:absolute;
+  left:280px;                        /* Figma x for every question page */
+  width:1360px; height:100px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Baloo Bhai 2','Nirmala UI',sans-serif;
+  font-weight:500;
+  font-size:70px;
+  line-height:1;
+  color:var(--gold);
+  text-align:center;
+  word-break:break-word;
+  text-shadow:0 2px 2px rgba(0,0,0,.45);
+  opacity:0;
+}
+.q-text.in{ animation:textFade 520ms ease 260ms both; }
+@keyframes textFade{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
+
+/* ---------- MCQ option cards ---------- */
+.q-opts{ position:absolute; inset:0; }
+
+.opt{
+  position:absolute;
+  border:0; padding:0; margin:0;
+  background:transparent;
+  cursor:pointer;
+  transform-origin:50% 60%;
+  opacity:0;
+  transition:transform .18s ease, filter .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.opt img{
+  width:100%; height:100%;
+  object-fit:contain;
+  display:block;
+  pointer-events:none;
+  -webkit-user-drag:none;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.7));   /* Figma shadow on 358:97 / 358:102 */
+  transition:filter .22s ease;                     /* glows ease in and back out */
+}
+.opt.in{ animation:optRise 520ms cubic-bezier(.22,1.35,.36,1) both; }
+.opt.shown{ opacity:1; }
+/* Held back until the question has been read out: invisible is not enough,
+   an option that has not arrived yet must not be tappable either. */
+.opt:not(.in):not(.shown){ pointer-events:none; }
+
+/* Once an option has finished arriving it breathes gently, to invite a tap.
+   The pulse lives on the <img> so the button keeps its own hover / shake
+   transforms — an animation on the button would win over both.            */
+.opt.shown img{ animation:optPulse 2s ease-in-out infinite; }
+@keyframes optPulse{
+  0%,100%{ transform:scale(1);     }
+  50%    { transform:scale(1.035); }
+}
+/* it settles while the option is reacting, and resumes on reset */
+.opt.locked img,
+.opt.wrong img{ animation:none; }
+@keyframes optRise{
+  0%  { opacity:0; transform:translateY(60px) scale(.7); }
+  100%{ opacity:1; transform:translateY(0)    scale(1);  }
+}
+
+/* The .wrong / .correct guards matter: with a mouse the cursor is still on
+   the option that was just tapped, and this hover rule outranks .opt.wrong img
+   on specificity — without them the gold hover glow paints over the red one. */
+@media (hover:hover){
+  .opt:not(.locked):not(.wrong):hover{ transform:translateY(-14px) scale(1.06); }
+  .opt:not(.locked):not(.wrong):hover img{ filter:drop-shadow(0 16px 14px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(255,236,150,.9)); }
+}
+.opt:not(.locked):not(.wrong):active{ transform:translateY(-4px) scale(.99); }
+.opt:focus-visible{ outline:6px dashed rgba(255,255,255,.9); outline-offset:10px; border-radius:18px; }
+
+.opt.locked{ cursor:default; }
+
+/* correct pick */
+.opt.correct{ animation:optCorrect 900ms cubic-bezier(.2,1.4,.4,1) both; z-index:5; }
+.opt.correct img{ filter:drop-shadow(0 10px 12px rgba(0,0,0,.5)) drop-shadow(0 0 26px rgba(120,255,120,.95)); }
+@keyframes optCorrect{
+  0%  { transform:scale(1); }
+  40% { transform:scale(1.22) translateY(-24px); }
+  70% { transform:scale(1.10) translateY(-14px); }
+  100%{ transform:scale(1.14) translateY(-18px); }
+}
+
+/* Wrong pick: a small red glow and a brief "no" wobble, then everything is
+   put back exactly as it was so the child can simply try again. Nothing is
+   greyed out or taken away.                                                */
+.opt.wrong{ animation:optWrong 520ms ease both; }
+.opt.wrong img{
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))
+         drop-shadow(0 0 16px rgba(255,60,60,1))
+         drop-shadow(0 0 34px rgba(255,40,40,.75));
+}
+@keyframes optWrong{
+  0%,100%{ transform:translateX(0)     rotate(0);    }
+  16% { transform:translateX(-18px) rotate(-3deg); }
+  34% { transform:translateX(16px)  rotate(3deg);  }
+  54% { transform:translateX(-11px) rotate(-2deg); }
+  76% { transform:translateX(7px)   rotate(1.2deg); }
+}
+/* the non-picked options once the question is solved */
+.opt.faded{ opacity:.28; transform:scale(.9); }
+
+/* =========================================================================
+   CELEBRATION LAYER — Figma pages 22 / 25 / 28 / 31 / 34
+   ========================================================================= */
+
+#celebLayer{ opacity:0; visibility:hidden; transition:opacity .35s ease; }
+#celebLayer.on{ opacity:1; visibility:visible; }
+
+.celeb-gif{
+  position:absolute;
+  object-fit:contain;
+  -webkit-user-drag:none;
+  filter:drop-shadow(0 14px 18px rgba(0,0,0,.35));
+}
+.celeb-gif.in{ animation:celebIn 700ms cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes celebIn{
+  0%  { opacity:0; transform:scale(.55) translateY(70px); }
+  100%{ opacity:1; transform:scale(1)   translateY(0);    }
+}
+
+/* ---------- image 228, shedding ----------
+   The leaves that Figma paints as one still sheet fall instead. game.js
+   spawns one .leaf per airborne leaf into #leaves, each a window onto a
+   single leaf inside image 228.png.
+
+   Two nested elements so nothing fights over `transform`: .leaf carries the
+   fall (straight down plus a little net sideways drift), its <i> child
+   carries the flutter — the sway and rock a leaf does on the way down.
+
+   Every leaf keeps background-size at the sheet's natural 1920x1080 and gets
+   its on-screen size from scale() inside the flutter keyframes, so the
+   browser rasterises the sheet ONCE however many leaves are in the air.   */
+.leaves{
+  position:absolute; inset:0;
+  pointer-events:none;
+}
+.leaf{
+  position:absolute; top:0;
+  will-change:transform;
+  animation:leafFall var(--fall,3200ms) linear both;
+}
+@keyframes leafFall{
+  0%  { transform:translate3d(0,-200px,0); }
+  100%{ transform:translate3d(var(--drift,0px),1240px,0); }
+}
+.leaf > i{
+  display:block;
+  background-image:url("Assets/Story elements/image 228.png");
+  background-repeat:no-repeat;
+  background-size:1920px 1080px;      /* natural — one rasterisation for all */
+  will-change:transform;
+  animation:leafFlutter 1800ms ease-in-out infinite alternate;
+}
+@keyframes leafFlutter{
+  0%  { transform:translateX(calc(var(--sway) * -1))
+                  rotate(calc(var(--rot0) - var(--tilt)))
+                  scale(var(--k)) scaleX(var(--flip)); }
+  100%{ transform:translateX(var(--sway))
+                  rotate(calc(var(--rot0) + var(--tilt)))
+                  scale(var(--k)) scaleX(var(--flip)); }
+}
+
+/* =========================================================================
+   HAPPY ENDING — the film that closes the journey
+   ========================================================================= */
+.finale-video{
+  position:absolute; left:0; top:0;
+  width:1920px; height:1080px;
+  object-fit:cover;                /* 1920x1080 film in a 1920x1080 box */
+  z-index:50;                      /* over every page layer inside the stage */
+  background:#000;
+  opacity:0; visibility:hidden;
+  transition:opacity .6s ease;
+  -webkit-user-drag:none;
+}
+.finale-video.on{ opacity:1; visibility:visible; }
+
+/* =========================================================================
+   FX — sparkles on a correct answer
+   ========================================================================= */
+.fx-layer{ z-index:40; }
+.spark{
+  position:absolute;
+  width:26px; height:26px;
+  border-radius:50%;
+  background:radial-gradient(circle, #fff 0%, #ffe680 45%, rgba(255,214,64,0) 72%);
+  animation:sparkFly var(--dur,1100ms) ease-out forwards;
+}
+@keyframes sparkFly{
+  0%  { transform:translate(0,0) scale(.3); opacity:0; }
+  15% { opacity:1; }
+  100%{ transform:translate(var(--dx),var(--dy)) scale(1.25); opacity:0; }
+}
+
+/* =========================================================================
+   Wooden UI chrome (kept small and out of the artwork)
+   ========================================================================= */
+
+.controls{
+  position:fixed;
+  right:clamp(10px, 1.6vw, 30px);
+  bottom:clamp(10px, 1.6vh, 26px);
+  display:flex; gap:clamp(7px, .9vw, 15px);
+  z-index:60;
+}
+
+.wood-round{
+  width:clamp(44px, 5.2vmin, 78px);
+  height:clamp(44px, 5.2vmin, 78px);
+  border-radius:50%;
+  border:5px solid var(--wood-dark);
+  background:linear-gradient(180deg, var(--wood-hi) 0%, var(--wood-light) 42%, var(--wood-mid) 100%);
+  box-shadow:0 7px 0 var(--wood-dark), 0 12px 18px rgba(0,0,0,.45), inset 0 3px 6px rgba(255,220,160,.55);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease, opacity .2s ease;
+}
+.wood-round svg{
+  width:52%; height:52%;
+  fill:none; stroke:#3a1a0a; stroke-width:2.2;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.wood-round svg path:first-child{ fill:#3a1a0a; }
+.wood-round svg circle{ fill:#3a1a0a; }
+.wood-round:hover{ transform:translateY(-3px); }
+.wood-round:active{ transform:translateY(5px); box-shadow:0 2px 0 var(--wood-dark), 0 5px 10px rgba(0,0,0,.4), inset 0 3px 6px rgba(255,220,160,.5); }
+.wood-round:disabled{ opacity:.4; cursor:default; transform:none; }
+.wood-round.off svg{ opacity:.42; }
+.wood-round.off::after{
+  content:''; position:absolute;
+  width:66%; height:9%; border-radius:3px;
+  background:#3a1a0a; transform:rotate(-42deg);
+}
+.wood-round{ position:relative; }
+
+/* speaker wave animation while a voice-over plays */
+.wood-round.speaking svg .w1{ animation:wavePulse .9s ease-in-out infinite; }
+.wood-round.speaking svg .w2{ animation:wavePulse .9s ease-in-out .18s infinite; }
+@keyframes wavePulse{ 0%,100%{opacity:.25;} 50%{opacity:1;} }
+
+.wood-pill{
+  font-family:'Baloo Bhai 2','Nirmala UI',sans-serif;
+  font-weight:600;
+  color:#fff5d8;
+  text-shadow:0 3px 0 rgba(0,0,0,.45);
+  border:6px solid var(--wood-dark);
+  border-radius:999px;
+  background:linear-gradient(180deg, var(--wood-hi) 0%, var(--wood-light) 45%, var(--wood-mid) 100%);
+  box-shadow:0 10px 0 var(--wood-dark), 0 18px 26px rgba(0,0,0,.45), inset 0 4px 8px rgba(255,220,160,.5);
+  cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.wood-pill:hover{ transform:translateY(-4px); }
+.wood-pill:active{ transform:translateY(6px); box-shadow:0 4px 0 var(--wood-dark), 0 8px 14px rgba(0,0,0,.4), inset 0 4px 8px rgba(255,220,160,.45); }
+
+#btnReplay{
+  position:fixed;
+  left:50%; bottom:clamp(16px, 5vh, 62px);
+  transform:translateX(-50%);
+  font-size:clamp(24px, 3.6vmin, 54px);
+  padding:clamp(10px,1.3vmin,18px) clamp(30px,4.6vmin,64px) clamp(14px,1.8vmin,24px);
+  border-width:clamp(3px,.45vmin,6px);
+  z-index:60;
+  animation:pillPop 600ms cubic-bezier(.2,1.5,.4,1), pillGlow 2s ease-in-out 600ms infinite;
+}
+#btnReplay:hover{ transform:translateX(-50%) translateY(-4px); }
+#btnReplay:active{ transform:translateX(-50%) translateY(6px); }
+@keyframes pillPop{ 0%{opacity:0; transform:translateX(-50%) scale(.5);} 100%{opacity:1; transform:translateX(-50%) scale(1);} }
+@keyframes pillGlow{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,230,140,0)); } 50%{ filter:drop-shadow(0 0 26px rgba(255,230,140,.9)); } }
+
+/* ---------- Start gate ---------- */
+.start-gate{
+  position:fixed; inset:0;
+  z-index:80;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 50% 45%, rgba(0,0,0,.35) 0%, rgba(0,0,0,.72) 100%);
+  transition:opacity .45s ease;
+}
+.start-gate.gone{ opacity:0; pointer-events:none; }
+
+.start-card{
+  text-align:center;
+  max-width:min(92vw, 1200px);
+  padding:clamp(28px,5vmin,70px) clamp(28px,6.5vmin,90px) clamp(32px,5.6vmin,80px);
+  border-radius:clamp(20px,3.4vmin,48px);
+  border:clamp(4px,.7vmin,10px) solid var(--wood-dark);
+  background:linear-gradient(180deg, #f9e2ae 0%, var(--board-cream) 55%, #e9bf7c 100%);
+  box-shadow:0 20px 0 rgba(74,36,18,.85), 0 40px 70px rgba(0,0,0,.55), inset 0 6px 16px rgba(255,255,255,.6);
+  animation:cardIn 700ms cubic-bezier(.2,1.35,.4,1) both;
+}
+@keyframes cardIn{ 0%{opacity:0; transform:translateY(60px) scale(.86);} 100%{opacity:1; transform:none;} }
+
+.start-title{
+  font-size:clamp(38px, 7.2vmin, 104px);
+  font-weight:700; line-height:1.1;
+  color:#7a3410;
+  text-shadow:0 4px 0 #f9e2ae, 0 7px 0 rgba(122,52,16,.35);
+}
+.start-sub{
+  margin:clamp(10px,1.6vmin,18px) auto clamp(22px,3.5vmin,44px);
+  max-width:1000px;
+  font-size:clamp(19px, 3.2vmin, 46px);
+  font-weight:500; line-height:1.35;
+  color:#6b3a17;
+}
+.wood-pill.big{
+  font-size:clamp(24px, 4vmin, 58px);
+  padding:clamp(11px,1.5vmin,20px) clamp(34px,5.6vmin,78px) clamp(15px,2.1vmin,28px);
+  border-width:clamp(3px,.45vmin,6px);
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  /* Collapsing leafFall would drop every leaf below the frame and leave the
+     celebration bare. Park them where they were spawned instead: no motion,
+     but the page still reads as the leaf-framed still Figma drew.        */
+  .leaf{
+    animation:none !important;
+    transform:translate3d(0, var(--rest,0px), 0) !important;
+  }
+  .leaf > i{
+    animation:none !important;
+    transform:rotate(var(--rot0)) scale(var(--k)) scaleX(var(--flip)) !important;
+  }
+}

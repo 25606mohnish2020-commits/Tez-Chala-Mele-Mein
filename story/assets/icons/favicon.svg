@@ -1,0 +1,62 @@
+<!-- तेज़ चला मेले में — the tab icon: Tez's red skateboard.
+
+     It replaces a book badge that stood here while the book was the whole of
+     it. The story now runs on into the game, and the board is what carries
+     the child through both — down the fairground road in the pictures, and
+     along the dashed route on the game's map.
+
+     Two things about the drawing. It is turned onto the diagonal, because a
+     skateboard is long and thin and, laid flat, would shrink to a 16x6 sliver
+     in a square tab; on the diagonal it fills the space. And the colours are
+     the board's own, sampled from the artwork the game rides across the map
+     (Assets/Story elements/Skateboard.png) rather than picked by eye: #d90609
+     through #ec0e13 for the deck, #e39c44 for the maple edge showing all round
+     it. So the icon in the tab is the same board that is on the screen.
+
+     Drawn flat and rotated as one group, so the geometry below can be read and
+     adjusted in plain horizontal coordinates. The angle and the length are
+     chosen together: 34 degrees turns a deck 59 long and 22 deep into 61 x 51
+     inside the 64 box, which is as much of a square as a shape this long can
+     honestly fill while still leaving a tab icon its margin.                -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <!-- the deck's roll: lit along the top edge, deepening into the underside -->
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"   stop-color="#ec0e13"/>
+      <stop offset=".55" stop-color="#d90609"/>
+      <stop offset="1"   stop-color="#b60407"/>
+    </linearGradient>
+    <linearGradient id="ply" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0b165"/>
+      <stop offset="1" stop-color="#c07c2c"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="rotate(-34 32 32)">
+    <!-- Wheels first, so the deck sits over them the way it does on the board.
+         Cream on a dark rim, the way real polyurethane wheels are, rather than
+         the flat black of the artwork — a tab bar is as often dark as light,
+         and solid black wheels simply disappeared into a dark one, leaving the
+         icon reading as a red pill with no way to tell what it was. Two tones
+         cannot vanish into either ground. -->
+    <g fill="#f2e3c3" stroke="#3a2c1c" stroke-width="1.3">
+      <rect x="9.4"  y="33.5" width="7.9" height="9.5" rx="2.9"/>
+      <rect x="46.7" y="33.5" width="7.9" height="9.5" rx="2.9"/>
+    </g>
+
+    <!-- the maple edge, showing as a rim all the way round the deck -->
+    <rect x="2.5" y="21" width="59" height="16" rx="8" fill="url(#ply)"/>
+    <!-- the red top, inset so the ply reads as an edge rather than an outline -->
+    <rect x="4.6" y="22.5" width="54.8" height="13" rx="6.4" fill="url(#deck)"/>
+    <!-- the shine the artwork carries along the length of the deck -->
+    <rect x="8.8" y="24.3" width="46.4" height="2.8" rx="1.4" fill="#fa1e22" opacity=".5"/>
+
+    <!-- the mounting bolts, four over each truck, as they are in the artwork -->
+    <g fill="#1b1b1c">
+      <circle cx="11.6" cy="26.5" r="1.2"/><circle cx="15.6" cy="26.5" r="1.2"/>
+      <circle cx="11.6" cy="31.5" r="1.2"/><circle cx="15.6" cy="31.5" r="1.2"/>
+      <circle cx="48.4" cy="26.5" r="1.2"/><circle cx="52.4" cy="26.5" r="1.2"/>
+      <circle cx="48.4" cy="31.5" r="1.2"/><circle cx="52.4" cy="31.5" r="1.2"/>
+    </g>
+  </g>
+</svg>
