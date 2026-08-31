@@ -61,7 +61,7 @@
          quiet, and only then does the book move on. Page 2 has no narration,
          so without this it would turn before the drums had been heard at all.
          It is the same recording the book stands on from Page 14. */
-      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.22, 0] },
+      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.286, 0] },   /* 0.22 + 30% */
       motion: "sway", dust: 6
     },
     {
@@ -150,7 +150,7 @@
          the other, and hears them coming — which is what `coda` is for. The
          window sets the length: five seconds of drum, five seconds of
          drumming picture. */
-      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.34, 0] },
+      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.442, 0] },   /* 0.34 + 30% */
       motion: "sway", dust: 6
     },
     {
