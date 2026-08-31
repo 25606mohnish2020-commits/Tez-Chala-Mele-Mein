@@ -67,25 +67,31 @@ const A = {
 const plate = n => 'Assets/Images/Page ' + n + '.png';
 
 /* ------------------------------------------------------- map checkpoints */
+
 /* "image 170" is offset (-23, -50) inside the 1920x1080 page frame, so the
-   numbers below are the child coordinates already shifted to page space.   */
+   numbers below are the child coordinates already shifted to page space.
+
+   Checkpoints 2, 3 and 4 were re-measured off the Page 19 export rather than
+   read from Figma: that plate moved those three circles onto the dashed route
+   (2 left 60, 3 down 60, 4 right 70 and up 10) and the markers follow them.
+   The circle is 184px across, so its centre is what these are aligned to.  */
 
 const CHECKPOINTS = [
   { // 1 · image 172 @ (863,831)  — नदी
     qmark:   { x: 899, y: 816, w:  89, h: 134 },
     sticker: { x: 863, y: 829, w: 160.5, h: 107, src: 'Assets/Stickers/image 226 (1).png', alt: 'नदी' }
   },
-  { // 2 · image 173 @ (1584,637) — भेड़िया
-    qmark:   { x: 1620, y: 622, w:  89, h: 134 },
-    sticker: { x: 1585, y: 644, w: 159, h:  90, src: 'Assets/Stickers/image 230 (1).png', alt: 'भेड़िया' }
+  { // 2 · circle centre (1604.5, 688.5) — भेड़िया
+    qmark:   { x: 1560, y: 622, w:  89, h: 134 },
+    sticker: { x: 1525, y: 644, w: 159, h:  90, src: 'Assets/Stickers/image 230 (1).png', alt: 'भेड़िया' }
   },
-  { // 3 · image 187 @ (1024,420) — बत्तखें
-    qmark:   { x: 1060, y: 405, w:  89, h: 134 },
-    sticker: { x: 1047, y: 417, w: 115, h: 109, src: 'Assets/Stickers/image 247.png', alt: 'बत्तखें' }
+  { // 3 · circle centre (1104.5, 531.5) — बत्तखें
+    qmark:   { x: 1060, y: 465, w:  89, h: 134 },
+    sticker: { x: 1047, y: 477, w: 115, h: 109, src: 'Assets/Stickers/image 247.png', alt: 'बत्तखें' }
   },
-  { // 4 · image 186 @ (202,455)  — फूलों वाला रास्ता
-    qmark:   { x: 238, y: 440, w:  89, h: 134 },
-    sticker: { x: 211, y: 459, w: 144, h:  96, src: 'Assets/Stickers/image 266.png', alt: 'फूलों वाला रास्ता' }
+  { // 4 · circle centre (352.5, 496.5) — फूलों वाला रास्ता
+    qmark:   { x: 308, y: 430, w:  89, h: 134 },
+    sticker: { x: 281, y: 449, w: 144, h:  96, src: 'Assets/Stickers/image 266.png', alt: 'फूलों वाला रास्ता' }
   },
   { // 5 · image 198 @ (620,160)  — झूला
     qmark:   { x: 656, y: 145, w:  89, h: 134 },
@@ -235,8 +241,10 @@ const Audio2 = (() => {
   let voiceCut = null;        // tears down the line in flight without reporting it
   let bgmHushed = false;      // the finale film owns the sound while it runs
 
-  /* The one place the music loop's level is decided. */
-  const bgmLevel = duck => (!musicOn || bgmHushed) ? 0 : (duck ? 0.08 : 0.22);
+  /* The one place the music loop's level is decided. Both numbers carry the
+     same +20% — 0.264 was 0.22, and the ducked 0.096 was 0.08 — so the track
+     is louder without changing how far it drops under a voice. */
+  const bgmLevel = duck => (!musicOn || bgmHushed) ? 0 : (duck ? 0.096 : 0.264);
   let actx = null;            // Web Audio, for the generated wrong-answer tone
 
   const url = p => encodeURI(p);
@@ -593,9 +601,9 @@ const TRAIL_OFF = { x: 282.24, y: 210.52 };
 const STOP_PARK = [
   null,                       // 0 — on the trail itself
   { x:  944, y: 883 },        // 1
-  { x: 1665, y: 689 },        // 2
-  { x: 1105, y: 472 },        // 3
-  { x:  283, y: 507 },        // 4
+  { x: 1605, y: 689 },        // 2   (circle moved left 60 on the new plate)
+  { x: 1105, y: 532 },        // 3   (circle moved down 60)
+  { x:  353, y: 497 },        // 4   (circle moved right 70, up 10)
   { x:  701, y: 212 },        // 5
   { x: 1635, y: 283 }         // 6 — arrived at the fair. This is where the
 ];                            //     Page 35 export actually paints the board

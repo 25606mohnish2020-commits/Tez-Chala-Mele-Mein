@@ -11,10 +11,10 @@
      PageAudio  the supplied narration, one window per frame
      Sfx        the supplied effects, one per frame
      Bed        the looping floor: music for the road, drums at the fair
-     Tap        the supplied Button Tap, on the controls but not the nav
+     Tap        the supplied Button Tap, on the controls
      Ambience   builds the dust motes and puffs each page carries
      Book       page rendering + the page-turn transition
-     UI         buttons, keyboard, swipe, visibility
+     UI         the turn-itself timer, controls, keyboard, swipe, visibility
    ========================================================================== */
 (() => {
   "use strict";
@@ -55,6 +55,13 @@
         hi: "दूर मेले से डम-डम की आवाज़ सुनकर तेज़ सिर खुजाता है — यह आवाज़ कैसी?",
         en: "Tez scratches his head at the far-off dum-dum of drums — whatever can it be?"
       },
+      /* The page that hears the fair. The drums are not an event on it, they
+         are the whole question it asks — so the page is held for them: five
+         seconds of the mela's own DUM DUM, carried from far enough off to be
+         quiet, and only then does the book move on. Page 2 has no narration,
+         so without this it would turn before the drums had been heard at all.
+         It is the same recording the book stands on from Page 14. */
+      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.22, 0] },
       motion: "sway", dust: 6
     },
     {
@@ -139,9 +146,10 @@
          The couplet is read out first; only when the reader's voice has
          finished does the fair answer, the डम-डम coming up over the trees
          with the sound and holding for five seconds before the way forward
-         opens. It is the only page in the book that is not finished when its
-         own voice is, which is why `coda` exists at all. The window sets the
-         length: five seconds of drum, five seconds of drumming picture. */
+         opens. It is one of the two pages the drums hold open — Page 2 is
+         the other, and hears them coming — which is what `coda` is for. The
+         window sets the length: five seconds of drum, five seconds of
+         drumming picture. */
       coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.34, 0] },
       motion: "sway", dust: 6
     },
@@ -539,21 +547,21 @@
   const SOUND = "assets/audio/", FX = "assets/SFX/";
   const url = (dir, file) => dir + encodeURIComponent(file);
 
-  /* The one recording that spans pages: 36.1 s of poem read straight through,
+  /* The one recording that spans pages: 37.3 s of poem read straight through,
      for Page 9 to Page 15.
 
      The reader's own breathing says where the poem's joints are. Five pauses
-     run 0.67 s to 0.89 s; every other gap is 0.22 s to 0.54 s. Those five cut
+     run 0.67 s to 0.89 s; every other gap is 0.31 s to 0.45 s. Those five cut
      the recital into six couplets, and a couplet is the unit a page gets —
      both its lines or neither, because half a couplet on a picture is half a
      thought on the wrong picture. The ducklings are the case in point: the
-     0.54 s at 21.29 s is a line break inside the fourth couplet, not a joint,
-     and cutting there sent `एक, दो और तीन हैं सारी` onto the flower path.
+     0.45 s at 22.60 s is a line break inside the fourth couplet, not a joint,
+     and cutting there sends `एक, दो और तीन हैं सारी` onto the flower path.
 
      Six couplets across seven pages means exactly one must be shared, and it
      is the last: Page 14 arrives at the mela and Page 15 rides the wheel, two
      halves of one arrival, so the closing couplet gives a line to each. That
-     cut is at 33.02 s, the midpoint of its 0.41 s line break — the one
+     cut is at 34.26 s, the midpoint of its 0.40 s line break — the one
      boundary here that falls inside a couplet rather than between two.
 
      Every window is cut at the midpoint of its pause, so each page both
@@ -562,26 +570,33 @@
   const POEM = "Page 9 to Page 15 Poem.wav";
 
   const NARRATION = {
-    "Page 3":  ["Page 3.wav",  0.09, 2.41],
-    "Page 4":  ["Page 4.wav",  0.19, 5.32],
-    "Page 5":  ["Page 5.wav",  0.09, 4.37],
-    "Page 6":  ["Page 6.wav",  0.32, 3.93],
-    "Page 8":  ["Page 8.wav",  0.14, 4.90],
-    "Page 9":  [POEM,  0.28,  5.91],
-    "Page 10": [POEM,  5.91, 11.74],
-    "Page 11": [POEM, 11.74, 17.90],
-    "Page 12": [POEM, 17.90, 24.42],
-    "Page 13": [POEM, 24.42, 30.28],
-    "Page 14": [POEM, 30.28, 33.02],
-    "Page 15": [POEM, 33.02, 36.10],
-    "Page 16": ["Page 16.wav", 0.22, 2.98],
-    "Page 17": ["Page 17.wav", 0.20, 4.24],
-    "Page 18": ["Page 18.wav", 0.21, 2.75]
+    "Page 1":  ["Page 1.wav",  0.15,  5.15],
+    "Page 3":  ["Page 3.wav",  0.09,  2.41],
+    "Page 4":  ["Page 4.wav",  0.19,  5.32],
+    "Page 5":  ["Page 5.wav",  0.09,  4.37],
+    "Page 6":  ["Page 6.wav",  0.32,  3.93],
+    "Page 8":  ["Page 8.wav",  0.14,  4.90],
+    "Page 9":  [POEM,  0.26,  7.15],
+    "Page 10": [POEM,  7.15, 12.98],
+    "Page 11": [POEM, 12.98, 19.14],
+    "Page 12": [POEM, 19.14, 25.66],
+    "Page 13": [POEM, 25.66, 31.51],
+    "Page 14": [POEM, 31.51, 34.26],
+    "Page 15": [POEM, 34.26, 37.04],
+    "Page 16": ["Page 16.wav", 0.22,  2.98],
+    "Page 17": ["Page 17.wav", 0.20,  4.24],
+    "Page 18": ["Page 18.wav", 0.21,  2.75]
   };
 
-  /* Cover Page, Page 1 and Page 2 have no recording in the folder, so they
-     get no entry and the book does not wait on one — the way forward opens as
-     soon as they are on screen. */
+  /* Cover Page and Page 2 have no recording in the folder, so they get no
+     entry and the book does not wait on one — their beat begins as soon as
+     they are on screen.
+
+     Page 1 is the one window here that is not the whole of its recording.
+     `Page 1.wav` runs 10.4 s in two sentences with a 0.47 s breath between
+     them at 4.5 s; the page is held to the first five seconds of it, which
+     is a deliberate cap and not a measurement. It is the only place in the
+     book where a window stops before its speech does. */
 
   /* One effect per frame, chosen off what is actually in that painting:
      [ file, from, to, gain, delay ms, loop ]. The delay lets the page settle
@@ -593,12 +608,9 @@
     /* The cover has no effect. It opens on the bed and nothing else, so the
        first drum a reader hears is the far-off one on Page 2 — which is the
        one the story is actually about. */
-    /* Page 2 is the page that hears the fair. The drums are not an event on
-       it, they are the whole question the page asks — so the mela's own
-       DUM DUM plays under it, quietly and without end, the way a sound
-       carried across fields actually arrives. It is the same recording the
-       book stands on from Page 14, heard here from much further away. */
-    "Page 2":     ["DUM DUM sound.mp3",    0,   53.00, 0.22,   0, true],
+    /* Page 2 has no entry here either: its DUM DUM is a coda on the page
+       rather than an arrival effect, because that page is held for the
+       length of it — see PAGES. Page 13 is the same, for the same reason. */
     "Page 4":     ["Noori sound.mp3",      0.30, 1.80, 0.70, 260],  /* Noori, first seen        */
     "Page 6":     ["Noori sound 2.mp3",    0.08, 1.09, 0.60, 200],  /* Noori speaks on the path */
     "Page 9":     ["Ducks swimming.mp3",   0.12, 22.0, 0.22, 220],  /* the river opens up       */
@@ -619,7 +631,7 @@
      point of arriving. Both loop, and both sit far enough down to be a floor
      rather than a thing you listen to. */
   const BEDS = {
-    music: ["TCMM BGM 1.mp3",    0.29, 69.50, 0.16],
+    music: ["TCMM BGM 1.mp3",    0.29, 69.50, 0.192],   /* 0.16 + 20% */
     mela:  ["DUM DUM sound.mp3", 0,    53.00, 0.13]
   };
   const FAIR_AT = 13;      /* index of Page 14 — from here on, the mela bed  */
@@ -653,7 +665,7 @@
      second clip can never start on top of a first. Every entry point goes
      through stop() first, which pauses and rewinds. A monotonically
      increasing token invalidates any play() promise or timer still in flight,
-     which is what makes hammering the next/prev buttons safe.
+     which is what makes a run of fast page turns safe.
 
      A window is held by two things at once, because neither alone is enough:
      a timer armed the moment playback really starts, which is accurate but
@@ -667,7 +679,7 @@
     /* ?v= bumps whenever the windows in NARRATION are re-measured — the
        filenames stay the same, so without it a refresh would quietly serve
        the previously cached copy */
-    const CUT = 1;
+    const CUT = 2;
 
     let on    = localStorage.getItem(KEY)  !== "off";   /* narration on by default */
     let muted = localStorage.getItem(MUTE) === "off";
@@ -783,9 +795,9 @@
       get muted() { return muted; },
       get playing() { return playing; },
 
-      /* whether the frame now bound has a recording at all. Cover Page,
-         Page 1 and Page 2 do not, and that is the difference between a page
-         the reader must wait out and one with nothing to wait for. */
+      /* whether the frame now bound has a recording at all. Cover Page and
+         Page 2 do not, and that is the difference between a page the reader
+         must wait out and one with nothing to wait for. */
       get hasClip() { return !!spec; },
 
       /* called on every page change. The page object carries the frame name,
@@ -1037,9 +1049,10 @@
      feedback rather than part of the story, and it obeys the same mute
      switch, so silencing the book silences this too.
 
-     Not on Forward and Back: those already answer with a page turn, and a pop
-     over it is one sound too many. They call Bed.wake() directly instead, for
-     the unlock this carries as a side effect.
+     Not on a page turn: the book turns itself, and a pop over the page-turn
+     sound would be one sound too many. Every control that does make a noise
+     wakes the bed here as a side effect, which is the unlock the browser
+     wants before any audio may begin.
 
      The file runs 1.97 s but the tap itself is the 126 ms at 0.147 s and the
      rest is silence, so it is played as a window like everything else. Two
@@ -1326,9 +1339,9 @@
        same on every page: a page with a recording ends on its narration, a
        layered cover ends on its entrance, and a page whose clip is switched
        off, missing or refused has nothing to wait for at all — which is the
-       case for Cover Page, Page 1 and Page 2 here.
-       Whichever it is, it arrives here once per visit, and the button gate
-       upstream is the only thing that listens.
+       case for Cover Page and Page 2 here.
+       Whichever it is, it arrives here once per visit, and the gate that
+       turns the page upstream is the only thing that listens.
        -------------------------------------------------------------------- */
     const readyListeners = [];
     let announced = false;          /* reset on every arrival */
@@ -1346,12 +1359,13 @@
       if (page === index + 1 && !runCoda()) announceReady();
     });
 
-    /* The page that answers itself. Page 13 reads "डम-डम की आवाज़ फिर से आई"
-       and then the fair actually answers — so its voice ending is not the
-       end of the page. The drums come up with the डम-डम over the trees and
-       hold for the length of the window, and only then does the way forward
-       open and Page 14 become reachable. Answers whether it took the page
-       over, so its two callers know not to announce for themselves.
+    /* The page that answers itself, or waits to be answered. Page 13 reads
+       "डम-डम की आवाज़ फिर से आई" and then the fair actually answers, so its
+       voice ending is not the end of the page; Page 2 has no voice at all
+       and is simply held for the drums it hears coming. Either way the page
+       is not finished until the window is, and only then does the next one
+       become reachable. Answers whether it took the page over, so its two
+       callers know not to announce for themselves.
 
        The page it started on is remembered: leaving mid-coda must not mark
        whatever page is on screen five seconds later as read. */
@@ -1676,7 +1690,7 @@
       zoom.finished.then(done).catch(done);
     }
 
-    /* the exit button and the arrows rest when the reader is still */
+    /* the exit button rests when the reader is still */
     function stir() {
       root.classList.add("is-stirring");
       clearTimeout(idle);
@@ -1699,7 +1713,7 @@
       if (on) return;
       on = true;
       /* only rescue focus for keyboard users: the bar is about to go inert,
-         but a mouse click shouldn't leave a focus ring on an arrow */
+         but a mouse click shouldn't leave a focus ring on a control */
       const el = document.activeElement;
       const byKeyboard = !!(el && el.matches && el.matches(":focus-visible"));
 
@@ -1707,7 +1721,7 @@
       bar.inert = true;                      /* keep hidden controls off the tab order */
       listen(true);
       stir();
-      if (byKeyboard) $("#nextBtn").focus({ preventScroll: true });
+      if (byKeyboard) $("#exitBtn").focus({ preventScroll: true });
     }
 
     function exit() {
@@ -1745,8 +1759,6 @@
 
   /* ── UI ─────────────────────────────────────────────────────────────── */
   const UI = (() => {
-    const prev = $("#prevBtn");
-    const next = $("#nextBtn");
     const soundBtn = $("#soundBtn");
     const readBtn = $("#readBtn");
     const readLabel = $("#readLabel");
@@ -1759,123 +1771,106 @@
     /* The book is Hindi. There is no second label set and nothing switches
        between them: <html lang="hi"> is the whole of it. */
     const L = {
-      prev: "पिछला पन्ना", next: "अगला पन्ना",
       mute: "आवाज़ बंद करें", unmute: "आवाज़ चालू करें",
       read: "पढ़कर सुनाओ", reading: "पढ़ना रोको",
       play: "चलाओ", playHint: "कहानी बड़ी करके देखो",
       start: "कहानी चलाओ", exit: "बाहर आओ"
     };
 
-    /* ── the arrow gate ───────────────────────────────────────────────────
-       Which arrow the reader can see is a question about two things and no
-       others: whether there is a page behind them, and whether the page they
-       are on has finished playing.
+    /* ── the gate ─────────────────────────────────────────────────────────
+       A page is not finished when it arrives, it is finished when it has
+       said its piece: the narration has run out, or the cover entrance has
+       played, or there was never anything to wait for. Nothing may move the
+       book on before then.
 
-       Back exists as soon as there is something to go back to. Forward
-       exists only once this page has said its piece — and once earned it is
-       never taken away again, because a page already heard is still heard
-       when you come back to it later. That is why this is a set of pages
-       rather than a single flag, and it is what makes moving backward safe:
-       there is no way for going back to remove the way forward.
+       It is a set of pages rather than a single flag because a page already
+       heard is still heard when you come back to it later, which is what
+       makes going back safe: returning to page four cannot take away the
+       fact that page four has been read.
        ------------------------------------------------------------------- */
     const heard = new Set();       /* pages that have finished presenting */
 
     const canForward = () =>
       Book.index < Book.total - 1 && heard.has(Book.index);
 
-    /* every forward move in the book goes through here — the arrow, the
+    /* every forward move in the book goes through here — the timer, the
        keyboard and a swipe alike, so the rule cannot be sidestepped by
        reaching for a different input */
     const forward = () => { if (canForward()) Book.next(); };
 
-    /* ── the idle hand ────────────────────────────────────────────────────
-       A child who has stopped touching the screen has usually stopped because
-       they do not know what to touch. After a few still seconds a hand appears
-       and taps whatever the way onward is, and vanishes the moment they move.
+    /* ── the book turning itself ──────────────────────────────────────────
+       There is no forward arrow. A page that has said its piece waits a beat
+       and then turns, so a child with their hands in their lap hears the
+       whole book without being asked to do anything.
 
-       It is deliberately built on top of the gate above rather than beside it:
-       the hand points at the forward arrow only when the gate has actually
-       opened it, so it can never invite a tap that does nothing. And while a
-       page is still being read aloud there is nothing to point at, so it stays
-       away instead of nagging over the narration.
+       The beat is short but not nothing: a page that flipped on the last
+       syllable would read as an interruption, and the painting is worth a
+       moment of its own once the words have stopped.
+
+       Page 18 is the one exception, and not because of its length: what
+       follows it is not a page but the game, and going there is the child's
+       decision to make rather than a timer's. canForward() already stops at
+       the last page, so nothing here has to say so twice.
        ------------------------------------------------------------------- */
-    const HandHint = (() => {
-      const el = $("#handHint");
-      const WAIT = 4200;                  /* long enough not to nag a reader */
+    const AutoTurn = (() => {
+      const WAIT = 1500;
       let timer = 0;
 
-      /* what the reader is waiting to be told to press, if anything */
-      function where() {
-        if (Book.busy) return null;                       /* mid-turn */
-        const cover = document.documentElement.classList.contains("at-cover");
-        if (cover && !PlayMode.on) return "start";        /* press Play */
-        if (canForward()) return "next";                  /* the gate is open */
-        return null;
-      }
+      function cancel() { clearTimeout(timer); timer = 0; }
 
-      function hide() {
-        el.classList.remove("is-showing");
-        next.classList.remove("is-hinted");
-      }
+      /* Armed for a named page, and checked again when it fires. A turn that
+         happened in between — a swipe, a key — leaves the old timer harmless
+         rather than racing it onto a page it was never meant for.
 
-      function show() {
-        const at = where();
-        if (!at) return;
-        el.dataset.at = at;
-        el.classList.add("is-showing");
-        /* so the arrow does not sit dimmed under the hand telling you to press it */
-        if (at === "next") next.classList.add("is-hinted");
+         `after` is the extra a page owes beyond its voice: Page 13 answers
+         itself with the drums, and the beat belongs after the answer. */
+      function arm(i, after) {
+        cancel();
+        if (halted || i !== Book.index || !canForward()) return;
+        timer = setTimeout(() => {
+          timer = 0;
+          if (i === Book.index) forward();
+        }, WAIT + (after || 0));
       }
-
-      function restart() {
-        hide();
-        clearTimeout(timer);
-        timer = setTimeout(show, WAIT);
-      }
-
-      const WAKERS = ["pointerdown", "pointermove", "keydown", "wheel", "touchstart"];
 
       return {
-        start() {
-          /* every sign of life resets the wait; passive, so none of this can
-             slow a scroll or a swipe down */
-          WAKERS.forEach((ev) =>
-            window.addEventListener(ev, restart, { passive: true }));
-          document.addEventListener("visibilitychange", restart);
-          restart();
-        },
-        /* the page changed, or the gate opened: the hand's target may be
-           somewhere else now, so begin the wait again from here */
-        refresh: restart,
+        cancel, arm,
 
-        /* the book is over: take the hand away and stop listening for the
-           stillness that would bring it back over the game */
-        stop() {
-          clearTimeout(timer);
-          hide();
-          WAKERS.forEach((ev) => window.removeEventListener(ev, restart));
-          document.removeEventListener("visibilitychange", restart);
+        /* Coming back to a tab that was left. A page that finished while we
+           were away is simply given its beat again; one that was cut off
+           mid-sentence is read from the top, because with no arrow to press
+           a page that never finished would otherwise be the end of the book. */
+        resume() {
+          if (halted) return;
+          const i = Book.index;
+          if (heard.has(i)) arm(i);
+          else if (PlayMode.on || i > 0) Book.present();
         }
       };
     })();
 
-    function arrow(btn, visible) {
-      btn.classList.toggle("is-hidden", !visible);
-      /* what is hidden is also disabled, and so is anything mid-turn: a
-         stray click, a held-down key or a second tap on a button already on
-         its way out cannot start a turn the reader cannot see coming */
-      btn.disabled = !visible || Book.busy;
-    }
+    /* what a page still owes after its voice: the coda window, in ms */
+    const codaMs = (i) => {
+      const coda = PAGES[i] && PAGES[i].coda;
+      if (!coda) return 0;
+      const [, from, to, , delay] = coda.fx;
+      return (delay || 0) + (to - from) * 1000;
+    };
 
-    function sync(i, total) {
-      arrow(prev, i > 0);
-      arrow(next, i < total - 1 && heard.has(i));
-      prev.setAttribute("aria-label", L.prev);
-      next.setAttribute("aria-label", L.next);
+    /* Tapping the words reads the page again, and the turn waits for that
+       reading rather than landing in the middle of it — the clip's own
+       ending arms it afresh. A page with no recording has nothing to wait
+       for, so its beat is left running. */
+    const replay = () => {
+      if (PageAudio.hasClip) AutoTurn.cancel();
+      Book.replay();
+    };
+
+    function sync(i) {
+      /* whatever was armed was armed for the page we have just left */
+      AutoTurn.cancel();
       /* the big Play invitation belongs to the title page only */
       document.documentElement.classList.toggle("at-cover", i === 0);
-      /* wherever the hand was pointing may not be the way onward any more */
-      HandHint.refresh();
     }
 
     function syncPlayLabels() {
@@ -1905,17 +1900,9 @@
     }
 
     function bind() {
-      /* nav ------------------------------------------------------------- */
-      /* These two turn the page, and the turn is answer enough — a pop on top
-         of it only lands under the page-turn sound. They still have to wake
-         the bed, though: a press is the gesture the browser wants before any
-         audio may begin, and a reader who reaches Next without having pressed
-         anything else must not leave the book silent. That is the whole of
-         what Tap.play() did here besides making a noise. */
-      prev.addEventListener("click", () => { Bed.wake(); Book.prev(); });
-      next.addEventListener("click", () => { Bed.wake(); forward(); });
-
-      /* keyboard -------------------------------------------------------- */
+      /* keyboard --------------------------------------------------------
+         The book turns itself; the keys only let a reader run ahead of the
+         beat, or go back for another look at a page. */
       document.addEventListener("keydown", (e) => {
         if (halted) return;         /* the keys belong to the game now */
         if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -1936,7 +1923,7 @@
         if (handled) e.preventDefault();
       });
 
-      /* swipe ----------------------------------------------------------- */
+      /* swipe — the same two moves under a finger ------------------------ */
       let sx = 0, sy = 0, id = null;
       frame.addEventListener("pointerdown", (e) => {
         if (e.pointerType === "mouse") return;
@@ -1962,11 +1949,11 @@
          over to the picture AND starts this page from the top, which is what
          makes the first page a page that plays rather than one that finished
          quietly while the reader was still looking at the title. The page
-         counts as unheard again from this moment, so Forward goes away until
-         the page has played itself out. */
+         counts as unheard again from this moment, so the beat that turns it
+         cannot land until the page has played itself out. */
       const play = () => {
         heard.delete(Book.index);
-        sync(Book.index, Book.total);
+        sync(Book.index);
         PlayMode.enter();
         Book.present();
       };
@@ -2000,11 +1987,18 @@
       });
       exitBtn.addEventListener("click", () => { Tap.play(); PlayMode.exit(); });
 
-      /* read aloud, with word-by-word highlighting */
+      /* read aloud, with word-by-word highlighting. Switching the narration
+         off mid-page leaves that page waiting on a voice that is no longer
+         coming, and with no arrow to press that would be the end of the
+         book — so the page counts as said and takes its beat now. */
       readBtn.addEventListener("click", () => {
         Tap.play();
         PageAudio.toggle();
         syncReadLabel();
+        if (!PageAudio.on && !heard.has(Book.index)) {
+          heard.add(Book.index);
+          AutoTurn.arm(Book.index);
+        }
       });
 
       PageAudio.onState((speaking) =>
@@ -2016,9 +2010,9 @@
         const el = e.target instanceof Element ? e.target : null;
         if (!el) return;
         if (el.closest(".fx__cta")) { Tap.play(); Handoff.go(); return; }
-        if (el.closest(".fx__say")) Book.replay();
+        if (el.closest(".fx__say")) replay();
       });
-      $(".caption").addEventListener("click", () => Book.replay());
+      $(".caption").addEventListener("click", () => replay());
 
       /* stop the world when the tab is hidden --------------------------- */
       document.addEventListener("visibilitychange", () => {
@@ -2026,7 +2020,8 @@
         document.documentElement.classList.toggle("is-hidden", hidden);
         /* nothing plays into a hidden tab. The narration and the effect are
            abandoned; the bed is only held, and fades back in on return. */
-        if (hidden) { PageAudio.stop(); Sfx.stop(); }
+        if (hidden) { PageAudio.stop(); Sfx.stop(); AutoTurn.cancel(); }
+        else AutoTurn.resume();
         Bed.hold(hidden);
       });
 
@@ -2039,14 +2034,23 @@
         bind();
         Book.onChange(sync);
 
-        /* the only thing that opens the way forward */
+        /* the only thing that opens the way forward, and so the only thing
+           that starts the beat before the page turns */
         Book.onReady((i) => {
           heard.add(i);
-          if (i === Book.index) sync(Book.index, Book.total);
+          if (i !== Book.index) return;
+          AutoTurn.arm(i);   /* a coda page has already had its drums by now */
         });
 
-        sync(Book.index, Book.total);
-        HandHint.start();
+        /* A page read a second time earns its beat again when that second
+           reading ends. onReady fires once per visit and has already gone by
+           here, so the re-arm has to come off the clip itself. */
+        PageAudio.onEnded((n) => {
+          const i = n - 1;
+          if (i === Book.index && heard.has(i)) AutoTurn.arm(i, codaMs(i));
+        });
+
+        sync(Book.index);
         syncSoundLabel();
         syncReadLabel();
         syncPlayLabels();
@@ -2054,8 +2058,8 @@
 
       /* the book's controls, put down for good */
       halt() {
-        HandHint.stop();
-        [prev, next, soundBtn, readBtn, playBtn, startBtn, exitBtn]
+        AutoTurn.cancel();
+        [soundBtn, readBtn, playBtn, startBtn, exitBtn]
           .forEach((b) => { if (b) b.disabled = true; });
       }
     };

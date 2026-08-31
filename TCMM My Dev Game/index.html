@@ -39,11 +39,22 @@
          grows along the path. Because both plates are the same image, the
          dirt texture underneath lines up exactly.
 
-         A pixel diff of the two plates shows they differ ONLY along the
-         dashed route and at one spot: Page 35 has a skateboard painted in at
-         the fairground, x 1560-1710 / y 238-328. That is blacked out of the
-         mask below so the eraser can never uncover it. Everything else,
-         checkpoint rings included, is identical in both files.            -->
+         A pixel diff of the two plates shows they differ along the dashed
+         route and at two kinds of spot, both blacked out of the mask below
+         so the eraser can never uncover them:
+
+         · the fairground skateboard Page 35 has painted in at x 1560-1710 /
+           y 238-328;
+         · checkpoint circles 2, 3 and 4. These USED to be identical in both
+           files, but the current exports disagree — Page 35 puts circle 2
+           32px lower than Page 19 does, and circles 3 and 4 10px higher. The
+           route runs straight through every circle, so without the discs
+           below, riding past one would sweep a band of Page 35 across it and
+           leave a second, offset ring inside it. Masking them means a
+           checkpoint keeps the Page 19 artwork it was drawn with, whether or
+           not the board has been past. The dashes they cover are hidden
+           under the disc anyway. See the mask below for the shape used and
+           what little it costs.                                        -->
     <svg id="erase" class="erase" viewBox="0 0 1920 1080" aria-hidden="true" focusable="false">
       <defs>
         <mask id="eraseMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
@@ -53,6 +64,30 @@
                   d="M124.806 712C171.275 696.178 334.573 680.431 604.283 694.021L1140.57 699.018L1182.81 694.5L1223.31 678.5L1257.81 658L1282.35 626.069C1325.66 536.631 1350.06 354.457 1101.22 341.266H573.461H264.774C224.944 343.764 63.5793 339.067 33.9908 300.294C-12.7943 202.195 -42.7305 5.29806 211.806 2.5H872.191L1081.78 21.4869L1162.81 57L1246.81 91.5C1274.78 100.161 1340.39 98.8334 1365.81 64.4571"/>
           </g>
           <rect x="1548" y="228" width="176" height="108"/>
+          <!-- Checkpoints 2, 3 and 4, each blacked out TWICE: once where
+               Page 19 draws the circle and once where Page 35 draws it. The
+               union of the two discs is the smallest shape that stops the
+               eraser ever painting a misplaced circle, and being a union it
+               only widens in the direction the circle actually moved —
+               a plain circle big enough to cover checkpoint 2 (r=149) would
+               block a third more of the route than this does.
+
+               r=116 is chosen, not guessed: the ring measures 115 from its
+               centre, and 116 is the smallest radius at which none of Page
+               35 leaks out. Below it a crescent of the wrong circle shows;
+               above it more of the route survives for nothing.
+
+               Cost: 124 dash pixels across the three, right against the
+               rings, where they read as the path meeting the checkpoint.
+               1 and 5 are not here — the two plates agree at those, so the
+               eraser is already invisible and masking them would only leave
+               dashes behind. -->
+          <circle cx="1604.5" cy="688.5" r="116"/>  <!-- 2 · Page 19 -->
+          <circle cx="1605.5" cy="720.5" r="116"/>  <!-- 2 · Page 35, 32px lower -->
+          <circle cx="1104.5" cy="531.5" r="116"/>  <!-- 3 · Page 19 -->
+          <circle cx="1104.5" cy="521.5" r="116"/>  <!-- 3 · Page 35, 10px higher -->
+          <circle cx="352.5"  cy="496.5" r="116"/>  <!-- 4 · Page 19 -->
+          <circle cx="352.5"  cy="486.5" r="116"/>  <!-- 4 · Page 35, 10px higher -->
         </mask>
       </defs>
       <image href="Assets/Images/Page 35.png" x="0" y="0" width="1920" height="1080"

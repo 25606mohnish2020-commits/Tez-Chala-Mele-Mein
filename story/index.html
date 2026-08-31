@@ -20,7 +20,7 @@
 <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png" />
 <!-- bump ?v= after editing so a plain refresh never serves a cached copy -->
-<link rel="stylesheet" href="style.css?v=35" />
+<link rel="stylesheet" href="style.css?v=36" />
 <link rel="preload" as="image" href="assets/images/Cover%20Page.png" />
 </head>
 
@@ -28,14 +28,6 @@
   <!-- ── Inline icon sprite (works offline / from file://) ───────────────── -->
   <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
     <defs>
-      <symbol id="i-arrow-left" viewBox="0 0 24 24">
-        <path d="M15.5 4.5 8 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.6"
-              stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
-      <symbol id="i-arrow-right" viewBox="0 0 24 24">
-        <path d="M8.5 4.5 16 12l-7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.6"
-              stroke-linecap="round" stroke-linejoin="round" />
-      </symbol>
       <symbol id="i-sound-on" viewBox="0 0 24 24">
         <path d="M4 9.5h3L12 5.5v13L7 14.5H4z" fill="currentColor" />
         <path d="M15.6 9a4.2 4.2 0 0 1 0 6M18.2 6.4a7.8 7.8 0 0 1 0 11.2" fill="none"
@@ -101,22 +93,10 @@
       </div>
     </header>
 
-    <!-- ── Stage : nav + book ──────────────────────────────────────────── -->
+    <!-- ── Stage : the book ────────────────────────────────────────────── -->
     <main class="stage">
       <section class="book" id="book" aria-roledescription="चित्र-कथा">
         <div class="book__mat">
-
-          <!-- Both arrows start hidden and disabled: page one has nothing behind it,
-               and nothing in front of it until it has played. The script opens
-               them. -->
-          <button class="navbtn navbtn--prev is-hidden" id="prevBtn" type="button" disabled
-                  aria-label="पिछला पन्ना" aria-controls="book">
-            <img class="navbtn__art" src="assets/icons/nav-left.svg" alt="" />
-          </button>
-          <button class="navbtn navbtn--next is-hidden" id="nextBtn" type="button" disabled
-                  aria-label="अगला पन्ना" aria-controls="book">
-            <img class="navbtn__art" src="assets/icons/nav-right.svg" alt="" />
-          </button>
 
           <div class="book__frame" id="frame">
 
@@ -173,13 +153,6 @@
               <img class="startbtn__art" src="assets/icons/play-button.svg" alt="" />
             </span>
           </button>
-
-          <!-- The idle hand. After a few seconds of stillness it appears beside
-               whatever the reader is waiting to be told to press: the play
-               button on the title page, the forward arrow once a page has
-               finished. It goes the moment they touch anything. -->
-          <img class="handhint" id="handHint" src="assets/icons/hand-tap.png"
-               alt="" aria-hidden="true" />
         </div>
 
         <!-- ── Phone fallback: the same words, below the picture ─────────── -->
@@ -223,6 +196,6 @@
             allowfullscreen></iframe>
   </section>
 
-  <script src="script.js?v=37" defer></script>
+  <script src="script.js?v=42" defer></script>
 </body>
 </html>

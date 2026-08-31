@@ -29,52 +29,72 @@ cut. That is what lets one 36-second poem recording serve seven pages.
 | Frame | Narration | Window (s) |
 | --- | --- | --- |
 | Cover Page | — | |
-| Page 1 | — | |
+| Page 1 | `Page 1.wav` | 0.15 – 5.15 † |
 | Page 2 | — | |
 | Page 3 | `Page 3.wav` | 0.09 – 2.41 |
 | Page 4 | `Page 4.wav` | 0.19 – 5.32 |
 | Page 5 | `Page 5.wav` | 0.09 – 4.37 |
 | Page 6 | `Page 6.wav` | 0.32 – 3.93 |
 | Page 8 | `Page 8.wav` | 0.14 – 4.90 |
-| Page 9 | `Page 9 to Page 15 Poem.wav` | 0.28 – 5.91 |
-| Page 10 | ″ | 5.91 – 11.74 |
-| Page 11 | ″ | 11.74 – 17.90 |
-| Page 12 | ″ | 17.90 – 21.29 |
-| Page 13 | ″ | 21.29 – 24.42 |
-| Page 14 | ″ | 24.42 – 30.28 |
-| Page 15 | ″ | 30.28 – 36.10 |
+| Page 9 | `Page 9 to Page 15 Poem.wav` | 0.26 – 7.15 |
+| Page 10 | ″ | 7.15 – 12.98 |
+| Page 11 | ″ | 12.98 – 19.14 |
+| Page 12 | ″ | 19.14 – 25.66 |
+| Page 13 | ″ | 25.66 – 31.51 |
+| Page 14 | ″ | 31.51 – 34.26 |
+| Page 15 | ″ | 34.26 – 37.04 |
 | Page 16 | `Page 16.wav` | 0.22 – 2.98 |
 | Page 17 | `Page 17.wav` | 0.20 – 4.24 |
 | Page 18 | `Page 18.wav` | 0.21 – 2.75 |
 
-Cover Page, Page 1 and Page 2 have no recording in the folder, so they have no
-entry, and the book does not wait on one — the way forward opens as soon as
-they are on screen.
+Cover Page and Page 2 have no recording in the folder, so they have no entry,
+and the book does not wait on one — their beat begins as soon as they are on
+screen.
+
+† **Page 1 is capped, not measured.** `Page 1.wav` runs 10.4 s in two
+sentences, with a 0.47 s breath between them at 4.5 s. The page is held to the
+first five seconds of it by choice, so this is the one window in the book that
+stops before its speech does — the second sentence is not heard anywhere. To
+give the page its whole recording, the window is `0.15 – 10.75`.
 
 ### Where the numbers come from
 
-Measured, not estimated. `silencedetect` at −45 dB over each file gives the
-speech edges; the window is then pulled **out** to the speech with a 60 ms
-lead and a 120 ms tail, so no syllable is clipped and no page opens on dead
-air. Every clip in this folder carries 0.15–0.38 s of silence at the head and
-0.25–0.43 s at the tail, which is what the windows remove.
+Measured, not estimated — Page 1's cap above aside. `silencedetect` at −45 dB
+over each file gives the speech edges; the window is then pulled **out** to the
+speech with a 60 ms lead and a 120 ms tail, so no syllable is clipped and no
+page opens on dead air. Every clip in this folder carries 0.09–0.33 s of
+silence at the head and 0.25–0.47 s at the tail, which is what the windows
+remove.
 
 ### The poem
 
-`Page 9 to Page 15 Poem.wav` is 36.1 s read straight through — one take for
-seven pages. Its six internal boundaries are the **six deepest pauses in the
-recital**: 0.67 s – 0.90 s of silence, against 0.38 s – 0.60 s at the line
-breaks inside a couplet. The recording separates the two cleanly, so the
-stanza breaks are not a guess:
+`Page 9 to Page 15 Poem.wav` is 37.3 s read straight through — one take for
+seven pages. The reader's own breathing says where its joints are. Five
+pauses run 0.67 s to 0.89 s; every other gap in the recital is 0.31 s to
+0.45 s. The recording separates the two cleanly, so the stanza breaks are not
+a guess:
 
 ```
-gap at  5.57 – 6.24   (0.67 s)   → Page 9  ends
-gap at 11.37 – 12.11  (0.73 s)   → Page 10 ends
-gap at 17.50 – 18.29  (0.78 s)   → Page 11 ends
-gap at 20.99 – 21.58  (0.60 s)   → Page 12 ends
-gap at 23.96 – 24.87  (0.90 s)   → Page 13 ends
-gap at 29.87 – 30.68  (0.80 s)   → Page 14 ends
+gap at  6.82 –  7.48   (0.67 s)   → joint
+gap at 12.62 – 13.34   (0.73 s)   → joint
+gap at 18.75 – 19.53   (0.78 s)   → joint
+gap at 22.37 – 22.82   (0.45 s)   line break, inside the ducklings couplet
+gap at 25.22 – 26.11   (0.89 s)   → joint
+gap at 31.11 – 31.92   (0.80 s)   → joint
+gap at 34.06 – 34.46   (0.40 s)   line break, inside the closing couplet
 ```
+
+Those five joints cut the recital into **six couplets**, and a couplet is the
+unit a page gets — both its lines or neither, because half a couplet on a
+picture is half a thought on the wrong picture. The ducklings are the case in
+point: the 0.45 s gap is a line break, not a joint, and cutting there would
+send `एक, दो और तीन हैं सारी` onto the flower path.
+
+Six couplets across seven pages means exactly one must be shared, and it is
+the last: Page 14 arrives at the mela and Page 15 rides the wheel, two halves
+of one arrival, so the closing couplet gives a line to each. That cut is at
+34.26 s — the one boundary that falls inside a couplet rather than between
+two.
 
 Each boundary is cut at the **midpoint** of its pause, so every page both
 begins and ends inside the reader's own breath. Turned at a child's pace the
@@ -90,6 +110,7 @@ arrives with the picture rather than under the page turn.
 | Frame | Effect | Why |
 | --- | --- | --- |
 | Cover Page | `Drum Roll.mp3` | the title's fanfare |
+| Page 2 ‡ | `DUM DUM sound.mp3` | the fair, heard from far off |
 | Page 4 | `Noori sound.mp3` | Noori, first seen in the tree |
 | Page 6 | `Noori sound 2.mp3` | Noori speaking on the path |
 | Page 9 | `Ducks swimming.mp3` | the river opens up |
@@ -101,7 +122,13 @@ arrives with the picture rather than under the page turn.
 | Page 17 | `Drum.mp3` | |
 | Page 18 | `Drum Roll.mp3` | the roll that began it |
 
-`Button Tap.mp3` is the interface: every arrow, control and the cover's play
+‡ **Pages 2 and 13 hold for their drums.** Both are `coda` entries on the page
+rather than arrival effects: the page is not finished until the five-second
+window is, so the drums are heard in full before the book moves on. Page 2
+hears the fair coming; Page 13 is answered by it. Page 2 has no narration, so
+without this it would turn before the drums had been heard at all.
+
+`Button Tap.mp3` is the interface: every control and the cover's play
 button. The file runs 1.97 s but the tap is the 126 ms at 0.147 s and the rest
 is silence, so it is played as a window like everything else.
 

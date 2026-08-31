@@ -3,10 +3,9 @@
    An interactive animated picture book
    ----------------------------------------------------------------------------
    1. Tokens & reset          5. Story text
-   2. Page shell & texture    6. Navigation buttons
-   3. Top bar & controls      7. Ambient life (dust motes, sneeze puffs)
-   4. Book · frame · slots    8. Responsive
-                              9. Motion & state preferences
+   2. Page shell & texture    6. Ambient life (dust motes, sneeze puffs)
+   3. Top bar & controls      7. Responsive
+   4. Book · frame · slots    8. Motion & state preferences
    ========================================================================== */
 
 /* ── 1. Tokens & reset ───────────────────────────────────────────────────── */
@@ -34,13 +33,10 @@
   --r-frame: 26px;
   --r-mat:   34px;
   --mat-pad: clamp(7px, .8vw, 12px);
-  --nav:     clamp(62px, 5.4vw, 82px);
-  --nav-gap: clamp(14px, 2.2vw, 34px);
-  /* how far the arrows sit from the picture: negative, so they hang outside it
-     in the stage gutters. The narrow layout below flips this positive and puts
-     them inside. The idle hand reads the same token, so it cannot drift away
-     from the arrow it is pointing at. */
-  --nav-inset: calc(-1 * (var(--nav) + var(--nav-gap)));
+  /* the breathing room either side of the picture. It used to be sized to
+     hold the two circular arrows out in the gutters; with the book turning
+     itself there is nothing to hold, so it is only margin now. */
+  --gutter: clamp(14px, 2.2vw, 34px);
   /* vertical room taken by everything that is not the picture: the top bar
      and the page padding. The words live inside the art and nothing sits
      below it, so the book is sized to fill whatever height is left. */
@@ -183,8 +179,8 @@ button { font: inherit; color: inherit; }
   position: relative;
   flex: 1;
   display: flex; align-items: center; justify-content: center;
-  /* gutters reserved for the circular buttons, which hang outside the book */
-  padding-inline: calc(var(--nav) + var(--nav-gap));
+  /* a little air either side of the picture */
+  padding-inline: var(--gutter);
 }
 
 .book {
@@ -202,15 +198,12 @@ button { font: inherit; color: inherit; }
   container-type: inline-size;      /* the cover button sizes off the picture */
 
   /* The play button's diameter and its corner. They live here, on the shared
-     parent, because two things need them: the button itself and the idle hand
-     that points at it. cqw is 1% of the picture's width, so the button keeps
+     parent because cqw is 1% of the picture's width, so the button keeps
      its proportion to the artwork at every screen size. */
   --start: clamp(84px, 12cqw, 168px);
   --start-right: 2.5%;
-  --start-bottom: 14%;   /* clear of the bottom edge: the hand taps from below */
+  --start-bottom: 14%;   /* clear of the bottom edge */
 
-  /* how far the hand is, and how big */
-  --hand: clamp(46px, 6.6cqw, 96px);
   border-radius: var(--r-mat);
   background: linear-gradient(168deg, #fffefa, #f6ecd8);
   box-shadow: var(--sh-book);
@@ -364,7 +357,7 @@ button { font: inherit; color: inherit; }
 
 /* --- frame furniture ---------------------------------------------------- */
 .frame__vignette {
-  --scrim: rgba(0, 0, 0, 0);          /* phones get a scrim behind the arrows */
+  --scrim: rgba(0, 0, 0, 0);          /* phones get a scrim along the lower edge */
   position: absolute; inset: 0; z-index: 6; pointer-events: none;
   background:
     linear-gradient(0deg, var(--scrim) 0%, rgba(0, 0, 0, 0) 26%),
@@ -683,14 +676,15 @@ button { font: inherit; color: inherit; }
 .playbtn__ico svg { width: 14px; height: 14px; margin-left: 2px; }
 
 /* The Play control on the home page, in the picture's right-hand corner.
-   The home page carries no arrows, so this is the single way onward: it runs
-   the same zoom into Play Mode. It carries no words — a play triangle needs
-   none, and a child who cannot read yet is the reader this book is for — so
-   the artwork is the whole button, which is why it is drawn big and sits out
-   at the right-hand edge of the picture where a thumb naturally lands.
+   Nothing else on the home page turns a page, so this is the single way
+   onward, and it runs the same zoom into Play Mode. It carries no words — a
+   play triangle needs none, and a child who cannot read yet is the reader
+   this book is for — so the artwork is the whole button, which is why it is
+   drawn big and sits out at the right-hand edge of the picture where a thumb
+   naturally lands.
 
-   Its size and its corner live on .book__mat rather than here, because the
-   idle hand has to know where this button is in order to point at it. */
+   Its size and its corner live on .book__mat rather than here, so they can
+   be measured against the picture rather than the page. */
 .startbtn {
   position: absolute; z-index: 6;
   right: var(--start-right); bottom: var(--start-bottom);
@@ -799,67 +793,8 @@ button { font: inherit; color: inherit; }
   100% { transform: scale(1)   rotate(0deg); }
 }
 
-/* ── the idle hand ─────────────────────────────────────────────────────────
-   A hint, not a control: it never takes a click, it only says where one
-   would go. The script decides when to show it and which of the two places
-   it belongs in — this only says where those places are and how it behaves
-   once it is there.
-
-   The drawing points upward, so the hand sits below its target with the
-   fingertip overlapping, and it taps: up onto the target, back, again, then
-   a rest before the next pair. Two taps and a pause reads as someone
-   pointing something out; a metronome reads as a broken animation.
-   ------------------------------------------------------------------------ */
-.handhint {
-  position: absolute; z-index: 7;
-  width: var(--hand); height: auto;
-  pointer-events: none;
-  opacity: 0; visibility: hidden;
-  transform: translateY(6%) rotate(-9deg);
-  transform-origin: 50% 100%;
-  transition: opacity .45s ease, visibility .45s ease;
-  filter: drop-shadow(0 7px 12px rgba(20, 30, 60, .3));
-}
-.handhint.is-showing {
-  opacity: 1; visibility: visible;
-  animation: handTap 2.1s ease-in-out infinite;
-}
-
-/* on the play button: fingertip on the bottom rim of the disc, the hand
-   itself below it. Its own size again, so the play triangle stays readable
-   under it: a hand over the middle of the button hides the one thing the
-   button has to say. */
-.handhint[data-at="start"] {
-  --hand: clamp(40px, 5.6cqw, 84px);
-  right: calc(var(--start-right) + (var(--start) - var(--hand)) * .5 - var(--hand) * .12);
-  bottom: calc(var(--start-bottom) - var(--hand));
-}
-
-/* on the forward arrow, wherever the layout has put it. The arrow is a much
-   smaller target than the play button, so the hand shrinks to match — and
-   because the placement below is written in terms of --hand, overriding it
-   here moves the hand and resizes it in one go. */
-.handhint[data-at="next"] {
-  --hand: clamp(38px, 5.2cqw, 74px);
-  /* the extra shift is because the pointing finger is not in the middle of
-     the drawing — it sits about a tenth of the width left of centre, so the
-     box is offset to put the fingertip, not the hand, on the target */
-  right: calc(var(--nav-inset) + (var(--nav) - var(--hand)) * .5 - var(--hand) * .12);
-  top: calc(50% + var(--nav) * .4);
-}
-
-@keyframes handTap {
-  0%   { transform: translateY(6%)   rotate(-9deg); }
-  9%   { transform: translateY(-15%) rotate(-9deg) scale(1.03); }
-  20%  { transform: translateY(6%)   rotate(-9deg); }
-  29%  { transform: translateY(-11%) rotate(-9deg) scale(1.02); }
-  40%  { transform: translateY(6%)   rotate(-9deg); }
-  100% { transform: translateY(6%)   rotate(-9deg); }   /* the rest between */
-}
-
-/* The home page shows the Play control and nothing else: no arrows, because
-   Play is the only way onward from the title. Both swap over the moment Play
-   Mode starts, so the reading view keeps its arrows.
+/* The home page shows the Play control, and Play is the only way into the
+   story. It goes the moment the book starts turning.
 
    Play is visible by DEFAULT and hidden by a class, never the reverse: the
    home page's only control must not depend on a script having run. <html>
@@ -867,8 +802,6 @@ button { font: inherit; color: inherit; }
    the reveal never has to fade in from nothing. */
 :root:not(.at-cover) .startbtn,
 .is-play .startbtn { opacity: 0; visibility: hidden; pointer-events: none; }
-
-.at-cover:not(.is-play) .navbtn { opacity: 0; visibility: hidden; pointer-events: none; }
 
 /* --- entering Play Mode -------------------------------------------------- */
 
@@ -888,8 +821,7 @@ button { font: inherit; color: inherit; }
 .is-play {
   /* nothing above the book any more, so almost the whole height is picture */
   --vfit: 58px;
-  --nav: clamp(52px, 4.4vw, 68px);
-  --nav-gap: clamp(8px, 1vw, 18px);
+  --gutter: clamp(8px, 1vw, 18px);
 }
 .is-play .app { padding: clamp(8px, 1.4vh, 16px) clamp(8px, 1.2vw, 18px); }
 .is-play .book { width: min(100%, calc((100svh - var(--vfit)) * 16 / 9)); }
@@ -920,109 +852,14 @@ button { font: inherit; color: inherit; }
   transition: opacity .3s ease, transform .3s ease, visibility 0s;
 }
 
-/* the arrows fade with it, so a still screen is nothing but the story */
-.is-play .navbtn {
-  transition: opacity .4s ease, transform .26s cubic-bezier(.34, 1.56, .64, 1),
-              background-color .24s ease;
-}
-/* the arrow the hand is pointing at keeps its full strength: a bright hand
-   tapping a 28% arrow makes the target look broken */
-.is-play:not(.is-stirring) .navbtn:not(:focus-visible):not(.is-hidden):not(.is-hinted) { opacity: .28; }
-
-/* ── 6. Navigation buttons ───────────────────────────────────────────────── */
-/* Vertically centred on the picture, hanging in the stage gutters.
-
-   The face is the supplied artwork (assets/icons/nav-left|right.svg), which
-   already carries its own gradient and drop shadow — so the button element
-   itself is just a transparent, circle-shaped hit area.
-
-   Those files are 101x116 with the visible circle 80 wide at (10.246, 3.73):
-   the extra canvas is room for the shadow, and it is not centred. So the art
-   is placed by hand rather than stretched to fit, which keeps the circle
-   exactly --nav across and exactly on the button's centre:
-       scale  = --nav / 80          art width  = 101 * scale = 1.2625
-       art height = 116 * scale = 1.45
-       circle centre = (50.246, 43.73) * scale = (0.6281, 0.5466)
-       offset = 0.5 - centre  ->  (-0.1281, -0.0466)
-   ------------------------------------------------------------------------ */
-.navbtn {
-  position: absolute;
-  top: 50%;
-  translate: 0 -50%;
-  z-index: 5;
-  width: var(--nav);
-  aspect-ratio: 1;
-  padding: 0;
-  border: 0; border-radius: 50%;
-  background: none;
-  cursor: pointer;
-  transition: transform .26s cubic-bezier(.34, 1.56, .64, 1), opacity .3s ease;
-}
-.navbtn--prev { left:  var(--nav-inset); --dir: -1; }
-.navbtn--next { right: var(--nav-inset); --dir:  1; }
-
-.navbtn__art {
-  position: absolute;
-  width:  calc(var(--nav) * 1.2625);
-  height: calc(var(--nav) * 1.45);
-  left:   calc(var(--nav) * -0.1281);
-  top:    calc(var(--nav) * -0.0466);
-  max-width: none;              /* beats the global img { max-width: 100% } */
-  pointer-events: none;
-}
-
-/* pulsing ring that answers hover / focus, tuned to the button's blue */
-.navbtn::after {
-  content: ""; position: absolute; inset: -5px;
-  border-radius: 50%;
-  border: 2px solid rgba(58, 123, 213, .55);
-  opacity: 0; pointer-events: none;
-}
-
-.navbtn:not(:disabled):focus-visible { transform: scale(1.09); }
-
-.navbtn:not(:disabled):focus-visible::after { animation: ringPulse 1.5s ease-out infinite; }
-
-.navbtn:not(:disabled):focus-visible .navbtn__art {
-  filter: brightness(1.07);
-  animation: nudge 1.15s ease-in-out infinite;
-}
-
-.navbtn:not(:disabled):active { transform: scale(.93); }
-
-/* No dimmed look any more: an arrow the reader cannot use is not there at
-   all (see .is-hidden below), so `disabled` is left over for the length of a
-   turn only — and a pair of arrows fading to 30% and back on every page would
-   be a flicker, not feedback. */
-.navbtn:disabled { cursor: default; }
-
-/* An arrow the reader has not earned yet is not a dimmed arrow, it is no
-   arrow: gone from sight, from the pointer and from the tab order. It fades
-   rather than blinks, and `visibility` is in the transition so it holds on
-   until the fade has finished on the way out while flipping straight away on
-   the way in.
-
-   This has to come after :disabled above, since a hidden arrow is disabled
-   too and the two rules are of equal weight — last one wins. */
-.navbtn.is-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: none;
-  transition: opacity .3s ease, visibility .3s ease;
-}
-
-@keyframes nudge {
-  0%, 100% { transform: translateX(0); }
-  50%      { transform: translateX(calc(var(--dir) * 4px)); }
-}
+/* the pulse the read-aloud button throws while it is speaking */
 @keyframes ringPulse {
   0%   { opacity: .7; transform: scale(.92); }
   75%  { opacity: 0;  transform: scale(1.22); }
   100% { opacity: 0;  transform: scale(1.22); }
 }
 
-/* ── 7. Ambient life ─────────────────────────────────────────────────────────
+/* ── 6. Ambient life ─────────────────────────────────────────────────────────
    Every drifting thing is built from nested full-frame layers, so a `%` in a
    transform always means "% of the picture", never "% of the tiny mote".
      .track  → inset:0, carries the long axis of travel
@@ -1071,23 +908,23 @@ button { font: inherit; color: inherit; }
   100% { transform: scale(1.55) translate3d(12%, -14%, 0); opacity: 0; }
 }
 
-/* ── 8. Responsive ───────────────────────────────────────────────────────── */
+/* ── 7. Responsive ───────────────────────────────────────────────────────── */
 
-/* tablet — the artwork gives up a little size, the buttons stay outside it */
+/* tablet — the artwork gives up a little size */
 @media (max-width: 1100px) {
   :root {
     --turn-ms: 720ms; --vfit: 150px;
-    --nav: clamp(58px, 7vw, 72px); --nav-gap: clamp(12px, 1.8vw, 22px);
+    --gutter: clamp(12px, 1.8vw, 22px);
   }
   /* play mode keeps its tighter gutters here too */
-  .is-play { --vfit: 96px; --nav: clamp(52px, 4.4vw, 66px); --nav-gap: clamp(8px, 1vw, 16px); }
+  .is-play { --vfit: 96px; }
   .book { width: min(100%, 880px, calc((100svh - var(--vfit)) * 16 / 9)); }
 }
 
 /* phones — too narrow for a column of text beside the art, so the words move
-   under the picture, and the buttons onto its lower corners for thumb reach */
+   under the picture */
 @media (max-width: 760px) {
-  :root { --nav: 60px; --r-mat: 26px; --r-frame: 20px; --vfit: 234px; }
+  :root { --r-mat: 26px; --r-frame: 20px; --vfit: 234px; }
 
   /* The speech used to move out of the picture here and reappear under it,
      because at this width the design's 55px type comes out around ten
@@ -1109,29 +946,15 @@ button { font: inherit; color: inherit; }
   .playbtn { padding: 6px; gap: 0; }
 
   /* the top bar is gone in play mode, so the picture claims that height */
-  .is-play { --vfit: 176px; --nav: 56px; }
+  .is-play { --vfit: 176px; }
   .is-play .app { padding: 10px; }
   .is-play .stage { align-items: center; padding-top: 0; }
-
-  :root { --nav-inset: clamp(10px, 3vw, 18px); }   /* arrows come inside the picture */
-  .navbtn {
-    top: auto;
-    translate: none;
-    bottom: var(--nav-inset);
-  }
-  /* the arrows have moved down here, so the hand follows them: fingertip on
-     the arrow, body hanging below it */
-  .handhint[data-at="next"] {
-    top: auto;
-    bottom: calc(var(--nav-inset) - var(--hand) * .34);
-  }
 
   .caption { width: 100%; margin-top: 18px; padding-inline: 6px; }
   .caption__text { font-size: 1.34rem; line-height: 1.58; min-height: 0; }
 }
 
 @media (max-width: 420px) {
-  :root { --nav: 54px; }
   .brand__sub { display: none; }
   .caption__text { font-size: 1.22rem; }
 }
@@ -1140,10 +963,10 @@ button { font: inherit; color: inherit; }
    is left. This used to size the frame from its height and let the mat
    shrink-wrap it, but shrink-to-fit cannot resolve a width from an
    aspect-ratio against a viewport-relative height: the mat collapsed, and
-   anything positioned against it (the arrows, the Play button) landed outside
+   anything positioned against it (the Play button) landed outside
    the picture. It is width-driven like every other breakpoint now. */
 @media (max-height: 560px) and (orientation: landscape) and (min-width: 780px) {
-  :root { --nav: 50px; --nav-gap: 10px; --vfit: 92px; }
+  :root { --gutter: 10px; --vfit: 92px; }
   .is-play { --vfit: 44px; }
 
   .app { gap: 6px; padding: 8px 12px 10px; }
@@ -1154,7 +977,7 @@ button { font: inherit; color: inherit; }
 /* short AND narrow landscape — the words sit under the picture here, so keep
    them compact and let them scroll in place rather than push the art away */
 @media (max-height: 560px) and (orientation: landscape) and (max-width: 779px) {
-  :root { --nav: 46px; --vfit: 174px; }
+  :root { --vfit: 174px; }
   .app { gap: 6px; padding: 8px 12px 10px; }
   .topbar { gap: 6px; }
   .stage { align-items: center; padding-top: 0; }
@@ -1165,7 +988,7 @@ button { font: inherit; color: inherit; }
   }
 }
 
-/* ── 9. Motion & state preferences ──────────────────────────────────────── */
+/* ── 8. Motion & state preferences ──────────────────────────────────────── */
 
 /* pause every decorative animation while the tab is hidden */
 .is-hidden :where(.track, .swing, .puff, .slot__art,
@@ -1184,10 +1007,6 @@ button { font: inherit; color: inherit; }
   .cover__flash { display: none; }
   .layer--dust { display: none; }
 
-  .navbtn:focus-visible { transform: none; }
-  .navbtn::after { animation: none !important; }
-  .navbtn__art { animation: none !important; }
-
   /* the play button keeps its feedback, but as a still change of state:
      no spring, no overshoot, no ring thrown off it */
   .startbtn .startbtn__disc { transition: filter .18s ease; }
@@ -1198,9 +1017,6 @@ button { font: inherit; color: inherit; }
   .startbtn.is-pop .startbtn__disc::after { animation: none !important; }
   .startbtn:active .startbtn__art { filter: brightness(.94); }
 
-  /* the hand still appears — it is the hint that matters, not the tapping —
-     but it holds still instead */
-  .handhint.is-showing { animation: none !important; }
   /* the drums are still heard; the word simply arrives already there */
   .fx__dum.is-on, .is-fading-in { animation: none !important; opacity: 1; }
   /* the elephant is a GIF and animates itself — a browser cannot pause it,
