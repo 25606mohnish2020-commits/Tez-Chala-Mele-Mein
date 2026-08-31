@@ -225,10 +225,6 @@ const elVideo     = $('finaleVideo');
 const elReplay    = $('btnReplay');
 const elGate      = $('startGate');
 const btnStart    = $('btnStart');
-const btnListen   = $('btnListen');
-const btnMusic    = $('btnMusic');
-const btnFit      = $('btnFit');
-const btnFull     = $('btnFull');
 
 /* =================================================================== audio */
 
@@ -380,7 +376,6 @@ const Audio2 = (() => {
       const a = play(path, { volume });
       if(!a) { if(onend) onend(); return null; }
       voice = a;
-      btnListen.classList.add('speaking');
 
       let over = false, guard = 0;
       const finish = fire => {
@@ -391,7 +386,6 @@ const Audio2 = (() => {
         a.removeEventListener('error', ended);
         a.removeEventListener('loadedmetadata', arm);
         a.removeEventListener('timeupdate', arm);
-        btnListen.classList.remove('speaking');
         if(voice === a) voice = null;
         if(voiceCut === cut) voiceCut = null;
         if(fire && onend) onend();
@@ -419,7 +413,7 @@ const Audio2 = (() => {
     },
     hush(){
       if(voiceCut) voiceCut();          // a line that is cut short never reports back
-      stop(voice); voice = null; btnListen.classList.remove('speaking');
+      stop(voice); voice = null;
     },
 
     /* Answers whether the music actually started, so a caller that is not
@@ -986,7 +980,6 @@ function showLayer(which){
   elMap.style.opacity   = onMap ? '1' : '0';
   elSkate.style.opacity = onMap ? '1' : '0';
   elErase.style.opacity = onMap ? '1' : '0';
-  btnListen.disabled = (which !== 'q');
 }
 
 let stepIndex = 0;
@@ -1209,7 +1202,7 @@ function burstConfetti(){
   }
 }
 
-/* ================================================================ controls */
+/* ============================================ fullscreen, fit and the keys */
 
 function toggleFullscreen(){
   const d = fsDoc();
@@ -1235,18 +1228,12 @@ function goFullscreen(){
   }catch(err){ /* fullscreen refused — the fit/fill modes still cover it */ }
 }
 
-btnListen.addEventListener('click', e => { e.stopPropagation(); replayVoice(); });
-btnMusic .addEventListener('click', e => {
-  e.stopPropagation();
-  btnMusic.classList.toggle('off', !Audio2.toggleMusic());
-});
-btnFull  .addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
-btnFit   .addEventListener('click', e => {
-  e.stopPropagation();
-  fillMode = !fillMode;
-  btnFit.classList.toggle('off', fillMode);
-  fitStage();
-});
+/* The four wooden buttons that used to sit in the bottom-right corner are
+   gone. What they did is not: the keys below still reach all four, which is
+   why toggling music and the fit mode are functions here rather than the
+   button click handlers they used to be. */
+function toggleMusic(){ Audio2.toggleMusic(); }
+function toggleFit(){ fillMode = !fillMode; fitStage(); }
 
 /* Tap anywhere on a non-question screen to hurry things along — a celebration
    already seen, a map already read. What it may not hurry is anything the
@@ -1264,9 +1251,9 @@ elFit.addEventListener('click', () => {
 document.addEventListener('keydown', e => {
   const step = FLOW[stepIndex];
   const k = e.key.toLowerCase();
-  if(k === 'm'){ btnMusic.click(); return; }
+  if(k === 'm'){ toggleMusic(); return; }
   if(k === 'f'){ toggleFullscreen(); return; }
-  if(k === 'v'){ btnFit.click(); return; }
+  if(k === 'v'){ toggleFit(); return; }
   if(k === 'r'){ replayVoice(); return; }
   if(step && step.type === 'q' && answering && /^[1-9]$/.test(k)){
     pick(parseInt(k, 10) - 1);

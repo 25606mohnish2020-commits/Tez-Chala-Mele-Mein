@@ -697,7 +697,7 @@ button { font: inherit; color: inherit; }
 /* The face is the supplied artwork, which carries its own gloss and shadow,
    so the wrapper is just a round, transparent hit area.
 
-   play-button.svg is 1429x1296 with the blue disc spanning 1253.49x1088.61
+   play-button.svg is 1429x1296 with the disc spanning 1253.49x1088.61
    at (87.32,87.32) — the rest is the drop shadow under it, so the art is
    neither square nor centred. It is placed from those numbers rather than
    stretched to fit, so the disc lands exactly --start across and dead centre
@@ -726,7 +726,7 @@ button { font: inherit; color: inherit; }
   filter: drop-shadow(0 5px 10px rgba(20, 52, 96, .26));
   transition: filter .22s ease;
 }
-/* The resting halo. The blue disc is a squashed blob — 0.8685 as tall as it
+/* The resting halo. The disc is a squashed blob — 0.8685 as tall as it
    is wide — so the ring is inset vertically by (1 - 0.8685) / 2 to hug it
    instead of hanging off the top and bottom. */
 .startbtn__ring {
@@ -744,14 +744,15 @@ button { font: inherit; color: inherit; }
   100% { opacity: 0;   transform: scale(1.55); }
 }
 
-/* the tap burst: one blue ring thrown off the disc on release. Idle it is
+/* the tap burst: one ring thrown off the disc on release, in the artwork's
+   own orange-red so it reads as a piece of the button coming loose. Idle it is
    invisible and unanimated — the .is-pop class the script adds runs it. */
 .startbtn__disc::after {
   content: "";
   position: absolute;
   inset: calc(var(--start) * 0.0658) 0;
   border-radius: 50%;
-  border: 3px solid rgba(8, 103, 255, .62);
+  border: 3px solid rgba(250, 76, 4, .62);
   opacity: 0;
   pointer-events: none;
 }
@@ -773,7 +774,7 @@ button { font: inherit; color: inherit; }
 .startbtn:focus-visible { outline: none; }
 .startbtn:focus-visible .startbtn__disc { transform: translateY(-3px) scale(1.07); }
 .startbtn:focus-visible .startbtn__ring {
-  border-color: rgba(8, 103, 255, .9); border-width: 3px; animation: none; opacity: 1;
+  border-color: rgba(250, 76, 4, .9); border-width: 3px; animation: none; opacity: 1;
 }
 
 /* the press: deeper and much faster than the release, which is what makes

@@ -4,8 +4,8 @@
 
    Everything is authored on a fixed 1920 x 1080 artboard using the exact
    Figma coordinates, then scaled to the viewport, so the layout stays
-   pixel-identical to the design at any screen size. UI chrome (controls,
-   start gate, replay button) lives OUTSIDE the artboard and is sized in
+   pixel-identical to the design at any screen size. UI chrome (the start
+   gate and the replay button) lives OUTSIDE the artboard and is sized in
    viewport units, so it is never cropped or blown up by that scaling.
    ========================================================================= */
 
@@ -388,48 +388,6 @@ html,body{
 /* =========================================================================
    Wooden UI chrome (kept small and out of the artwork)
    ========================================================================= */
-
-.controls{
-  position:fixed;
-  right:clamp(10px, 1.6vw, 30px);
-  bottom:clamp(10px, 1.6vh, 26px);
-  display:flex; gap:clamp(7px, .9vw, 15px);
-  z-index:60;
-}
-
-.wood-round{
-  width:clamp(44px, 5.2vmin, 78px);
-  height:clamp(44px, 5.2vmin, 78px);
-  border-radius:50%;
-  border:5px solid var(--wood-dark);
-  background:linear-gradient(180deg, var(--wood-hi) 0%, var(--wood-light) 42%, var(--wood-mid) 100%);
-  box-shadow:0 7px 0 var(--wood-dark), 0 12px 18px rgba(0,0,0,.45), inset 0 3px 6px rgba(255,220,160,.55);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer;
-  transition:transform .12s ease, box-shadow .12s ease, opacity .2s ease;
-}
-.wood-round svg{
-  width:52%; height:52%;
-  fill:none; stroke:#3a1a0a; stroke-width:2.2;
-  stroke-linecap:round; stroke-linejoin:round;
-}
-.wood-round svg path:first-child{ fill:#3a1a0a; }
-.wood-round svg circle{ fill:#3a1a0a; }
-.wood-round:hover{ transform:translateY(-3px); }
-.wood-round:active{ transform:translateY(5px); box-shadow:0 2px 0 var(--wood-dark), 0 5px 10px rgba(0,0,0,.4), inset 0 3px 6px rgba(255,220,160,.5); }
-.wood-round:disabled{ opacity:.4; cursor:default; transform:none; }
-.wood-round.off svg{ opacity:.42; }
-.wood-round.off::after{
-  content:''; position:absolute;
-  width:66%; height:9%; border-radius:3px;
-  background:#3a1a0a; transform:rotate(-42deg);
-}
-.wood-round{ position:relative; }
-
-/* speaker wave animation while a voice-over plays */
-.wood-round.speaking svg .w1{ animation:wavePulse .9s ease-in-out infinite; }
-.wood-round.speaking svg .w2{ animation:wavePulse .9s ease-in-out .18s infinite; }
-@keyframes wavePulse{ 0%,100%{opacity:.25;} 50%{opacity:1;} }
 
 .wood-pill{
   font-family:'Baloo Bhai 2','Nirmala UI',sans-serif;
