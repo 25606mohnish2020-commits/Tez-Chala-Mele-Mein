@@ -12,7 +12,7 @@
      Sfx        the supplied effects, one per frame
      Bed        the looping floor: music for the road, drums at the fair
      Tap        the supplied Button Tap, on the controls but not the nav
-     Ambience   builds clouds / leaves / dust / sparkles / puffs per page
+     Ambience   builds the dust motes and puffs each page carries
      Book       page rendering + the page-turn transition
      UI         buttons, keyboard, swipe, visibility
    ========================================================================== */
@@ -22,11 +22,7 @@
   /* ── PAGES ──────────────────────────────────────────────────────────────
      scene keys
        motion  "breathe" (default) | "sway"     subtle life in the artwork
-       sky     number of drifting clouds        0 for indoor scenes
-       leaves  leaves crossing the scene        fall: how many tumble down
-       xRange  [min,max] % band for falling leaves
        dust    floating motes
-       sparks  [{x,y}]  % coordinates, pinned to something in the artwork
        puffs   [{x,y,size}] % coordinates, a soft breath of air
      Coordinates are % of the picture, which is always 1600×900, so they
      stay correct at every screen size.
@@ -43,8 +39,7 @@
         hi: "तेज़ कछुआ स्केटबोर्ड पर और नूरी उल्लू छड़ी लिए मेले के मैदान में — कहानी का आवरण-चित्र।",
         en: "Tez the tortoise on his skateboard and Noori the owl with her stick, on the fairground — the cover picture."
       },
-      motion: "sway", sky: 3, dust: 5, leaves: 3, fall: 1,
-      sparks: [{ x: 47, y: 17, size: 3.6 }, { x: 26, y: 12, size: 2.4 }, { x: 63, y: 25, size: 2.2 }]
+      motion: "sway", dust: 5
     },
     {
       frame: "Page 1",
@@ -52,7 +47,7 @@
         hi: "तेज़ कछुआ पेड़ के नीचे आराम से लेटा है, उसका लाल स्केटबोर्ड पास रखा है।",
         en: "Tez the tortoise lounging under a tree, his red skateboard beside him."
       },
-      motion: "sway", sky: 2, leaves: 5, fall: 2, dust: 6
+      motion: "sway", dust: 6
     },
     {
       frame: "Page 2",
@@ -60,7 +55,7 @@
         hi: "दूर मेले से डम-डम की आवाज़ सुनकर तेज़ सिर खुजाता है — यह आवाज़ कैसी?",
         en: "Tez scratches his head at the far-off dum-dum of drums — whatever can it be?"
       },
-      motion: "sway", sky: 2, leaves: 4, fall: 1, dust: 6
+      motion: "sway", dust: 6
     },
     {
       frame: "Page 3",
@@ -68,7 +63,7 @@
         hi: "तेज़ खड़ा होकर सिर खुजाता है — कुछ सोच में पड़ा है।",
         en: "Tez standing and scratching his head, puzzled about something."
       },
-      motion: "sway", sky: 2, leaves: 4, fall: 2, dust: 7
+      motion: "sway", dust: 7
     },
     {
       frame: "Page 4",
@@ -76,8 +71,7 @@
         hi: "पेड़ की डाल पर बैठी नूरी उल्लू को तेज़ ऊपर देखकर पुकारता है।",
         en: "Tez looking up at Noori the owl perched on a branch."
       },
-      sky: 2, leaves: 6, fall: 2, dust: 5,
-      xRange: [8, 62]
+      dust: 5
     },
     {
       frame: "Page 5",
@@ -85,8 +79,7 @@
         hi: "पेड़ की डाल पर बैठी नूरी उल्लू को तेज़ ऊपर देखकर पुकारता है।",
         en: "Tez looking up at Noori the owl perched on a branch."
       },
-      sky: 2, leaves: 6, fall: 3, dust: 6,
-      xRange: [8, 62]
+      dust: 6
     },
     {
       frame: "Page 6",
@@ -94,7 +87,7 @@
         hi: "जंगल की पगडंडी पर तेज़ स्केटबोर्ड पर और नूरी हाथ उठाकर कुछ कहती है।",
         en: "On the forest path, Tez on his skateboard and Noori talking with a raised wing."
       },
-      motion: "sway", sky: 2, leaves: 6, fall: 3, dust: 7
+      motion: "sway", dust: 7
     },
     {
       frame: "Page 8",
@@ -102,7 +95,7 @@
         hi: "तेज़ और नूरी पगडंडी पर आगे बढ़ते हुए, पीछे से दिखते हैं।",
         en: "Tez and Noori setting off together up the path, seen from behind."
       },
-      motion: "sway", sky: 2, leaves: 6, fall: 3, dust: 7
+      motion: "sway", dust: 7
     },
     {
       frame: "Page 9",
@@ -110,7 +103,7 @@
         hi: "नदी के किनारे पहुँचकर तेज़ और नूरी दूर तक फैली नीली नदी देखते हैं।",
         en: "Reaching the riverbank, Tez and Noori look out over the winding blue river."
       },
-      motion: "sway", sky: 2, leaves: 4, fall: 1, dust: 5
+      motion: "sway", dust: 5
     },
     {
       frame: "Page 10",
@@ -118,7 +111,7 @@
         hi: "पगडंडी पर सोए भेड़िये को देखकर तेज़ और नूरी डर से ठिठक जाते हैं।",
         en: "Tez and Noori freeze in fright at the wolf asleep across the path."
       },
-      sky: 1, leaves: 3, fall: 1, dust: 8
+      dust: 8
     },
     {
       frame: "Page 11",
@@ -126,7 +119,7 @@
         hi: "लकड़ी के पुल पर से तेज़ और नूरी नदी पार करते हैं।",
         en: "Tez and Noori crossing the river on a wooden bridge."
       },
-      motion: "sway", sky: 1, leaves: 4, fall: 2, dust: 5
+      motion: "sway", dust: 5
     },
     {
       frame: "Page 12",
@@ -134,7 +127,7 @@
         hi: "नदी में तीन बत्तख के बच्चे तैर रहे हैं और किनारे से तेज़ और नूरी उन्हें देखते हैं।",
         en: "Three ducklings swimming in the river while Tez and Noori watch from the bank."
       },
-      motion: "sway", sky: 1, leaves: 4, fall: 1, dust: 5
+      motion: "sway", dust: 5
     },
     {
       frame: "Page 13",
@@ -150,8 +143,7 @@
          own voice is, which is why `coda` exists at all. The window sets the
          length: five seconds of drum, five seconds of drumming picture. */
       coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.34, 0] },
-      motion: "sway", sky: 3, leaves: 5, fall: 3, dust: 6,
-      xRange: [6, 40]
+      motion: "sway", dust: 6
     },
     {
       frame: "Page 14",
@@ -159,8 +151,7 @@
         hi: "मेला सामने है — चरखी, घोड़ों वाला झूला और रंगीन दुकानें; तेज़ और नूरी पहुँच जाते हैं।",
         en: "The fair at last — the ferris wheel, the carousel and the striped stalls, with Tez and Noori arriving."
       },
-      motion: "sway", sky: 3, leaves: 3, fall: 1, dust: 7,
-      sparks: [{ x: 30, y: 25, size: 3.2 }, { x: 56, y: 26, size: 2.6 }, { x: 84, y: 30, size: 2.4 }]
+      motion: "sway", dust: 7
     },
     {
       frame: "Page 15",
@@ -168,8 +159,7 @@
         hi: "चरखी की डोली में बैठा तेज़ ख़ुशी से ऊपर से नीचे देखता है।",
         en: "Tez riding high in a ferris-wheel car, delighted."
       },
-      motion: "sway", sky: 4, dust: 4, leaves: 0,
-      sparks: [{ x: 55, y: 15, size: 3.4 }, { x: 40, y: 30, size: 2.2 }]
+      motion: "sway", dust: 4
     },
     {
       frame: "Page 16",
@@ -177,7 +167,7 @@
         hi: "मेले के मैदान में नूरी अकेली खड़ी होकर पंख फैलाए कुछ कहती है।",
         en: "Noori standing alone on the fairground, saying something with a wing outstretched."
       },
-      motion: "sway", sky: 3, leaves: 3, fall: 1, dust: 6
+      motion: "sway", dust: 6
     },
     {
       frame: "Page 17",
@@ -185,7 +175,7 @@
         hi: "मेले के मैदान में नूरी अकेली खड़ी होकर पंख फैलाए कुछ कहती है।",
         en: "Noori standing alone on the fairground, saying something with a wing outstretched."
       },
-      motion: "sway", sky: 3, leaves: 3, fall: 1, dust: 6
+      motion: "sway", dust: 6
     },
     {
       frame: "Page 18", last: true,
@@ -193,8 +183,7 @@
         hi: "मेले के मैदान से नूरी मुस्कुराकर कहानी पूरी करती है।",
         en: "Noori smiling from the fairground as the story closes."
       },
-      motion: "sway", sky: 3, leaves: 3, fall: 1, dust: 6,
-      sparks: [{ x: 29, y: 22, size: 3.4 }, { x: 57, y: 24, size: 2.6 }, { x: 86, y: 28, size: 2.2 }]
+      motion: "sway", dust: 6
     }
   ];
 
@@ -203,8 +192,6 @@
      renamed, so a re-export drops straight in. */
   const art = (frame) => "assets/images/" + encodeURIComponent(frame) + ".png";
   PAGES.forEach((p) => { p.img = art(p.frame); });
-
-  const LEAF_TINTS = ["#6f9b46", "#8fae4e", "#c98b32", "#b6552f", "#4f7f52"];
 
   /* ── The Figma section, laid over the paintings ─────────────────────────
      Every frame in the Figma file is a 1920 × 1080 artboard: the painting,
@@ -350,11 +337,7 @@
   /* ── tiny helpers ─────────────────────────────────────────────────────── */
   const $  = (s, r = document) => r.querySelector(s);
   const rnd = (a, b) => a + Math.random() * (b - a);
-  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-
-  const svgUse = (id, cls) =>
-    `<svg class="${cls || ""}" aria-hidden="true"><use href="#${id}"/></svg>`;
 
   /* ── halted ─────────────────────────────────────────────────────────────
      The book runs until आगे on Page 18 is pressed, and from that moment it is
@@ -1094,10 +1077,8 @@
      -------------------------------------------------------------------- */
   const Ambience = (() => {
     const host = {
-      clouds: $("#clouds"),
-      leaves: $("#leaves"),
       dust:   $("#dust"),
-      sparks: $("#sparks")
+      puffs:  $("#puffs")
     };
 
     /* track → swing → body : see the comment block in style.css */
@@ -1107,60 +1088,6 @@
       track.innerHTML =
         `<div class="track"><div class="swing"><div class="body">${bodyHTML}</div></div></div>`;
       return track;
-    }
-
-    function clouds(n) {
-      const f = document.createDocumentFragment();
-      for (let i = 0; i < n; i++) {
-        const el = nest("cloud", svgUse("i-cloud"));
-        Object.entries({
-          "--w":     rnd(16, 34).toFixed(1) + "cqw",
-          /* kept high in the sky so a cloud never drifts across a face */
-          "--top":   rnd(-3, 19).toFixed(1) + "%",
-          "--op":    rnd(0.22, 0.44).toFixed(2),
-          "--dur":   rnd(120, 230).toFixed(0) + "s",
-          "--delay": (-rnd(0, 200)).toFixed(0) + "s",   // negative = already adrift
-          "--bob":   rnd(11, 19).toFixed(1) + "s",
-          "--bobY":  rnd(4, 12).toFixed(0) + "px"
-        }).forEach(([k, v]) => el.style.setProperty(k, v));
-        f.appendChild(el);
-      }
-      return f;
-    }
-
-    function leaves(page) {
-      const f = document.createDocumentFragment();
-      const total = page.leaves || 0;
-      const fallers = Math.min(page.fall || 0, total);
-      const [xa, xb] = page.xRange || [4, 92];
-
-      for (let i = 0; i < total; i++) {
-        const drops = i < fallers;
-        const el = nest("leaf" + (drops ? " leaf--fall" : ""), svgUse("i-leaf"));
-        const v = {
-          "--size":  rnd(1.1, 2.4).toFixed(2) + "cqw",
-          "--tint":  pick(LEAF_TINTS),
-          "--op":    rnd(0.5, 0.85).toFixed(2),
-          "--spin":  rnd(3.5, 8).toFixed(1) + "s",
-          "--rot0":  rnd(-40, 20).toFixed(0) + "deg",
-          "--rot1":  rnd(180, 420).toFixed(0) + "deg",
-          "--delay": (-rnd(0, 26)).toFixed(1) + "s"
-        };
-        if (drops) {
-          v["--x"]    = rnd(xa, xb).toFixed(1) + "%";
-          v["--dur"]  = rnd(14, 26).toFixed(1) + "s";
-          v["--arc"]  = rnd(2.6, 5).toFixed(1) + "s";
-          v["--sway"] = rnd(1.5, 5).toFixed(1) + "%";
-        } else {
-          v["--top"]  = rnd(10, 76).toFixed(1) + "%";
-          v["--dur"]  = rnd(18, 40).toFixed(1) + "s";
-          v["--arc"]  = rnd(3.5, 7).toFixed(1) + "s";
-          v["--rise"] = rnd(2, 8).toFixed(1) + "%";
-        }
-        Object.entries(v).forEach(([k, val]) => el.style.setProperty(k, val));
-        f.appendChild(el);
-      }
-      return f;
     }
 
     function dust(n) {
@@ -1180,22 +1107,9 @@
       return f;
     }
 
-    /* sparkles + sneeze puffs share the "pinned to the artwork" layer */
+    /* the soft breaths of air pinned to a point in the artwork */
     function pinned(page) {
       const f = document.createDocumentFragment();
-
-      (page.sparks || []).forEach((s, i) => {
-        const el = document.createElement("div");
-        el.className = "spark";
-        el.innerHTML = svgUse("i-sparkle");
-        Object.entries({
-          "--x": s.x + "%", "--y": s.y + "%",
-          "--size": (s.size || 3) + "cqw",
-          "--dur": rnd(2.6, 4.2).toFixed(1) + "s",
-          "--delay": (i * 0.45 + rnd(0, 0.8)).toFixed(2) + "s"
-        }).forEach(([k, v]) => el.style.setProperty(k, v));
-        f.appendChild(el);
-      });
 
       if (!calm()) (page.puffs || []).forEach((p, i) => {
         const el = document.createElement("div");
@@ -1215,11 +1129,9 @@
     return {
       build(page) {
         const quiet = calm();
-        /* in calm mode only the pinned sparkles survive, and slowly */
-        host.clouds.replaceChildren(...(quiet || !page.sky ? [] : [clouds(page.sky)]));
-        host.leaves.replaceChildren(...(quiet ? [] : [leaves(page)]));
+        /* calm mode holds the picture still: only the puffs remain */
         host.dust.replaceChildren(...(quiet ? [] : [dust(page.dust || 0)]));
-        host.sparks.replaceChildren(pinned(page));
+        host.puffs.replaceChildren(pinned(page));
       }
     };
   })();

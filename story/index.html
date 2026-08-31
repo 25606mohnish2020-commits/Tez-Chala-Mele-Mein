@@ -20,7 +20,7 @@
 <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png" />
 <!-- bump ?v= after editing so a plain refresh never serves a cached copy -->
-<link rel="stylesheet" href="style.css?v=34" />
+<link rel="stylesheet" href="style.css?v=35" />
 <link rel="preload" as="image" href="assets/images/Cover%20Page.png" />
 </head>
 
@@ -45,24 +45,6 @@
         <path d="M4 9.5h3L12 5.5v13L7 14.5H4z" fill="currentColor" />
         <path d="M16 9.4l5 5.2M21 9.4l-5 5.2" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" />
-      </symbol>
-      <symbol id="i-leaf" viewBox="0 0 18 23">
-        <path d="M11 0C4 4 0 10 0 16.4 0 20.5 2.6 23 6.5 23 13 23 18 16.5 18 9.4 18 5.8 15.6 2.4 11 0Z"
-              fill="currentColor" />
-        <path d="M10.6 1.8C9 7 7.4 13 6.6 21.4" fill="none" stroke="rgba(255,255,255,.45)"
-              stroke-width="1.1" stroke-linecap="round" />
-      </symbol>
-      <symbol id="i-cloud" viewBox="0 0 120 52">
-        <g fill="currentColor">
-          <ellipse cx="34" cy="32" rx="30" ry="18" />
-          <ellipse cx="60" cy="24" rx="26" ry="21" />
-          <ellipse cx="86" cy="33" rx="27" ry="16" />
-          <rect x="8" y="30" width="104" height="18" rx="9" />
-        </g>
-      </symbol>
-      <symbol id="i-sparkle" viewBox="0 0 24 24">
-        <path d="M12 0c.9 6.7 4.4 10.2 12 12-7.6 1.8-11.1 5.3-12 12-.9-6.7-4.4-10.2-12-12C7.6 10.2 11.1 6.7 12 0Z"
-              fill="currentColor" />
       </symbol>
       <symbol id="i-play" viewBox="0 0 24 24">
         <path d="M8 5.2v13.6L19 12z" fill="currentColor" />
@@ -172,12 +154,10 @@
               <div class="slot__fold" aria-hidden="true"></div>
             </div>
 
-            <!-- ambient life : clouds · leaves · dust · sparkles · puffs -->
+            <!-- ambient life : dust · puffs -->
             <div class="ambience" id="ambience" aria-hidden="true">
-              <div class="layer layer--clouds" id="clouds"></div>
-              <div class="layer layer--leaves" id="leaves"></div>
               <div class="layer layer--dust" id="dust"></div>
-              <div class="layer layer--sparks" id="sparks"></div>
+              <div class="layer layer--puffs" id="puffs"></div>
             </div>
 
             <div class="frame__vignette" aria-hidden="true"></div>
@@ -243,6 +223,6 @@
             allowfullscreen></iframe>
   </section>
 
-  <script src="script.js?v=36" defer></script>
+  <script src="script.js?v=37" defer></script>
 </body>
 </html>

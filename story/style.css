@@ -4,7 +4,7 @@
    ----------------------------------------------------------------------------
    1. Tokens & reset          5. Story text
    2. Page shell & texture    6. Navigation buttons
-   3. Top bar & controls      7. Ambient life (clouds, leaves, dust, sparkle)
+   3. Top bar & controls      7. Ambient life (dust motes, sneeze puffs)
    4. Book · frame · slots    8. Responsive
                               9. Motion & state preferences
    ========================================================================== */
@@ -308,7 +308,7 @@ button { font: inherit; color: inherit; }
   to   { transform: translate3d(3px, -5px, 0) scale(1.03); }
 }
 
-/* gentle sway variant for leafy / outdoor scenes */
+/* gentle sway variant for outdoor scenes */
 .slot.is-active[data-motion="sway"] .slot__art {
   animation: artSway 14s ease-in-out infinite alternate;
 }
@@ -1024,7 +1024,7 @@ button { font: inherit; color: inherit; }
 
 /* ── 7. Ambient life ─────────────────────────────────────────────────────────
    Every drifting thing is built from nested full-frame layers, so a `%` in a
-   transform always means "% of the picture", never "% of the tiny leaf".
+   transform always means "% of the picture", never "% of the tiny mote".
      .track  → inset:0, carries the long axis of travel
      .swing  → inset:0, carries the perpendicular sway (this is what curves it)
      .body   → absolutely placed at the spawn point, carries spin / size
@@ -1035,64 +1035,6 @@ button { font: inherit; color: inherit; }
 
 .track, .swing { position: absolute; inset: 0; will-change: transform; }
 .body          { position: absolute; }
-
-/* --- clouds : very slow drift + a gentle independent bob, seamless ------- */
-.cloud .track { animation: driftX var(--dur) linear var(--delay) infinite; }
-.cloud .swing { animation: cloudBob var(--bob) ease-in-out var(--delay) infinite alternate; }
-.cloud .body {
-  top: var(--top); left: 0;
-  width: clamp(90px, var(--w), 520px);
-  color: #fff; opacity: var(--op);
-  filter: blur(5px);
-}
-.cloud svg { width: 100%; height: auto; }
-
-@keyframes driftX {
-  from { transform: translate3d(-32%, 0, 0); }
-  to   { transform: translate3d(132%, 0, 0); }
-}
-@keyframes cloudBob {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(0, calc(var(--bobY) * -1), 0); }
-}
-
-/* --- leaves that cross the scene on a curved path ----------------------- */
-.leaf .track { animation: driftX var(--dur) linear var(--delay) infinite; }
-.leaf .swing { animation: leafArc var(--arc) ease-in-out var(--delay) infinite alternate; }
-.leaf .body  { top: var(--top); left: 0; }
-
-.leaf svg {
-  width: clamp(11px, var(--size), 42px); height: auto;
-  color: var(--tint); opacity: var(--op);
-  filter: drop-shadow(0 1px 1px rgba(60, 45, 20, .22));
-  animation: leafSpin var(--spin) ease-in-out var(--delay) infinite;
-}
-
-@keyframes leafArc {
-  from { transform: translate3d(0, calc(var(--rise) * -1), 0); }
-  to   { transform: translate3d(0, var(--rise), 0); }
-}
-@keyframes leafSpin {
-  0%   { transform: rotate(var(--rot0)); }
-  50%  { transform: rotate(var(--rot1)); }
-  100% { transform: rotate(var(--rot0)); }
-}
-
-/* --- leaves that tumble downward instead of crossing -------------------- */
-.leaf--fall .track { animation: fallY var(--dur) linear var(--delay) infinite; }
-.leaf--fall .swing { animation: leafSway var(--arc) ease-in-out var(--delay) infinite alternate; }
-.leaf--fall .body  { top: 0; left: var(--x); }
-
-@keyframes fallY {
-  0%   { transform: translate3d(0, -16%, 0); opacity: 0; }
-  10%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { transform: translate3d(0, 112%, 0);  opacity: 0; }
-}
-@keyframes leafSway {
-  from { transform: translate3d(calc(var(--sway) * -1), 0, 0); }
-  to   { transform: translate3d(var(--sway), 0, 0); }
-}
 
 /* --- dust motes : the warm, slightly hazy village air ------------------- */
 .mote .track { animation: moteRise var(--dur) ease-in-out var(--delay) infinite; }
@@ -1107,24 +1049,6 @@ button { font: inherit; color: inherit; }
   25%  { opacity: .8; }
   70%  { opacity: .45; }
   100% { transform: translate3d(var(--dx), -42%, 0);      opacity: 0; }
-}
-
-/* --- sparkles : pinned to a point in the artwork ------------------------ */
-.spark {
-  position: absolute;
-  left: var(--x); top: var(--y);
-  translate: -50% -50%;
-  width: clamp(9px, var(--size), 34px); aspect-ratio: 1;
-  color: #ffeaad;
-  filter: drop-shadow(0 0 7px rgba(255, 210, 110, .95));
-  will-change: transform, opacity;
-  animation: twinkle var(--dur) ease-in-out var(--delay) infinite;
-}
-.spark svg { width: 100%; height: 100%; }
-@keyframes twinkle {
-  0%, 100% { transform: scale(.3)  rotate(0deg);  opacity: 0; }
-  34%      { transform: scale(1)   rotate(38deg); opacity: .95; }
-  66%      { transform: scale(.72) rotate(74deg); opacity: .4; }
 }
 
 /* --- sneeze puff : a soft breath of air beside the character ------------ */
@@ -1244,7 +1168,7 @@ button { font: inherit; color: inherit; }
 /* ── 9. Motion & state preferences ──────────────────────────────────────── */
 
 /* pause every decorative animation while the tab is hidden */
-.is-hidden :where(.track, .swing, .leaf svg, .spark, .puff, .slot__art,
+.is-hidden :where(.track, .swing, .puff, .slot__art,
                   .frame__loader i, .cover__hero, .cover__title) {
   animation-play-state: paused;
 }
@@ -1253,13 +1177,12 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   :root { --turn-ms: 260ms; }
 
-  :where(.track, .swing, .leaf svg, .puff, .slot__art, .frame__loader i,
+  :where(.track, .swing, .puff, .slot__art, .frame__loader i,
          .cover__hero, .cover__title, .startbtn__ring) {
     animation: none !important;
   }
   .cover__flash { display: none; }
-  .spark { animation-duration: 7s !important; }
-  .layer--leaves, .layer--dust, .layer--clouds { display: none; }
+  .layer--dust { display: none; }
 
   .navbtn:focus-visible { transform: none; }
   .navbtn::after { animation: none !important; }
@@ -1327,9 +1250,9 @@ button { font: inherit; color: inherit; }
 
 /* The story stepping back. It fades under the game and is then taken out of
    the layout altogether by script.js, which is what actually stops the last
-   of it: a display:none subtree runs no CSS animation, so the clouds, the
-   leaves, the dust and the sparkles all stop with it rather than carrying on
-   unseen behind the game for the rest of the session. */
+   of it: a display:none subtree runs no CSS animation, so the dust and the
+   puffs stop with it rather than carrying on unseen behind the game for the
+   rest of the session. */
 .is-handing-over .app,
 .is-handing-over .grain {
   opacity: 0;
