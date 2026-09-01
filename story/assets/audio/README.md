@@ -253,10 +253,20 @@ floor. Three lanes, one element each, so nothing can ever stack.
 ### Word timings — `SAID`
 
 `SAID` in `script.js` holds one `[from, to]` per **word**, in the file's own
-seconds and in reading order across a frame, and the words on that page light
-up as they are spoken — the line being said comes forward, and inside it each
-word takes its turn. **Page 5 is the only frame measured so far**; any other
-page joins by having its own row added, and nothing else has to change.
+seconds and in reading order across a frame. As the narrator goes, the script
+marks the word being said on the word itself. **Page 5 is the only frame
+measured so far**; any other page joins by having its own row added, and
+nothing else has to change.
+
+**Nothing draws the marks.** Two treatments were tried and both came off:
+holding the words yet to come at half opacity read as unfinished text rather
+than unread text, and colouring the word in hand pulled it out of the line the
+designer set. The speech in this book is artwork with a voice over it. What
+the highlight was for is done by the page instead — Page 5 says its three
+questions one at a time, each with its own window, so the thing being said is
+the thing on the screen. The marking is kept because it is measured, correct
+and free; see *the recital, deliberately undrawn* in `style.css`, which is
+where a treatment would go.
 
 Measured the same way the windows were: `silencedetect` at −45 dB for the
 pauses between sentences, −25 dB for the joins between words inside one
@@ -266,8 +276,8 @@ enough for the detector to call it silence and split one word in two.
 
 The table holds times only; the words themselves stay in `SCENES`, and the two
 are matched by counting. If a frame's painted words and its measured times
-ever disagree in number, the highlight leaves that page alone rather than
-lighting everything after the mismatch on the wrong syllable.
+ever disagree in number, the recital leaves that page alone rather than
+marking everything after the mismatch on the wrong syllable.
 
 ### Controls
 
@@ -297,6 +307,6 @@ from the design's own coordinates. Each page's words are then read back off
 those layers into `text: { hi }`, which is what the live region announces, so
 the book cannot caption a page with anything but what is painted on it.
 
-The read-aloud highlight lights those layers directly, word by word, from the
-`SAID` table above. Page 5 is measured; the rest of the pages show their words
-without lighting them until their own row is added.
+Those layers are drawn exactly as the design sets them and nothing recolours
+or fades a word of them while they are being read — see *Word timings* above
+for what is marked and why none of it is painted.

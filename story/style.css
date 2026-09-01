@@ -465,35 +465,30 @@ button { font: inherit; color: inherit; }
    pointer shape is the only cue; there is no hover effect on the scene */
 .slot.is-active .fx__say { pointer-events: auto; }
 
-/* ── the recital ─────────────────────────────────────────────────────────
-   The words lighting up as the narrator says them. Nothing in here moves a
-   glyph and nothing in here fades one: the highlight is colour only, so a
-   page reads at exactly the width and line breaks it has always had, at the
-   weight the design set it in, and the highlight cannot re-wrap a line by
-   lighting a word in it. Every rule needs a class the script only adds while
-   a voice is actually running, so a page with the narration off is untouched.
+/* ── the recital, deliberately undrawn ───────────────────────────────────
+   There is no rule here, and that is on purpose rather than an oversight.
 
-   It used to hold the words yet to be said at half opacity and bring each up
-   as it was reached — the line filling in as it was read. That is gone. On
-   the one page that has word timings the words sit in a painted speech
-   bubble, and pale text on that ground read as unfinished rather than as
-   unread. Page 5 says its three questions one at a time now (see Sequence in
-   script.js), so what the dimming was for — showing which part of the page
-   is being spoken — is already done by only one of them being there.
+   The script splits a measured page's speech into one <span class="fx__word">
+   per word and marks them as the narrator goes: is-saying on the word being
+   said, is-said behind the reader, is-waiting on a line not yet reached, and
+   is-live on the sentence in hand. Nothing paints any of it. A word span with
+   no rule against it renders exactly as the bare text node it replaced, so
+   the speech reads as the design drew it — same face, same weight, same
+   colour, same line breaks — whether or not anyone is reading it aloud.
 
-   The script still tracks all of it: is-live on the sentence, is-said behind
-   the reader, is-waiting ahead. Those are the state of the reading and they
-   stay, unstyled and available; this file decides what is shown of them, and
-   what is shown is the word being said.
+   Two treatments have been tried on it and both were taken off. Holding the
+   words yet to come at half opacity read as unfinished text rather than as
+   unread text, on a painted speech bubble it looked like a fault; and
+   colouring the word in hand pulled it out of the line the designer set. The
+   speech in this book is artwork with a voice over it, not a karaoke line.
+
+   What the highlight was for is done elsewhere now. Page 5 says its three
+   questions one at a time, each with its own window of the recording, so the
+   thing being said is the thing on the screen — see Sequence in script.js.
+   The marking stays because it is measured, correct and free; if a treatment
+   is ever wanted, the classes are already on the right words at the right
+   moment and this is where it goes.
    ------------------------------------------------------------------- */
-.fx__word { transition: color .16s ease, text-shadow .16s ease; }
-
-/* the word being said right now, in the terracotta the book accents with and
-   lit from behind in its gold — the two colours already in the artwork */
-.fx__word.is-saying {
-  color: var(--terracotta);
-  text-shadow: 0 0 .55cqw rgba(230, 165, 43, .62);
-}
 
 /* ── a page said in more than one breath ─────────────────────────────────
    Page 16 is three things Noori says to the reader on one painting, and only
@@ -1104,9 +1099,6 @@ button { font: inherit; color: inherit; }
 
   /* the drums are still heard; the word simply arrives already there */
   .fx__dum.is-on, .is-fading-in { animation: none !important; opacity: 1; }
-  /* the recital still follows the voice, but each word simply is lit rather
-     than easing into its colour */
-  .fx__word { transition: none; }
   /* the elephant is a GIF and animates itself — a browser cannot pause it,
      so he keeps drumming. He is small, far off, and the only thing moving. */
   .caption__text { transition-duration: .12s; }

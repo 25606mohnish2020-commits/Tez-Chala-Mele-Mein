@@ -2053,17 +2053,22 @@
   })();
 
   /* ── Recital ────────────────────────────────────────────────────────────
-     The words lighting up as they are said, one at a time, so a child who
-     cannot yet read the whole of a line can at least see which word of it is
-     being said to them.
+     Which word is being said, marked on the word itself as the narrator goes:
+     is-saying on the one in hand, is-said behind the reader, is-waiting on a
+     line not yet reached, is-live on the sentence in hand.
 
-     What it tracks and what is drawn of it are two different lists. It marks
-     the sentence being spoken, the words behind the reader and the words
-     ahead, because that is the shape of a reading and the state is cheap to
-     keep; style.css then draws only the word being said. The words ahead used
-     to sit at half opacity and come up as they were reached — pale text on a
-     painted speech bubble read as unfinished rather than as unread, so the
-     classes stay and the fading is gone.
+     Nothing draws any of it. Both treatments that have been tried — holding
+     the words yet to come at half opacity, and colouring the word in hand —
+     were taken off again, and the speech now reads exactly as the design drew
+     it whether or not anyone is reading it aloud. See "the recital,
+     deliberately undrawn" in style.css, which is where a treatment would go.
+
+     This is kept rather than deleted because it is measured, correct and
+     costs nothing to be right: the classes land on the right words at the
+     right moment, and the table behind them is real measurement that would
+     have to be done again. What the highlight was for is done elsewhere now
+     — Page 5 says its three questions one at a time, so the thing being said
+     is the thing on the screen.
 
      It reads the needle, never a clock of its own. A timer started when the
      voice started would be right for exactly as long as nothing went wrong;
