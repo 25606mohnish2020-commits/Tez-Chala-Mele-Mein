@@ -697,14 +697,19 @@ button { font: inherit; color: inherit; }
 /* The face is the supplied artwork, which carries its own gloss and shadow,
    so the wrapper is just a round, transparent hit area.
 
-   play-button.svg is 1429x1296 with the disc spanning 1253.49x1088.61
-   at (87.32,87.32) — the rest is the drop shadow under it, so the art is
-   neither square nor centred. It is placed from those numbers rather than
-   stretched to fit, so the disc lands exactly --start across and dead centre
-   on the button:
-       art width  = 1429/1253.49 = 1.14   art height = width * 1296/1429
-       disc centre = (714.07,631.63) -> (49.97%, 48.74%) of the art
-       offset = 0.5 - centre x art-size                                     */
+   play-button.png is 1024x1024 with the coloured face spanning 918x827
+   at (55,82) — the white rim rings it and the peach base sits under it, so
+   the art is neither square nor centred. It is placed from those numbers
+   rather than stretched to fit, so the face lands exactly --start across and
+   dead centre on the button:
+       art width  = 1024/918 = 1.1155    art height = width * 1024/1024
+       face centre = (514,495.5) -> 0.5599 and 0.5398 of the face's own width
+       offset = 0.5 - centre / face width
+
+   --start is the face, not the whole picture, which is why swapping the
+   orange sphere for this blue one changed every number here and none of the
+   sizes anywhere else: the part the eye reads as the button is still exactly
+   --start across.                                                          */
 .startbtn__disc {
   position: relative;
   width: var(--start); aspect-ratio: 1;
@@ -716,22 +721,22 @@ button { font: inherit; color: inherit; }
 }
 .startbtn__art {
   position: absolute;
-  width:  calc(var(--start) * 1.14);
-  height: calc(var(--start) * 1.0339);
-  left:   calc(var(--start) * -0.0697);
-  top:    calc(var(--start) * -0.0039);
+  width:  calc(var(--start) * 1.1155);
+  height: calc(var(--start) * 1.1155);
+  left:   calc(var(--start) * -0.0599);
+  top:    calc(var(--start) * -0.0398);
   max-width: none;              /* beats the global img { max-width: 100% } */
   /* the art carries a painted shadow blob of its own; this only grounds it
      on the picture, and deepens on hover */
   filter: drop-shadow(0 5px 10px rgba(20, 52, 96, .26));
   transition: filter .22s ease;
 }
-/* The resting halo. The disc is a squashed blob — 0.8685 as tall as it
-   is wide — so the ring is inset vertically by (1 - 0.8685) / 2 to hug it
-   instead of hanging off the top and bottom. */
+/* The resting halo. The face is a squashed blob — 827/918, or 0.9009 as
+   tall as it is wide — so the ring is inset vertically by (1 - 0.9009) / 2
+   to hug it instead of hanging off the top and bottom. */
 .startbtn__ring {
   position: absolute;
-  inset: calc(var(--start) * 0.0658) 0;
+  inset: calc(var(--start) * 0.0496) 0;
   border-radius: 50%;
   /* warm dark, so the halo reads against gold-on-sand */
   border: 2px solid rgba(120, 78, 30, .55);
@@ -744,13 +749,14 @@ button { font: inherit; color: inherit; }
   100% { opacity: 0;   transform: scale(1.55); }
 }
 
-/* the tap burst: one ring thrown off the disc on release, in the artwork's
-   own orange-red so it reads as a piece of the button coming loose. Idle it is
-   invisible and unanimated — the .is-pop class the script adds runs it. */
+/* the tap burst: one ring thrown off the face on release. The orange-red is
+   the one the orange sphere was painted in and is kept as it was, so it now
+   throws a warm ring off a blue button rather than a piece of itself. Idle it
+   is invisible and unanimated — the .is-pop class the script adds runs it. */
 .startbtn__disc::after {
   content: "";
   position: absolute;
-  inset: calc(var(--start) * 0.0658) 0;
+  inset: calc(var(--start) * 0.0496) 0;
   border-radius: 50%;
   border: 3px solid rgba(250, 76, 4, .62);
   opacity: 0;

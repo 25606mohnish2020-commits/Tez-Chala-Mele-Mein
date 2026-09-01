@@ -322,10 +322,17 @@
     "Page 17": [bub("bubble-p16.png", 737.98, 284, 498.40),
                 say(["हाँ-हाँ, तुम! अब तुम्हारी बारी है।"], 1012.5, 350, 414, 55)],
     /* The last page, and the आगे on it is the way out of the book: press it
-       and the story stops where it stands and the game takes the screen. */
+       and the story stops where it stands and the game takes the screen.
+
+       The box is the badge's whole canvas, and the badge carries transparent
+       margin of its own — 1478x886 of oval inside 1536x1024 — so the numbers
+       are worked back from where the oval has to land rather than read off
+       the design. The blue badge is a rounder picture than the orange one it
+       replaces, and this keeps the oval the same 256 across and on the same
+       centre; only the box around it grew and rose to hold it. */
     "Page 18": [bub("bubble-p16.png", 733.98, 300, 498.40),
                 say(["चलो, अब तुम भी मेले तक आओ।"], 1008.5, 366, 414, 55),
-                lay("badge.png", 1473, 850, 269, 161,
+                lay("badge.png?v=2", 1473, 838, 266, 177.33,
                     { lift: true, cta: true, label: "आगे — खेल शुरू करो" })]
   };
 
@@ -1063,20 +1070,42 @@
     const AT = 0.13, END = 0.34;
     let pool = null, turn = 0;
 
+    /* Built ahead of the first press rather than inside it, in the same
+       spirit as the game being armed before आगे is pressed: the cover's
+       कहानी चलाओ is the first press of the whole session, and it should not
+       be the one that has to wait for a file. */
+    function arm() {
+      if (pool) return pool;
+      const src = url(FX, "Button Tap.mp3");
+      pool = [new Audio(src), new Audio(src)];
+      pool.forEach((a) => { a.preload = "auto"; a.volume = 0.85; a.load(); });
+      return pool;
+    }
+
     return {
+      arm,
       play() {
         if (halted) return;
         Bed.wake();                       /* a press is the gesture audio waits for */
         if (PageAudio.muted) return;
-        if (!pool) {
-          const src = url(FX, "Button Tap.mp3");
-          pool = [new Audio(src), new Audio(src)];
-          pool.forEach((a) => { a.preload = "auto"; a.volume = 0.85; });
-        }
-        const a = pool[turn = 1 - turn];
+        const a = arm()[turn = 1 - turn];
+
+        /* play() first and seek second, both inside the press. The other way
+           round, an element with no metadata yet has to wait for
+           loadedmetadata and call play() from that event — a media callback,
+           outside the gesture, which is exactly where a browser refuses it,
+           and iOS refuses it for good by never counting the element as
+           unlocked. On the cover that is the first press of the session and
+           the one press that went silent every time.
+
+           Nothing is lost by starting at the top: the file opens with 0.13 s
+           of silence, so the handful of frames that run before the seek lands
+           cannot be heard. The window is timed from the seek rather than from
+           the press, so a slow load still gets the whole 210 ms of pop
+           instead of a stub. */
+        const p = a.play();
+        if (p && p.catch) p.catch(() => { /* not yet allowed: stay silent */ });
         seek(a, AT, () => {
-          const p = a.play();
-          if (p && p.catch) p.catch(() => { /* not yet allowed: stay silent */ });
           setTimeout(() => { try { a.pause(); } catch { /* gone */ } },
                      (END - AT) * 1000);
         });
@@ -1966,12 +1995,27 @@
          is a CSS animation driven by .is-pop. Entering play mode waits one
          short beat so that release is seen and heard, not swallowed by the
          zoom; the class is cleared on animationend so a second tap replays
-         it, and re-added after a reflow so the restart actually takes. */
-      startBtn.addEventListener("pointerdown", () => Tap.play(), { passive: true });
-      startBtn.addEventListener("click", (e) => {
-        /* Enter/Space raise a click with no pointer behind it (detail 0), so
-           the keyboard gets its pop here rather than going silent */
-        if (!e.detail) Tap.play();
+         it, and re-added after a reflow so the restart actually takes.
+
+         One press, one pop, no matter how it was made. The finger sounds it
+         on pointerdown and the click that closes the same press must not
+         sound it again; a click with no press behind it — Enter, Space, a
+         screen reader's activation — has not sounded yet and takes its pop
+         here. This used to read e.detail to tell those apart, which is a
+         guess about how a browser numbers a click rather than a record of
+         what actually happened, and a touch browser that raises its click
+         with detail 0 would pop twice. */
+      let sounded = false;
+      startBtn.addEventListener("pointerdown", () => {
+        sounded = true;
+        Tap.play();
+      }, { passive: true });
+      /* a press the browser takes away for a scroll never becomes a click,
+         and would otherwise leave the latch set over the next press */
+      startBtn.addEventListener("pointercancel", () => { sounded = false; });
+      startBtn.addEventListener("click", () => {
+        if (!sounded) Tap.play();
+        sounded = false;
         startBtn.classList.remove("is-pop");
         void startBtn.offsetWidth;
         startBtn.classList.add("is-pop");
@@ -2208,6 +2252,10 @@
   /* ── go ─────────────────────────────────────────────────────────────── */
   Book.start();
   UI.start();
+
+  /* Fetch the button tap now, while the title page is being looked at, so the
+     cover's कहानी चलाओ has nothing left to load when it is pressed. */
+  Tap.arm();
 
   /* Load the game as the book comes within sight of its last page, so आगे has
      nothing left to load when it is pressed. */
