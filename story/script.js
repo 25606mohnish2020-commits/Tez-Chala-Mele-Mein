@@ -2053,10 +2053,17 @@
   })();
 
   /* ── Recital ────────────────────────────────────────────────────────────
-     The words lighting up as they are said: the line being spoken comes
-     forward while the ones still to come sit back, and inside it each word
-     takes its turn. A child who cannot yet read the whole of a page can at
-     least see which of it is being said to them.
+     The words lighting up as they are said, one at a time, so a child who
+     cannot yet read the whole of a line can at least see which word of it is
+     being said to them.
+
+     What it tracks and what is drawn of it are two different lists. It marks
+     the sentence being spoken, the words behind the reader and the words
+     ahead, because that is the shape of a reading and the state is cheap to
+     keep; style.css then draws only the word being said. The words ahead used
+     to sit at half opacity and come up as they were reached — pale text on a
+     painted speech bubble read as unfinished rather than as unread, so the
+     classes stay and the fading is gone.
 
      It reads the needle, never a clock of its own. A timer started when the
      voice started would be right for exactly as long as nothing went wrong;
