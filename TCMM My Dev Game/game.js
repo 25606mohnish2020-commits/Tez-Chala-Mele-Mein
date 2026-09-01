@@ -1253,10 +1253,13 @@ async function runStep(i){
       await sleep(450);
       if(!alive(my)) return;
 
-      await playFinale();
+      // Held on its last frame rather than faded away: what is behind it is
+      // the finished map, and that is the one screen the ending must not end
+      // on. The film stays up until the book has the tab.
+      await playFinale({ hold: true });
       if(!alive(my)) return;
 
-      elReplay.classList.remove('hidden');
+      returnToStory();
       return;                                   // journey complete
     }
 
@@ -1352,7 +1355,12 @@ function nextStep(){
    decode or autoplay refusal, or a stall that trips the watchdog all land in
    the same teardown — the replay button must never be stranded behind a
    frozen frame.                                                            */
-function playFinale(){
+/* `hold` keeps the last frame on screen and the music down after the film has
+   run, for the one caller that is on its way out of the page: fading the film
+   away would uncover the finished map for as long as the book takes to load,
+   and the music coming back up under a page that is about to go is a blip and
+   nothing more. */
+function playFinale({ hold = false } = {}){
   return new Promise(resolve => {
     let over = false, guard = 0;
 
@@ -1362,10 +1370,12 @@ function playFinale(){
       clearTimeout(guard);
       elVideo.removeEventListener('ended', finish);
       elVideo.removeEventListener('error', finish);
-      elVideo.classList.remove('on');
-      Audio2.hushBgm(false);                    // the music loop comes back up
-      // stop the film only once it has faded, so the last frame does not cut
-      setTimeout(() => { try{ elVideo.pause(); }catch(e){} }, 700);
+      if(!hold){
+        elVideo.classList.remove('on');
+        Audio2.hushBgm(false);                  // the music loop comes back up
+        // stop the film only once it has faded, so the last frame does not cut
+        setTimeout(() => { try{ elVideo.pause(); }catch(e){} }, 700);
+      }
       resolve();
     };
 
@@ -1384,6 +1394,30 @@ function playFinale(){
       ? elVideo.duration : 12;
     guard = setTimeout(finish, secs * 1000 + 2500);
   });
+}
+
+/* Where the ending goes. The film is the end of the journey, and what follows
+   it is the book open at its cover, ready for the whole thing to be read
+   again — not the finished map with a button on it.
+
+   The book is normally the page the child is actually looking at: the game
+   runs in a frame inside it, filling the screen, with the book's own shell
+   hidden behind. So it is the TOP document that has to go back to the cover,
+   not this frame — sending the frame there would put the book inside itself.
+   Standalone there is no frame and no top to speak of, and the same relative
+   path from this document reaches the same book.
+
+   The book opens on its cover whenever it is loaded without a #p hash, which
+   is exactly what this asks for. replace() rather than assign(): a finished
+   game is not somewhere Back should return to.                             */
+const STORY_COVER = '../story/index.html';
+
+function returnToStory(){
+  const url = new URL(STORY_COVER, location.href).href;
+  try{
+    if(window.top && window.top !== window){ window.top.location.replace(url); return; }
+  }catch(e){ /* a parent this frame is not allowed to steer — take the frame */ }
+  window.location.replace(url);
 }
 
 function burstConfetti(){
