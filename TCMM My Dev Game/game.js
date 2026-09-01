@@ -105,6 +105,32 @@ const CHECKPOINTS = [
 
 const QMARK_SRC = 'Assets/Story elements/Question mark.png';
 
+/* ------------------------------------------------------------ the nudge */
+
+/* The pointing hand, shown over the right answer once the question has been
+   got wrong twice. Same drawing the book uses for "tap here".
+
+   The numbers are read off the file rather than guessed: it is 280x356, and
+   the topmost yellow pixel — the fingertip, the part that has to land on the
+   card — sits at (110, 85), which is 39.3% across and 23.9% down. Everything
+   below places the hand from that point, so the fingertip lands where it is
+   told to and the rest of the hand hangs off it wherever it falls.        */
+const HAND_SRC   = 'Assets/Icons/hand-tap.png';
+const HAND_H     = 168;                    // design units tall — 80% of 210
+const HAND_W     = HAND_H * 280 / 356;     // the file's own proportion
+const HAND_TIP_X = 110 / 280;
+const HAND_TIP_Y =  85 / 356;
+/* How far down the correct card the fingertip lands. Not the middle: the
+   hand hangs down and to the right of its own fingertip, and pointing at the
+   middle of a sticker would cover the very thing the child is being told to
+   look at. Low on the card, it points without hiding.                     */
+const NUDGE_AT   = 0.80;
+/* Wrong answers before the game stops waiting and shows where it is. Two of
+   them, whether that is the same wrong card twice or two different ones —
+   what is counted is how many times the child has guessed, not what they
+   guessed.                                                                */
+const WRONG_BEFORE_NUDGE = 2;
+
 /* ------------------------------------------------------------- questions */
 
 const QUESTIONS = [
@@ -338,8 +364,10 @@ const Audio2 = (() => {
     },
     sfx(path, volume){ return play(path, { volume: volume == null ? 1 : volume }); },
     /* Same as sfx(), but on its own element, so repeats a fraction of a second
-       apart overlap instead of cutting each other off — the option cards pop
-       in one after another and every pop needs to be heard in full.        */
+       apart overlap instead of cutting each other off. Nothing calls it at the
+       moment — the option cards used to, and now arrive in silence so that
+       their names are the only thing to listen to — but a rapid-fire effect
+       needs this rather than sfx(), so it is kept for the next one.        */
     pop(path, volume){
       if(!unlocked) return null;
       const a = get(path).cloneNode();
@@ -549,6 +577,7 @@ function preloadImages(){
     if(s.type === 'celeb') list.push(plate(QUESTIONS[s.qi].celebPage));
   });
   list.push(QMARK_SRC,
+            HAND_SRC,
             'Assets/Story elements/Question Template.png',
             'Assets/Story elements/image 228.png',
             'Assets/Story elements/Skateboard.png');
@@ -902,6 +931,11 @@ const OPT_STAGGER = 160;        // ms
 const AFTER_QUESTION = 1000;    // ms
 let namingTimer = 0;
 
+/* How many times this question has been got wrong. Per question, reset with
+   the page: two wrong guesses on Question 3 do not bring the hand out on
+   Question 4. */
+let wrongCount = 0;
+
 function renderQuestion(q){
   elQTmpl.style.top  = px(q.tmplY);
   elQText.style.top  = px(q.textY);
@@ -910,11 +944,12 @@ function renderQuestion(q){
   elQTmpl.classList.remove('in'); void elQTmpl.offsetWidth; elQTmpl.classList.add('in');
   elQText.classList.remove('in'); void elQText.offsetWidth; elQText.classList.add('in');
 
-  elQOpts.innerHTML = '';
+  elQOpts.innerHTML = '';              // and with it the last page's hand
   elQOpts.classList.remove('live');    // nothing is tappable on a fresh question
   clearTimeout(namingTimer);           // and the last page's beat is not owed
   optsPhase = 'idle';
   namingAt  = 0;
+  wrongCount = 0;                      // a new question is asked in good faith
   q.options.forEach((o, i) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -960,7 +995,7 @@ function renderQuestion(q){
    key is the only thing that can — would otherwise break the chain and leave
    the options half-dealt and forever untappable. `namingAt` remembers where
    it had got to and a second call picks it up there. A card already on the
-   table is not re-animated or re-popped, only re-named.                    */
+   table is not re-animated, only re-named.                            */
 function revealOptions(my){
   if(!alive(my) || optsPhase === 'live') return;
   optsPhase = 'naming';
@@ -984,7 +1019,9 @@ function introduce(my, i){
   if(!b.classList.contains('in') && !b.classList.contains('shown')){
     void b.offsetWidth;
     b.classList.add('in');
-    Audio2.pop(A.stickerPop, 0.7);       // the card landing, under its name
+    // The card lands in silence. Its own name is the only sound it makes —
+    // a pop under the naming is a second thing to listen to at the exact
+    // moment there is a word to catch.
   }
 
   const next = () => introduce(my, i + 1);
@@ -1010,6 +1047,49 @@ function callToAnswer(my){
   });
 }
 
+/* Point at the answer. Two wrong guesses is where a child stops learning from
+   trying and starts guessing at random, so the game stops waiting and shows
+   them: the hand comes down over the right card and taps it, and goes on
+   tapping until they take it. The other cards fade back at the same moment,
+   so the eye is left with one lit picture and a finger on it.
+
+   Faded back, not taken away: they keep their place and stay tappable, and
+   the right answer still has to be chosen rather than merely accepted. The
+   fade is a whisper of "look here", not a locked door.
+
+   pointer-events are off the hand in the stylesheet, so it points at the card
+   without standing between the card and the finger. */
+function showNudge(){
+  if(elQOpts.querySelector('.hand')) return;      // already pointing
+  const opts = QUESTIONS[currentQi].options;
+  const ci   = opts.findIndex(x => x.correct);
+  const o    = opts[ci];
+  if(!o) return;
+
+  // Everything but the answer steps back into the shade.
+  elQOpts.querySelectorAll('.opt').forEach(n => {
+    if(Number(n.dataset.i) !== ci) n.classList.add('dim');
+  });
+
+  const img = document.createElement('img');
+  img.className = 'hand';
+  img.src = encodeURI(HAND_SRC);
+  img.alt = '';
+  img.style.cssText =
+    `left:${px(o.x + o.w / 2   - HAND_W * HAND_TIP_X)};` +
+    `top:${px(o.y + o.h * NUDGE_AT - HAND_H * HAND_TIP_Y)};` +
+    `width:${px(HAND_W)};height:${px(HAND_H)}`;
+  elQOpts.appendChild(img);
+}
+
+/* The hand and the shade are one gesture, so they leave together: the moment
+   the answer is taken there is nothing left to point away from. */
+function hideNudge(){
+  const h = elQOpts.querySelector('.hand');
+  if(h) h.remove();
+  elQOpts.querySelectorAll('.opt.dim').forEach(n => n.classList.remove('dim'));
+}
+
 let correctTurn = 0;
 
 function pick(i){
@@ -1024,6 +1104,7 @@ function pick(i){
 
   if(opt.correct){
     answering = false;
+    hideNudge();                       // it has been taken; nothing left to point at
     elQOpts.querySelectorAll('.opt').forEach(n => {
       n.classList.add('locked');
       if(n !== node) n.classList.add('faded');
@@ -1045,6 +1126,7 @@ function pick(i){
     // The question voice-over is NOT repeated; it plays once per question and
     // after that only if the child asks for it with the सुनो button.
     answering = false;                              // locked only while it reacts
+    wrongCount++;
     Audio2.wrongSound();
     node.classList.remove('wrong'); void node.offsetWidth;
     node.classList.add('wrong');
@@ -1054,6 +1136,9 @@ function pick(i){
       node.classList.remove('wrong');               // glow fades, pulse resumes
       answering = true;
       Audio2.duckBgm(false);                        // the narration is done with
+      // Shown once the wobble is over rather than during it, so the hand
+      // arrives into a settled page instead of over a card still shaking.
+      if(wrongCount >= WRONG_BEFORE_NUDGE) showNudge();
     }, 640);
   }
 }

@@ -261,9 +261,13 @@ html,body{
 }
 /* It settles while the option is reacting, and resumes on reset. Scoped to
    `live` to match the rule above: these two have to stay level on
-   specificity, or a locked card would go on breathing. */
+   specificity, or a locked card would go on breathing.
+   `dim` is here too: a card that has been faded back by the nudge must stop
+   inviting the tap, or the page would be beckoning in two directions at
+   once — the hand pointing one way and four cards still breathing. */
 .q-opts.live .opt.locked img,
-.q-opts.live .opt.wrong img{ animation:none; }
+.q-opts.live .opt.wrong img,
+.q-opts.live .opt.dim img{ animation:none; }
 @keyframes optRise{
   0%  { opacity:0; transform:translateY(60px) scale(.7); }
   100%{ opacity:1; transform:translateY(0)    scale(1);  }
@@ -309,6 +313,59 @@ html,body{
 }
 /* the non-picked options once the question is solved */
 .opt.faded{ opacity:.28; transform:scale(.9); }
+
+/* The wrong options while the hand is pointing. Two selectors deep so it
+   clears .opt.shown, which is what is holding them at full opacity.
+
+   .35, not the .28 of a solved question: these cards are still live and can
+   still be tapped, and a child should be able to tell "look over there" from
+   "this one is finished". No scale either — only the light goes down, so
+   nothing moves under a finger already on its way.
+
+   The transition is respelled rather than added to .opt, so the snap on
+   .faded at the end of a question stays exactly as it was.               */
+.opt.shown.dim{
+  opacity:.35;
+  transition:transform .18s ease, filter .18s ease, opacity .42s ease;
+}
+/* If a faded card is tapped anyway it comes back up to full for its "no" —
+   feedback a child cannot see is not feedback. */
+.opt.dim.wrong{ opacity:1; }
+
+/* ---------- the nudge ----------
+   The pointing hand that comes down over the right answer after two wrong
+   guesses, and taps it until it is taken.
+
+   pointer-events are off: it points at the card, it does not stand between
+   the card and the finger — a nudge that swallowed the tap it is asking for
+   would be a cruel joke. It is above the options so it is never behind the
+   card it is pointing at, and it is placed by its own fingertip in game.js,
+   so what lands on the card is the finger and not the middle of the picture.
+
+   Two animations, in order: it arrives once, then taps forever. The tap is
+   the later of the two in the list, so once its delay is up it wins the
+   transform over the arrival's held final frame.                          */
+.hand{
+  position:absolute;
+  z-index:6;
+  pointer-events:none;
+  -webkit-user-drag:none;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.45));
+  animation:handIn 320ms ease both,
+            handTap 1.5s ease-in-out 320ms infinite;
+}
+@keyframes handIn{
+  from{ opacity:0; transform:translateY(-26px) scale(.86); }
+  to  { opacity:1; transform:translateY(0)     scale(1);   }
+}
+/* down onto the card, a beat, and back — the shape of a real tap rather than
+   an even bob, which is why the fall is quicker than the lift */
+@keyframes handTap{
+  0%,100%{ transform:translateY(0)    scale(1);    }
+  30%    { transform:translateY(18px) scale(.95);  }
+  46%    { transform:translateY(18px) scale(.95);  }
+  62%    { transform:translateY(0)    scale(1);    }
+}
 
 /* =========================================================================
    CELEBRATION LAYER — Figma pages 22 / 25 / 28 / 31 / 34
