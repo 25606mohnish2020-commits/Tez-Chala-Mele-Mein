@@ -2048,12 +2048,39 @@
       PageAudio.onState((speaking) =>
         readBtn.classList.toggle("is-speaking", speaking));
 
+      /* आगे answers the touch before it acts on it, the same way the cover's
+         play button does — and for a stronger reason. Pressing आगे pulls the
+         book down around it: the story stops, the bed and the narration go,
+         fullscreen is asked for and the game's frame takes the screen, all in
+         the same tick as the press. Sounding on pointerdown puts the pop
+         under way before any of that begins, rather than on the click that
+         arrives a moment later on a touch screen.
+
+         One press, one pop, the same latch as the cover: the click that
+         closes the press stays quiet, and a click with no press behind it —
+         Enter, Space, a screen reader's activation — takes its pop there. */
+      let ctaSounded = false;
+      frame.addEventListener("pointerdown", (e) => {
+        const el = e.target instanceof Element ? e.target : null;
+        if (!el || !el.closest(".fx__cta")) return;
+        ctaSounded = true;
+        Tap.play();
+      }, { passive: true });
+      /* a press the browser takes away for a scroll never becomes a click,
+         and would otherwise leave the latch set over the next press */
+      frame.addEventListener("pointercancel", () => { ctaSounded = false; });
+
       /* what a tap on the picture itself means: आगे leads out of the book,
          and the words read their page again */
       frame.addEventListener("click", (e) => {
         const el = e.target instanceof Element ? e.target : null;
         if (!el) return;
-        if (el.closest(".fx__cta")) { Tap.play(); Handoff.go(); return; }
+        if (el.closest(".fx__cta")) {
+          if (!ctaSounded) Tap.play();
+          ctaSounded = false;
+          Handoff.go();
+          return;
+        }
         if (el.closest(".fx__say")) replay();
       });
       $(".caption").addEventListener("click", () => replay());
