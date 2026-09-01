@@ -49,6 +49,10 @@ const A = {
   celebration:'Assets/Audio/Celebration 1.mp3',
   leaves:     'Assets/Audio/Shedding leaves.mp3',
   drum:       'Assets/Audio/Drum.mp3',
+  /* Said once per question, after the last option has been dealt and named:
+     everything is on the table, now choose. It is the line that opens the
+     options up — nothing is tappable until it has been heard out.         */
+  choose:     'Assets/Audio/सही चित्र चुने.wav',
   /* Every correct answer gets the same clip. Add 'Correct Answer 2.mp3' back
      to this list to go back to alternating between them.                   */
   correct:   ['Assets/Audio/Correct Answer 1.mp3'],
@@ -110,8 +114,10 @@ const QUESTIONS = [
     voice: 'Assets/Audio/Page 21 Question 1.wav',
     tmplY: 118, textY: 267,
     options: [
-      { src:'Assets/Stickers/image 278.png', label:'पहाड़', x: 360, y:487, w:514, h:342 },
-      { src:'Assets/Stickers/image 279.png', label:'नदी',  x:1035, y:500, w:489, h:326, correct:true }
+      { src:'Assets/Stickers/image 278.png', label:'पहाड़', x: 360, y:487, w:514, h:342,
+        voice:'Assets/Audio/options/पहाड़.wav' },
+      { src:'Assets/Stickers/image 279.png', label:'नदी',  x:1035, y:500, w:489, h:326, correct:true,
+        voice:'Assets/Audio/options/नदी.wav' }
     ],
     gif: { src:'Assets/GIF/sprite-max-px-frames-36-rows-6-cols-6 (17).gif', x:745, y:262, w:429, h:556 }
   },
@@ -121,9 +127,12 @@ const QUESTIONS = [
     voice: 'Assets/Audio/Page 24 Question 2.wav',
     tmplY: 129, textY: 278,
     options: [
-      { src:'Assets/Stickers/image 280.png', label:'भालू',    x: 284, y:553, w:422, h:282 },
-      { src:'Assets/Stickers/image 281.png', label:'भेड़िया', x: 785, y:559, w:414, h:276, correct:true },
-      { src:'Assets/Stickers/image 282.png', label:'खरगोश',   x:1272, y:571, w:376, h:251 }
+      { src:'Assets/Stickers/image 280.png', label:'भालू',    x: 284, y:553, w:422, h:282,
+        voice:'Assets/Audio/options/भालू.wav' },
+      { src:'Assets/Stickers/image 281.png', label:'भेड़िया', x: 785, y:559, w:414, h:276, correct:true,
+        voice:'Assets/Audio/options/भेड़िया.wav' },
+      { src:'Assets/Stickers/image 282.png', label:'खरगोश',   x:1272, y:571, w:376, h:251,
+        voice:'Assets/Audio/options/खरगोश.wav' }
     ],
     gif: { src:'Assets/GIF/sprite-max-px-frames-36-rows-6-cols-6 (19).gif', x:661, y:275, w:597, h:530 }
   },
@@ -133,9 +142,16 @@ const QUESTIONS = [
     voice: 'Assets/Audio/Page 27 Question 3.wav',
     tmplY: 129, textY: 277,
     options: [
-      { src:'Assets/Stickers/image 292 (1).png', label:'दो बत्तखें',   x: 248, y:537, w:430, h:287 },
-      { src:'Assets/Stickers/image 309.png',     label:'तीन बत्तखें',  x: 726, y:540, w:430, h:287, correct:true },
-      { src:'Assets/Stickers/image 293.png',     label:'पांच बत्तखें', x:1235, y:545, w:412, h:274 }
+      /* The three recordings spell the ducks with one त and the five with a
+         chandrabindu, where the labels here have त्त and an anusvara. The
+         path is written out per option rather than built from the label for
+         exactly this reason: the spoken files are named as they are named. */
+      { src:'Assets/Stickers/image 292 (1).png', label:'दो बत्तखें',   x: 248, y:537, w:430, h:287,
+        voice:'Assets/Audio/options/दो बतखें.wav' },
+      { src:'Assets/Stickers/image 309.png',     label:'तीन बत्तखें',  x: 726, y:540, w:430, h:287, correct:true,
+        voice:'Assets/Audio/options/तीन बतखें.wav' },
+      { src:'Assets/Stickers/image 293.png',     label:'पांच बत्तखें', x:1235, y:545, w:412, h:274,
+        voice:'Assets/Audio/options/पाँच बतखें.wav' }
     ],
     gif: { src:'Assets/GIF/sprite-max-px-frames-36-rows-6-cols-6 (17).gif', x:733, y:245, w:453, h:588 }
   },
@@ -145,8 +161,10 @@ const QUESTIONS = [
     voice: 'Assets/Audio/Page 30 Question 4.wav',
     tmplY: 150, textY: 299,
     options: [
-      { src:'Assets/Stickers/image 283.png', label:'फूलों वाला रास्ता',   x: 335, y:540, w:547.5, h:365, correct:true },
-      { src:'Assets/Stickers/image 284.png', label:'पत्थरों वाला रास्ता', x:1026, y:537, w:528,   h:352 }
+      { src:'Assets/Stickers/image 283.png', label:'फूलों वाला रास्ता',   x: 335, y:540, w:547.5, h:365, correct:true,
+        voice:'Assets/Audio/options/फूलों वाला रास्ता.wav' },
+      { src:'Assets/Stickers/image 284.png', label:'पत्थरों वाला रास्ता', x:1026, y:537, w:528,   h:352,
+        voice:'Assets/Audio/options/पत्थरों वाला रास्ता.wav' }
     ],
     gif: { src:'Assets/GIF/sprite-max-px-frames-36-rows-6-cols-6 (19).gif', x:676, y:287, w:568, h:504 }
   },
@@ -156,9 +174,12 @@ const QUESTIONS = [
     voice: 'Assets/Audio/Page 33 Question 5.wav',
     tmplY: 158, textY: 307,
     options: [
-      { src:'Assets/Stickers/image 285.png',     label:'आइसक्रीम', x: 385, y:500, w:263, h:394 },
-      { src:'Assets/Stickers/image 286 (1).png', label:'गुब्बारे', x: 832, y:493, w:272, h:408 },
-      { src:'Assets/Stickers/image 308.png',     label:'झूला',     x:1288, y:505, w:259, h:389, correct:true }
+      { src:'Assets/Stickers/image 285.png',     label:'आइसक्रीम', x: 385, y:500, w:263, h:394,
+        voice:'Assets/Audio/options/आइसक्रीम.wav' },
+      { src:'Assets/Stickers/image 286 (1).png', label:'गुब्बारे', x: 832, y:493, w:272, h:408,
+        voice:'Assets/Audio/options/गुब्बारे.wav' },
+      { src:'Assets/Stickers/image 308.png',     label:'झूला',     x:1288, y:505, w:259, h:389, correct:true,
+        voice:'Assets/Audio/options/झूला.wav' }
     ],
     gif: { src:'Assets/GIF/sprite-max-px-frames-36-rows-6-cols-6 (21).gif', x:621, y:225, w:677, h:629 },
     /* Page 34 is the only celebration whose GIF is playing something — the
@@ -279,9 +300,15 @@ const Audio2 = (() => {
   return {
     preload(){
       const all = [A.bgm, A.plaquePop, A.stickerPop, A.skateboard, A.celebration,
-                   A.leaves, A.drum, ...A.correct, ...A.praise];
+                   A.leaves, A.drum, A.choose, ...A.correct, ...A.praise];
       if(A.wrong) all.push(A.wrong);
-      QUESTIONS.forEach(q => all.push(q.voice));
+      QUESTIONS.forEach(q => {
+        all.push(q.voice);
+        // Each option names itself as it is dealt, and the naming is what
+        // paces the dealing — a clip still loading would hold its card on the
+        // table with nothing being said over it, so they come in here too.
+        q.options.forEach(o => { if(o.voice) all.push(o.voice); });
+      });
       all.forEach(get);
     },
     unlock(){
@@ -854,11 +881,26 @@ function sparkle(cx, cy, count = 18){
 
 let answering = false;
 let currentVoice = null;
-let optionsShown = false;       // the options wait for the question to be read
 
-/* Beat between one option arriving and the next — used both for the entrance
-   animation and for the pop that lands with it, so the two can never drift. */
+/* How far the options have got: 'idle' while the question is still being
+   read, 'naming' while they are being dealt and said one by one, 'live' once
+   "सही चित्र चुने" has been heard and they may be tapped. `namingAt` is the
+   card the naming is on, so an interrupted introduction can be picked up
+   where it stopped rather than started again or abandoned. */
+let optsPhase = 'idle';
+let namingAt  = 0;
+
+/* The fallback beat between one option arriving and the next, for an option
+   with no recording of its own. With one, the naming is the beat. */
 const OPT_STAGGER = 160;        // ms
+
+/* The pause between the question being read out and the first option
+   arriving. A question and the answers to it are two different things being
+   said, and running them together gives a child no moment to hold the
+   question in their head before the choices start talking. Nothing happens
+   in it at all: no card, no name, nothing to tap. */
+const AFTER_QUESTION = 1000;    // ms
+let namingTimer = 0;
 
 function renderQuestion(q){
   elQTmpl.style.top  = px(q.tmplY);
@@ -869,7 +911,10 @@ function renderQuestion(q){
   elQText.classList.remove('in'); void elQText.offsetWidth; elQText.classList.add('in');
 
   elQOpts.innerHTML = '';
-  optionsShown = false;
+  elQOpts.classList.remove('live');    // nothing is tappable on a fresh question
+  clearTimeout(namingTimer);           // and the last page's beat is not owed
+  optsPhase = 'idle';
+  namingAt  = 0;
   q.options.forEach((o, i) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -895,18 +940,74 @@ function renderQuestion(q){
   });
 }
 
-/* The options are held back until the question has finished being read out,
-   then each pops in on its own beat — the sound lands with the card. Safe to
-   call more than once: whichever voice line finishes last gets here first. */
+/* Dealing the options, a beat after the question has been read out.
+
+   They are introduced rather than simply put on the table: AFTER_QUESTION of
+   silence first, then one card at a time, each named aloud as it lands, and
+   when the last of them has been named, "सही चित्र चुने" — everything is
+   here, now choose. Only then do they begin to breathe and become tappable.
+   A child who cannot read the labels has heard every one of them before being
+   asked to pick, and none of them can be picked by accident while that is
+   still going on.
+
+   The pacing is the naming itself: a card waits for the one before it to
+   finish being said, so a slow-loading clip holds its card with it rather
+   than being talked over by the next. An option with no recording falls back
+   to the old fixed beat, so a missing file cannot strand the question.
+
+   Resumable on purpose. Audio2.say() cuts the line in flight without
+   reporting it, so anything that speaks over the middle of this — the सुनो
+   key is the only thing that can — would otherwise break the chain and leave
+   the options half-dealt and forever untappable. `namingAt` remembers where
+   it had got to and a second call picks it up there. A card already on the
+   table is not re-animated or re-popped, only re-named.                    */
 function revealOptions(my){
-  if(optionsShown || !alive(my)) return;
-  optionsShown = true;
-  elQOpts.querySelectorAll('.opt').forEach((b, i) => {
+  if(!alive(my) || optsPhase === 'live') return;
+  optsPhase = 'naming';
+  /* The beat is taken here rather than at the call sites, because every way
+     in is the same situation: a line has just finished being said and the
+     options follow it. Re-arming the one timer rather than adding a second
+     is what keeps a repeated call — सुनो pressed twice — from dealing the
+     cards twice over. */
+  clearTimeout(namingTimer);
+  namingTimer = setTimeout(() => introduce(my, namingAt), AFTER_QUESTION);
+}
+
+function introduce(my, i){
+  if(!alive(my) || optsPhase !== 'naming') return;
+  namingAt = i;
+
+  const cards = elQOpts.querySelectorAll('.opt');
+  if(i >= cards.length){ callToAnswer(my); return; }
+
+  const b = cards[i];
+  if(!b.classList.contains('in') && !b.classList.contains('shown')){
     void b.offsetWidth;
     b.classList.add('in');
-    setTimeout(() => { if(alive(my)) Audio2.pop(A.stickerPop, 0.7); }, i * OPT_STAGGER);
+    Audio2.pop(A.stickerPop, 0.7);       // the card landing, under its name
+  }
+
+  const next = () => introduce(my, i + 1);
+  const name = QUESTIONS[currentQi].options[i].voice;
+  if(name) Audio2.say(name, { onend: next });
+  else setTimeout(() => { if(alive(my)) next(); }, OPT_STAGGER);
+}
+
+/* Every option is on the table and has been named: ask for the answer, and
+   open them up when that has been said. The music stays ducked all the way
+   through the introduction and comes back up here, because until now
+   something has been talking the whole time. */
+function callToAnswer(my){
+  if(!alive(my)) return;
+  Audio2.say(A.choose, {
+    onend: () => {
+      if(!alive(my)) return;
+      optsPhase = 'live';
+      elQOpts.classList.add('live');     // they breathe, and they can be tapped
+      Audio2.duckBgm(false);
+      answering = true;
+    }
   });
-  answering = true;
 }
 
 let correctTurn = 0;
@@ -960,12 +1061,18 @@ function pick(i){
 function replayVoice(){
   const step = FLOW[stepIndex];
   if(step && step.type === 'q'){
-    // Tapping सुनो during the very first reading cuts that line short, so this
-    // one takes over the job of letting the options in when it finishes.
+    // Tapping सुनो cuts whatever is being said short — the first reading, or
+    // the middle of the options being named — so this one takes over getting
+    // the introduction going again when it finishes. revealOptions() resumes
+    // from the card the naming had reached; once they are live it does
+    // nothing, and this is only a re-reading of the question.
     const my = stepToken;
     Audio2.duckBgm(true);
     currentVoice = Audio2.say(QUESTIONS[step.qi].voice, {
-      onend: () => { Audio2.duckBgm(false); revealOptions(my); }
+      onend: () => {
+        if(optsPhase === 'live'){ Audio2.duckBgm(false); return; }
+        revealOptions(my);
+      }
     });
   }
 }
@@ -1096,14 +1203,14 @@ async function runStep(i){
     // it; the सुनो button is the only way to hear it again.
     // The options are only dealt once the question has been read out in full,
     // so nothing is tappable while the child is still listening.
+    // The music stays ducked straight through into the introduction of the
+    // options: from here until "सही चित्र चुने" has been said there is a
+    // voice going almost the whole time, and callToAnswer() brings it back up.
     if(!voicePlayed.has(step.qi)){
       voicePlayed.add(step.qi);
-      currentVoice = Audio2.say(q.voice, {
-        onend: () => { Audio2.duckBgm(false); revealOptions(my); }
-      });
+      currentVoice = Audio2.say(q.voice, { onend: () => revealOptions(my) });
     }else{
-      Audio2.duckBgm(false);
-      revealOptions(my);        // already heard once — the options are there at once
+      revealOptions(my);        // already heard once — straight to the options
     }
     return;                                     // waits for the player
   }

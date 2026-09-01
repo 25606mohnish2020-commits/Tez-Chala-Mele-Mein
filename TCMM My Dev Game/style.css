@@ -241,17 +241,29 @@ html,body{
    an option that has not arrived yet must not be tappable either. */
 .opt:not(.in):not(.shown){ pointer-events:none; }
 
-/* Once an option has finished arriving it breathes gently, to invite a tap.
+/* And an option that HAS arrived is still not tappable while the set is being
+   introduced. The cards are dealt one at a time and each is named aloud as it
+   lands; only when the last has been named and "सही चित्र चुने" has been said
+   does game.js put `live` on the container. Until then a child cannot answer
+   a question they have not finished being told — and cannot answer it by
+   accident with a hand resting on the screen. */
+.q-opts:not(.live) .opt{ pointer-events:none; }
+
+/* Once the whole set is live they breathe gently, to invite a tap. The pulse
+   waits for `live` too: a card that is still being introduced sits perfectly
+   still, so the breathing means "your turn" rather than "here I am".
    The pulse lives on the <img> so the button keeps its own hover / shake
    transforms — an animation on the button would win over both.            */
-.opt.shown img{ animation:optPulse 2s ease-in-out infinite; }
+.q-opts.live .opt.shown img{ animation:optPulse 2s ease-in-out infinite; }
 @keyframes optPulse{
   0%,100%{ transform:scale(1);     }
   50%    { transform:scale(1.035); }
 }
-/* it settles while the option is reacting, and resumes on reset */
-.opt.locked img,
-.opt.wrong img{ animation:none; }
+/* It settles while the option is reacting, and resumes on reset. Scoped to
+   `live` to match the rule above: these two have to stay level on
+   specificity, or a locked card would go on breathing. */
+.q-opts.live .opt.locked img,
+.q-opts.live .opt.wrong img{ animation:none; }
 @keyframes optRise{
   0%  { opacity:0; transform:translateY(60px) scale(.7); }
   100%{ opacity:1; transform:translateY(0)    scale(1);  }
