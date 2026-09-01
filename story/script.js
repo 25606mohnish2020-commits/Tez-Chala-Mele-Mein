@@ -1,9 +1,11 @@
 /* ============================================================================
    तेज़ चला मेले में · Tez Chala Mele Mein — interactive picture book
    ----------------------------------------------------------------------------
-   The flow is the Figma section, frame for frame: Cover Page, Page 1 … Page 6,
-   Page 8 … Page 18. Eighteen frames — there is no Page 7 in the section, which
-   is why every sound is keyed by frame name and never by position.
+   The flow is the Figma section: Cover Page, Page 1 … Page 6, Page 8 … Page
+   16. Sixteen pages — there is no Page 7 in the section, which is why every
+   sound is keyed by frame name and never by position, and the section's last
+   three frames are one page here, because they are one painting said three
+   times over (see Page 16 in SCENES).
 
    Modules, in order:
      PAGES      the story itself (art + what lives in each scene)
@@ -60,8 +62,16 @@
          seconds of the mela's own DUM DUM, carried from far enough off to be
          quiet, and only then does the book move on. Page 2 has no narration,
          so without this it would turn before the drums had been heard at all.
-         It is the same recording the book stands on from Page 14. */
-      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.286, 0] },   /* 0.22 + 30% */
+         It is the same recording the book stands on from Page 14.
+
+         The last 600 ms of the five seconds are a fade. This recording is a
+         continuous drum loop with no silence anywhere in it — measured over
+         the first nine seconds it never falls below about −18 dB, and at the
+         5.00 s edge it is at −5.6 dB, all but its loudest — so there is no
+         quiet spot to cut on and moving the edge only moves the click. Faded
+         instead, the fair goes back to being far off, which is where it was
+         when the page began. */
+      coda: { fx: ["DUM DUM sound.mp3", 0, 5.00, 0.286, 0, false, [0, 600]] },   /* 0.22 + 30% */
       motion: "sway", dust: 6
     },
     {
@@ -170,26 +180,17 @@
       motion: "sway", dust: 4
     },
     {
-      frame: "Page 16",
+      /* The last page, and the end of the book. It was three — Page 16,
+         Page 17 and Page 18 — on one painting the export repeats, and it is
+         one page with three moments now: see SCENES. The flow is therefore
+         Cover Page, Page 1 … Page 6, Page 8 … Page 16, which is 16 pages,
+         and Page 17 and Page 18 no longer name anything the reader reaches.
+         Their paintings are left in assets/images rather than deleted; they
+         are the same picture as this one. */
+      frame: "Page 16", last: true,
       alt: {
-        hi: "मेले के मैदान में नूरी अकेली खड़ी होकर पंख फैलाए कुछ कहती है।",
-        en: "Noori standing alone on the fairground, saying something with a wing outstretched."
-      },
-      motion: "sway", dust: 6
-    },
-    {
-      frame: "Page 17",
-      alt: {
-        hi: "मेले के मैदान में नूरी अकेली खड़ी होकर पंख फैलाए कुछ कहती है।",
-        en: "Noori standing alone on the fairground, saying something with a wing outstretched."
-      },
-      motion: "sway", dust: 6
-    },
-    {
-      frame: "Page 18", last: true,
-      alt: {
-        hi: "मेले के मैदान से नूरी मुस्कुराकर कहानी पूरी करती है।",
-        en: "Noori smiling from the fairground as the story closes."
+        hi: "मेले के मैदान में नूरी पंख फैलाए खड़ी है और मुस्कुराकर कहानी पूरी करती है।",
+        en: "Noori on the fairground with a wing outstretched, smiling as she closes the story."
       },
       motion: "sway", dust: 6
     }
@@ -246,6 +247,16 @@
      leaves with its words: see the caption fallback in style.css. */
   const bub = (src, x, y, w) => lay(src, x, y, w, 0, { bubble: true });
 
+  /* One moment of a page that has more than one. Everything handed in is
+     tagged with the moment it belongs to, and the page then shows them a
+     moment at a time instead of all at once — see Page 16, which is three
+     things Noori says to the reader on one picture rather than three pages
+     of the same picture. Written as a run of moments rather than as a flat
+     list with a number repeated down it, so the scene reads the way it
+     plays. */
+  const moment = (n, ...layers) =>
+    layers.map((l) => Object.assign(l, { step: n }));
+
   /* words. cx is the centre line the design centres them on, not the left
      edge — Figma positions every text layer that way and so does this.
      `nw` holds a line together: a verse line is set to its own measured
@@ -254,6 +265,13 @@
      which is how the design wraps it. */
   const words = (lines, cx, y, w, size, lh, weight, tint, nw) =>
     ({ kind: "text", lines, cx, y, w, size, lh, weight, tint, nw });
+
+  /* How far the poem sits below where the design puts it, in the artboard's
+     own units — 40 of 1080, so a shade under 4% of the picture's height, or
+     just under half a line of the verse. It is a deliberate departure from
+     the file and the only one in this table, which is why it is a named
+     number rather than five edited coordinates: see the recital below. */
+  const VERSE_DROP = 40;
 
   /* the two voices of the book: speech inside a box, and the recital that
      runs bare across the sky from Page 9 to Page 15 */
@@ -268,7 +286,7 @@
        "कहानी चलाओ" — the same control, in the same place, doing the same job
        and rather more of it, since it starts the reading aloud as well as
        turning the page. Two buttons there would overlap and one of them
-       would be a lie. It is kept on Page 18, where the design also has it
+       would be a lie. It is kept on Page 16, where the design also has it
        and nothing else is competing for the corner. */
     "Page 1":  [lay("hmm-p1.png", 565, 405, 440, 130, { fade: 1 })],
 
@@ -283,12 +301,28 @@
     "Page 4":  [bub("bubble-p4.png",  835.96, 100, 526.10),
                 say(["अरे! तुम्हें नहीं पता? आज मेला लगा है।"], 1135, 159, 390, 55)],
 
-    /* flipped too — and three separate text layers, not one wrapped block,
-       so the question keeps the designer's own line breaks */
+    /* Flipped too — and three separate text layers, not one wrapped block,
+       which is what lets the question be asked a piece at a time.
+
+       Tez asks three things here and the recording says them one after
+       another, so they arrive one after another: each line comes, is said,
+       and leaves before the next, the same shape the end of the book has.
+
+       The bubble itself is not part of any moment and so never leaves. It is
+       one speech bubble — one animal, drawing one breath, asking three things
+       in four seconds — and popping it in and out three times in that space
+       would read as a fault rather than as speech. What changes inside it is
+       the words; the box that holds them stays.
+
+       All three sit at 241, the design's own y for the middle of the three.
+       Set at 55 on a 70 line, the block the designer drew runs 168 to 378 and
+       is centred on 273 — which is where one line placed at 241 lands, so a
+       single line falls exactly where the middle of the three used to be
+       rather than high in an otherwise empty bubble. */
     "Page 5":  [bub("bubble-p5.png", 1336.98, 149, 498.20),
-                say(["मेला!"],                    1624, 168, 414, 55),
-                say(["कहाँ?"],                    1624, 241, 414, 55),
-                say(["और वहाँ पहुँचना कैसे है?"], 1624, 314, 414, 55)],
+                ...moment(0, say(["मेला!"],                    1624, 241, 414, 55)),
+                ...moment(1, say(["कहाँ?"],                    1624, 241, 414, 55)),
+                ...moment(2, say(["और वहाँ पहुँचना कैसे है?"], 1624, 241, 414, 55))],
 
     "Page 6":  [bub("bubble-p6.png", 1286.99, 230, 458.70),
                 say(["चलो मेरे साथ, रास्ता मैं बताती हूँ।"], 1537.5, 285, 357, 55)],
@@ -296,17 +330,28 @@
     /* Page 8 carries no words in the design — the picture walks them on */
 
     /* the recital. Page 9 sets its two lines as separate layers, the rest as
-       one block of two, which is how the file has them. */
-    "Page 9":  [verse(["चलते-चलते नदी नज़र आई,"], 1431,   88, 680),
-                verse(["नीले पानी में लहरें छाईं।"], 1430.5, 212, 567)],
-    "Page 10": [verse(["नदी किनारे भेड़िया सोया,", "उसे देखकर चैन खोया।"], 1568.5, 106, 565)],
-    "Page 11": [verse(["दूर देखा, पुल था आगे,", "उस पर चढ़कर झटपट भागे।"], 907, 53, 866)],
-    "Page 12": [verse(["छप-छप करती बत्तखें प्यारी,", "एक, दो और तीन हैं सारी।"], 465, 70, 866)],
+       one block of two, which is how the file has them.
+
+       Every y from Page 9 to Page 13 is the design's own plus VERSE_DROP:
+       the recital sat too near the top edge of the picture, hardest on
+       Page 11 where the design starts it 53 units down — under 5% of the
+       frame — and it reads as though it is falling off. The drop is applied
+       to all five as one number rather than page by page, because the poem
+       is one recital and the five screens have to sit on the same line as
+       each other; to move it again, move this and nothing else. Page 14 and
+       Page 15 are left where the design puts them: they are the arrival at
+       the fair, and their words are placed against that painting rather
+       than against the run of the river. */
+    "Page 9":  [verse(["चलते-चलते नदी नज़र आई,"], 1431,   88 + VERSE_DROP, 680),
+                verse(["नीले पानी में लहरें छाईं।"], 1430.5, 212 + VERSE_DROP, 567)],
+    "Page 10": [verse(["नदी किनारे भेड़िया सोया,", "उसे देखकर चैन खोया।"], 1568.5, 106 + VERSE_DROP, 565)],
+    "Page 11": [verse(["दूर देखा, पुल था आगे,", "उस पर चढ़कर झटपट भागे।"], 907, 53 + VERSE_DROP, 866)],
+    "Page 12": [verse(["छप-छप करती बत्तखें प्यारी,", "एक, दो और तीन हैं सारी।"], 465, 70 + VERSE_DROP, 866)],
 
     /* The drums come back, smaller and further off than on Page 2 — and
        `late`, because on this page they are not there when the reader
        arrives. The couplet promises them; the coda brings them. */
-    "Page 13": [verse(["फूलों वाली राह अपनाई,", "डम-डम की आवाज़ फिर से आई।"], 467.5, 120, 873),
+    "Page 13": [verse(["फूलों वाली राह अपनाई,", "डम-डम की आवाज़ फिर से आई।"], 467.5, 120 + VERSE_DROP, 873),
                 lay("dum-p13.png", 1340, 15, 580, 330, { dum: "late" })],
 
     /* the elephant is a 36-frame drumming loop; the design flips him to face
@@ -317,23 +362,38 @@
 
     "Page 15": [verse(["पर तेज़ को झूला ही भाया।"], 401.5, 195, 737, false)],
 
-    "Page 16": [bub("bubble-p16.png", 743.98, 304, 498.40),
-                say(["अरे! तुम कहाँ रह गए?"], 1015, 370, 322, 55)],
-    "Page 17": [bub("bubble-p16.png", 737.98, 284, 498.40),
-                say(["हाँ-हाँ, तुम! अब तुम्हारी बारी है।"], 1012.5, 350, 414, 55)],
-    /* The last page, and the आगे on it is the way out of the book: press it
-       and the story stops where it stands and the game takes the screen.
+    /* The end of the book: one picture, and three things said on it in turn.
 
-       The box is the badge's whole canvas, and the badge carries transparent
+       It used to be three pages — Page 16, Page 17 and Page 18 — and the
+       three paintings were the same painting; Page 16 and Page 17 export
+       byte for byte identical. So the reader was being turned through two
+       page turns that changed nothing but the words in the bubble, and the
+       book counted a picture three times. It is one page now, and what were
+       three turns are three moments of it: each line arrives, is said, and
+       leaves before the next one comes, which is the shape the speech had
+       anyway. The three recordings still play in the order they were made —
+       see NARRATION, where Page 16 is now a run of three windows.
+
+       आगे is held back until all three have been said. It is the way out of
+       the book, and offering it while Noori is still speaking would invite
+       the reader to leave in the middle of being spoken to.
+
+       The badge's box is its whole canvas, and the badge carries transparent
        margin of its own — 1478x886 of oval inside 1536x1024 — so the numbers
        are worked back from where the oval has to land rather than read off
        the design. The blue badge is a rounder picture than the orange one it
        replaces, and this keeps the oval the same 256 across and on the same
        centre; only the box around it grew and rose to hold it. */
-    "Page 18": [bub("bubble-p16.png", 733.98, 300, 498.40),
-                say(["चलो, अब तुम भी मेले तक आओ।"], 1008.5, 366, 414, 55),
-                lay("badge.png?v=2", 1473, 838, 266, 177.33,
-                    { lift: true, cta: true, label: "आगे — खेल शुरू करो" })]
+    "Page 16": [
+      ...moment(0, bub("bubble-p16.png", 743.98, 304, 498.40),
+                   say(["अरे! तुम कहाँ रह गए?"], 1015, 370, 322, 55)),
+      ...moment(1, bub("bubble-p16.png", 737.98, 284, 498.40),
+                   say(["हाँ-हाँ, तुम! अब तुम्हारी बारी है।"], 1012.5, 350, 414, 55)),
+      ...moment(2, bub("bubble-p16.png", 733.98, 300, 498.40),
+                   say(["चलो, अब तुम भी मेले तक आओ।"], 1008.5, 366, 414, 55)),
+      lay("badge.png?v=2", 1473, 838, 266, 177.33,
+          { lift: true, cta: true, hold: true, label: "आगे — खेल शुरू करो" })
+    ]
   };
 
   /* Hang each frame's layers on its page, and let the words in them be the
@@ -355,7 +415,7 @@
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   /* ── halted ─────────────────────────────────────────────────────────────
-     The book runs until आगे on Page 18 is pressed, and from that moment it is
+     The book runs until आगे on Page 16 is pressed, and from that moment it is
      over: the game has the screen and nothing of the story may make a sound,
      turn a page or answer a key ever again in this session.
 
@@ -537,9 +597,12 @@
   /* ── The sound table ────────────────────────────────────────────────────
      Everything the book plays, keyed by **Figma frame name** rather than by
      position. The flow has a gap in it — the section runs Cover Page, Page 1
-     … Page 6, Page 8 … Page 18, with no Page 7 — so a positional key would
+     … Page 6, Page 8 … Page 16, with no Page 7 — so a positional key would
      be one out from Page 8 onward and every clip after it would land on the
-     wrong picture. The frame name cannot drift.
+     wrong picture. The frame name cannot drift. It also survives the section's
+     last three frames becoming one page: Page 17.wav and Page 18.wav are
+     still the recordings they always were, and they are still named, they
+     simply play as the second and third windows of Page 16's run.
 
      Each entry is [ file, from, to ]: a **window** into the file, in seconds,
      never a cut of it. The recordings are left exactly as supplied and the
@@ -577,10 +640,28 @@
   const POEM = "Page 9 to Page 15 Poem.wav";
 
   const NARRATION = {
-    "Page 1":  ["Page 1.wav",  0.15,  5.15],
+    "Page 1":  ["Page 1.mp3", 0.61,  2.17],
     "Page 3":  ["Page 3.wav",  0.09,  2.41],
     "Page 4":  ["Page 4.wav",  0.19,  5.32],
-    "Page 5":  ["Page 5.wav",  0.09,  4.37],
+    /* Three windows into one recording, because Tez asks three things and
+       the page now shows them one at a time — see SCENES.
+
+       They are contiguous: each ends exactly where the next begins, and the
+       outer edges are the 0.09 and 4.37 this frame has always had. So nothing
+       is cut and nothing is skipped, and the needle never jumps — the seek at
+       each boundary finds itself already there and does not move. The
+       recording plays straight through exactly as it did when it was one
+       window; the boundaries only say when the words in the bubble change.
+
+       Each is cut just after its sentence ends rather than at the midpoint of
+       the pause the way the poem's pages are. A page turn has 780 ms of its
+       own to hide a boundary in; a line leaving a bubble and the next
+       arriving has about 480 ms, and cutting early gives that the whole
+       breath to happen in, so the words are on the page before they are
+       spoken rather than arriving with them. */
+    "Page 5":  [["Page 5.wav", 0.09, 1.01],     /* मेला!    — speech 0.153–0.885 */
+                ["Page 5.wav", 1.01, 2.19],     /* कहाँ?    — speech 1.561–2.065 */
+                ["Page 5.wav", 2.19, 4.37]],    /* और वहाँ… — speech 2.465–4.246 */
     "Page 6":  ["Page 6.wav",  0.32,  3.93],
     "Page 8":  ["Page 8.wav",  0.14,  4.90],
     "Page 9":  [POEM,  0.26,  7.15],
@@ -590,20 +671,84 @@
     "Page 13": [POEM, 25.66, 31.51],
     "Page 14": [POEM, 31.51, 34.26],
     "Page 15": [POEM, 34.26, 37.04],
-    "Page 16": ["Page 16.wav", 0.22,  2.98],
-    "Page 17": ["Page 17.wav", 0.20,  4.24],
-    "Page 18": ["Page 18.wav", 0.21,  2.75]
+    /* The other frame with a run of windows, and the one that shows what the
+       shape is for: three things said on one picture — see SCENES — so its
+       three recordings play back to back, in the order they were made, and
+       the page is not finished until the last of them is. Where Page 5 cuts
+       one recording into three, this one has three recordings; the run does
+       not care which, because a window names its own file. Each window
+       opening is what brings the next bubble on, so the picture cannot get
+       ahead of the voice or fall behind it: they are the same event. */
+    "Page 16": [["Page 16.wav", 0.22, 2.98],
+                ["Page 17.wav", 0.20, 4.24],
+                ["Page 18.wav", 0.21, 2.75]]
   };
 
   /* Cover Page and Page 2 have no recording in the folder, so they get no
      entry and the book does not wait on one — their beat begins as soon as
      they are on screen.
 
-     Page 1 is the one window here that is not the whole of its recording.
-     `Page 1.wav` runs 10.4 s in two sentences with a 0.47 s breath between
-     them at 4.5 s; the page is held to the first five seconds of it, which
-     is a deliberate cap and not a measurement. It is the only place in the
-     book where a window stops before its speech does. */
+     Page 1 used to be the one window here that was not the whole of its
+     recording: `Page 1.wav` ran 10.4 s in two read sentences and the page was
+     held to the first five of them, a deliberate cap rather than a
+     measurement, and the second sentence was never heard anywhere. That
+     recording has been replaced. `Page 1.mp3` is 2.66 s carrying a single
+     sustained hum — 1.38 s of it, swelling and falling with no syllable in it
+     at all, which is the हम्ममममम the page already draws over Tez rather
+     than a narrator describing him. So the cap is gone with the file it was
+     made for, and every window in the book is now measured: this one to the
+     same −45 dB edges as the rest, 0.674 s and 2.050 s, pulled out by the
+     usual 60 ms lead and 120 ms tail.
+
+     It is much shorter than what it replaces, and the page is therefore held
+     for much less time — about 1.6 s of sound where there were 5. */
+
+  /* ── When each word is said ─────────────────────────────────────────────
+     One [from, to] per word, in the file's own seconds — the same clock as
+     NARRATION above, so nothing has to be rebased — and in reading order
+     across the whole frame. The recital walks this against the needle and
+     lights the word that is being said, and the line it is in.
+
+     Measured the same way the windows were: `silencedetect` over the file,
+     at −45 dB for the pauses between the sentences and −25 dB for the joins
+     between words inside one breath, then read against a 20 ms RMS envelope
+     so a fricative is not mistaken for a gap. That last part matters here —
+     the /s/ of "कैसे" sits at −42 dB, quiet enough for the detector to call
+     it silence and split one word into two.
+
+     There is no text in this table, only times. The words themselves stay in
+     SCENES where the design put them, and the two are matched by counting:
+     if a frame's painted words and its measured times ever disagree in
+     number, the recital leaves that page alone rather than lighting up
+     everything after the mismatch on the wrong syllable.
+
+     Page 5 is the only frame measured so far. Any other page joins by having
+     its own row added here — nothing else has to change.
+     -------------------------------------------------------------------- */
+  const SAID = {
+    /* "मेला! कहाँ? और वहाँ पहुँचना कैसे है?" — three sentences, seven words,
+       across the 0.09–4.37 the frame runs to. The three are far apart: 0.68 s
+       of held breath after "मेला!" and 0.45 s after "कहाँ?", which is the
+       pause a child needs to take in one question before the next arrives —
+       and which is also the room the page uses to change the words in the
+       bubble, since those same two pauses are where its three windows are
+       cut.
+
+       These stay one unbroken list of seven in reading order even though the
+       page is now shown in three parts, because they are times in the file
+       and the file did not change. The recital counts the words painted on
+       the page against them, and all seven are painted — only one line of
+       them is on screen at a time. */
+    "Page 5": [
+      [0.14, 0.89],                                   /* मेला!    */
+      [1.56, 2.01],                                   /* कहाँ?    */
+      [2.46, 2.72],                                   /* और       */
+      [2.86, 3.16],                                   /* वहाँ     */
+      [3.30, 3.78],                                   /* पहुँचना   */
+      [3.80, 4.10],                                   /* कैसे     */
+      [4.10, 4.26]                                    /* है?      */
+    ]
+  };
 
   /* One effect per frame, chosen off what is actually in that painting:
      [ file, from, to, gain, delay ms, loop ]. The delay lets the page settle
@@ -626,11 +771,11 @@
     "Page 14":    ["DUM DUM sound 2.mp3",  0,    8.32, 0.40, 150],  /* the fair announces itself*/
     "Page 15":    ["Drum 2.mp3",           0.14, 1.28, 0.55, 200],  /* a beat off the big wheel */
     "Page 16":    ["Noori sound 2.mp3",    0.08, 1.09, 0.60, 220]   /* Noori has the last word  */
-    /* Nothing on Page 17 or Page 18, and no bed under any of the last three
-       (see HUSH_AT). From Page 16 Noori turns away from the fair and speaks
-       to the reader — "अब तुम्हारी बारी है", "चलो, अब तुम भी मेले तक आओ" —
-       and the drums would only be talking over her. The book ends on her
-       voice and nothing else. */
+    /* One effect for the whole of the last page, on its arrival, and no bed
+       under it at all (see HUSH_AT). Noori turns away from the fair there and
+       speaks to the reader — "अब तुम्हारी बारी है", "चलो, अब तुम भी मेले तक
+       आओ" — and the drums would only be talking over her. The book ends on
+       her voice and nothing else. */
   };
 
   /* The bed. Music for the journey, and the fair's own drums once they get
@@ -642,9 +787,10 @@
     mela:  ["DUM DUM sound.mp3", 0,    53.00, 0.13]
   };
   const FAIR_AT = 13;      /* index of Page 14 — from here on, the mela bed  */
-  /* index of Page 16, where the drums stop. From here Noori turns away from
-     the fair and speaks to the reader — "अरे! तुम कहाँ रह गए?" — and those
-     last three pages stand on nothing at all, so that nothing is playing
+  /* index of Page 16, where the drums stop — and, since the section's last
+     three frames are one page now, the last page of the book. Noori turns
+     away from the fair there and speaks to the reader — "अरे! तुम कहाँ रह
+     गए?" — and the page stands on nothing at all, so that nothing is playing
      underneath the one moment the book asks the child a question. */
   const HUSH_AT = 15;
 
@@ -694,10 +840,12 @@
     let el = null;              /* the single audio element — never a second */
     let token = 0;              /* invalidates anything still in flight */
     let seq = 0;                /* which page in the flow is bound */
-    let spec = null;            /* its [file, from, to], or null */
+    let runs = null;            /* its windows, in order, or null */
+    let leg = 0;                /* which of them is playing */
     let stopAt = 0, timer = 0, playing = false;
     const listeners = [];   /* told when sound starts and stops */
     const enders = [];      /* told when a clip is done for good */
+    const steppers = [];    /* told which window of a run has begun */
 
     /* --- the single element, wired once so listeners never accumulate ---- */
     function element() {
@@ -711,10 +859,10 @@
          element stays inspectable without touching it. */
 
       el.addEventListener("playing", () => announce(true));
-      el.addEventListener("ended", finish);
+      el.addEventListener("ended", close);
       /* the far edge of the window, for a clip that stalls or runs long */
       el.addEventListener("timeupdate", () => {
-        if (stopAt && el.currentTime >= stopAt) finish();
+        if (stopAt && el.currentTime >= stopAt) close();
       });
       el.addEventListener("error", () => {
         if (!el.getAttribute("src")) return;    /* our own teardown, not a fault */
@@ -748,6 +896,16 @@
       enders.forEach((fn) => fn(page));
     }
 
+    /* One window has run out. A frame with another behind it carries straight
+       on into it and is not finished yet — only the last window of a run ends
+       the page, which is what keeps the turn gate honest about a frame that
+       has three things to say rather than one. */
+    function close() {
+      if (!stopAt && !playing) return;      /* already done, or never started */
+      if (runs && leg + 1 < runs.length) { open(leg + 1); return; }
+      finish();
+    }
+
     function stop() {
       token++;
       stopAt = 0;
@@ -761,12 +919,19 @@
       announce(false);
     }
 
-    function start() {
-      stop();                        /* always from silence */
+    /* Open one window of the bound frame. Called with 0 by start(), and with
+       the next one by close() as each runs out — the token is deliberately
+       not bumped in between, because moving from one window of a page to the
+       next is the same reading carrying on, not a new one starting. */
+    function open(n) {
       if (halted) return;            /* the book is over; the game has the screen */
-      if (!spec) return;             /* a frame with no recording */
+      if (!runs || !runs[n]) { finish(); return; }
 
-      const [file, from, to] = spec;
+      leg = n;
+      stopAt = 0;
+      clearTimeout(timer); timer = 0;
+
+      const [file, from, to] = runs[n];
       const mine = token;
       const a = element();
       a.muted = muted;
@@ -774,8 +939,10 @@
          nothing and only risks aborting it. The poem stays loaded across all
          seven of its pages, because only currentTime changes between them. */
       const want = url(SOUND, file) + "?v=" + CUT;
-      if (a.getAttribute("src") !== want) a.src = want;
+      const swapped = a.getAttribute("src") !== want;
+      if (swapped) a.src = want;
       document.documentElement.dataset.clip = file;
+      steppers.forEach((fn) => fn(n, seq));
 
       seek(a, from, () => {
         if (mine !== token) return;
@@ -790,11 +957,24 @@
         const arm = () => {
           if (mine !== token) return;
           clearTimeout(timer);
-          timer = setTimeout(() => { if (mine === token) finish(); },
+          timer = setTimeout(() => { if (mine === token) close(); },
                              Math.max(120, (to - a.currentTime) * 1000 + 90));
         };
-        if (playing) arm(); else a.addEventListener("playing", arm, { once: true });
+        /* Sound already running and the same file underneath it: the needle
+           has only moved, so the clock can start now. Anything else has a
+           load in front of it and must wait to be told playback has really
+           begun — armed on the request instead, a window that spent a moment
+           buffering would be timed out before its last syllable. */
+        if (playing && !swapped) arm();
+        else a.addEventListener("playing", arm, { once: true });
       });
+    }
+
+    function start() {
+      stop();                        /* always from silence */
+      if (halted) return;            /* the book is over; the game has the screen */
+      if (!runs) return;             /* a frame with no recording */
+      open(0);                       /* and a run of windows starts at its first */
     }
 
     return {
@@ -802,10 +982,24 @@
       get muted() { return muted; },
       get playing() { return playing; },
 
+      /* where the needle is, in the file's own seconds. The recital reads the
+         words off this rather than off a clock of its own, so a clip that
+         stalls or is seeked drags the highlight with it instead of walking
+         on without the voice. */
+      get at() { return el ? el.currentTime : 0; },
+
       /* whether the frame now bound has a recording at all. Cover Page and
          Page 2 do not, and that is the difference between a page the reader
          must wait out and one with nothing to wait for. */
-      get hasClip() { return !!spec; },
+      get hasClip() { return !!runs; },
+
+      /* how many windows this frame has: one for almost every page, three for
+         Page 16, and none for a page with no recording. What paces a page
+         that has to run its own moments in silence reads this. */
+      get legs() { return runs ? runs.length : 0; },
+
+      /* the windows themselves, in ms, for the same reason */
+      get spans() { return (runs || []).map(([, f, t]) => (t - f) * 1000); },
 
       /* called on every page change. The page object carries the frame name,
          which is the key into NARRATION; the sequence number comes along
@@ -813,7 +1007,12 @@
       bind(page, n) {
         stop();
         seq = n || 0;
-        spec = (page && NARRATION[page.frame]) || null;
+        leg = 0;
+        const spec = (page && NARRATION[page.frame]) || null;
+        /* A frame is written either as one window or as a run of them. The
+           first element says which: a filename means the entry is the window
+           itself, an array means it is a list of them. */
+        runs = !spec ? null : (typeof spec[0] === "string" ? [spec] : spec);
       },
 
       stop,
@@ -842,7 +1041,13 @@
          with it because a turn can start while a clip is still finishing, and
          a late ended from the page just left must not be read as the new page
          having finished. */
-      onEnded(fn) { enders.push(fn); }
+      onEnded(fn) { enders.push(fn); },
+
+      /* fn(n, seq) as each window of a run opens. This is what a page made of
+         moments is paced by: the bubble and the voice are the same event, so
+         a recording that takes a moment to load holds its picture back with
+         it rather than being spoken over by the next one. */
+      onStep(fn) { steppers.push(fn); }
     };
   })();
 
@@ -853,7 +1058,7 @@
      the moment its page is left, so a duck can never quack over the fair.
      -------------------------------------------------------------------- */
   const Sfx = (() => {
-    let el = null, timer = 0, token = 0;
+    let el = null, timer = 0, token = 0, fader = 0;
     let ring = null;        /* [from, to] while a looping effect runs */
 
     /* One element, wired once, so the guard below cannot accumulate a
@@ -877,26 +1082,49 @@
       token++;
       ring = null;
       clearTimeout(timer); timer = 0;
+      clearInterval(fader); fader = 0;
       if (el) { try { el.pause(); } catch { /* not started */ } }
       delete document.documentElement.dataset.sfx;
     }
 
-    /* Fire one effect: [ file, from, to, gain, delay ms, loop ]. Taken as a
-       spec rather than a frame name, because not every effect belongs to the
-       arrival of a page — Page 13's drums answer its own last line, long
-       after the picture has landed. */
+    /* Walk the effect's volume somewhere over `ms`, on the same 40 ms step
+       the bed's crossfade runs on. `then` fires on arrival, which is where a
+       one-shot's pause belongs: faded to nothing first, paused second. */
+    function ramp(a, target, ms, then) {
+      clearInterval(fader);
+      const t0 = Date.now(), was = a.volume, mine = token;
+      fader = setInterval(() => {
+        if (mine !== token) { clearInterval(fader); fader = 0; return; }
+        const k = Math.min(1, (Date.now() - t0) / ms);
+        a.volume = clamp(was + (target - was) * k, 0, 1);
+        if (k === 1) { clearInterval(fader); fader = 0; if (then) then(); }
+      }, 40);
+    }
+
+    /* Fire one effect: [ file, from, to, gain, delay ms, loop, [in, out] ].
+       Taken as a spec rather than a frame name, because not every effect
+       belongs to the arrival of a page — Page 13's drums answer its own last
+       line, long after the picture has landed.
+
+       `[in, out]` is how many ms of the window's own head and tail are given
+       over to a fade. It is left off wherever the recording already begins
+       and ends in silence, which is most of them — the windows were measured
+       to the speech and the quiet either side is the fade. It is needed where
+       the recording has no quiet to end on: see Page 2. */
     function play(fx) {
         stop();
         if (halted) return;
         if (!fx || PageAudio.muted) return;
-        const [file, from, to, gain, delay, loop] = fx;
+        const [file, from, to, gain, delay, loop, fade] = fx;
+        const fadeIn  = (fade && fade[0]) || 0;
+        const fadeOut = (fade && fade[1]) || 0;
         const mine = token;
 
         timer = setTimeout(() => {
           if (mine !== token) return;
           const a = element();
           a.muted = PageAudio.muted;
-          a.volume = gain;
+          a.volume = fadeIn ? 0 : gain;
           a.loop = !!loop;
           const want = url(FX, file);
           if (a.getAttribute("src") !== want) a.src = want;
@@ -908,13 +1136,25 @@
             const p = a.play();
             if (p && p.catch) p.catch(() => { /* blocked before a gesture */ });
             clearTimeout(timer);
+            if (fadeIn) ramp(a, gain, fadeIn);
             /* a hit closes on its own at the far edge of its window, and a
                page turn closes it sooner. A background has no far edge:
-               only leaving the page ends it. */
+               only leaving the page ends it.
+
+               Where the recording is still sounding at that far edge, pausing
+               on the spot is a click rather than an ending, so the last
+               `fadeOut` ms of the window are spent falling to nothing and the
+               pause lands on silence. The window itself does not move — the
+               fade is taken out of the sound, not added to the page — so what
+               the page is held for is exactly what it was. */
             if (!loop) {
+              const span = Math.max(60, (to - from) * 1000);
+              const out  = Math.min(fadeOut, span);
               timer = setTimeout(() => {
-                if (mine === token) { try { a.pause(); } catch { /* gone */ } }
-              }, Math.max(60, (to - from) * 1000));
+                if (mine !== token) return;
+                const shut = () => { try { a.pause(); } catch { /* gone */ } };
+                if (out) ramp(a, 0, out, shut); else shut();
+              }, span - out);
             }
           });
         }, delay || 0);
@@ -1213,7 +1453,20 @@
          cueScene() picks it up. */
       const fx = slot.querySelector(".fx");
       fx.replaceChildren();
-      for (const l of page.layersFx || []) fx.append(buildLayer(l));
+      /* a frame whose narration has been measured word by word gets its words
+         split into spans for the recital to light; every other frame keeps
+         the plain text node it has always had */
+      const timed = !!SAID[page.frame];
+      for (const l of page.layersFx || []) {
+        const el = buildLayer(l, timed);
+        /* which moment of the page this belongs to, and whether it is held
+           back until the page has finished speaking — the two things the
+           sequence reads off the painting rather than being told twice */
+        if (l.step !== undefined) el.dataset.step = l.step;
+        if (l.hold) el.classList.add("is-held");
+        fx.append(el);
+      }
+      Sequence.bind(fx);
 
       /* The overlay is decoration and stays out of the accessibility tree —
          the words on it are announced through the live region instead, once,
@@ -1231,9 +1484,26 @@
       return fx;
     }
 
+    /* One <span> per word, so the recital has something to light, with the
+       spacing between them kept exactly as it was — the split captures its
+       separators and puts them back, so the line the browser lays out is
+       character for character the line it laid out before. */
+    function wordSpans(line) {
+      const f = document.createDocumentFragment();
+      for (const bit of line.split(/(\s+)/)) {
+        if (!bit) continue;
+        if (/^\s+$/.test(bit)) { f.append(bit); continue; }
+        const s = document.createElement("span");
+        s.className = "fx__word";
+        s.textContent = bit;
+        f.append(s);
+      }
+      return f;
+    }
+
     /* One layer of the overlay, placed in the picture's own proportions so
        it holds at every size. Figma's pixels went in; percentages come out. */
-    function buildLayer(l) {
+    function buildLayer(l, timed) {
       if (l.kind === "img") {
         const im = document.createElement("img");
         im.className = "fx__art";
@@ -1289,7 +1559,7 @@
          written in couplets and must not re-wrap to the reader's window */
       l.lines.forEach((line, i) => {
         if (i) p.append(document.createElement("br"));
-        p.append(line);
+        p.append(timed ? wordSpans(line) : line);
       });
       return p;
     }
@@ -1385,7 +1655,9 @@
        now — otherwise a clip finishing during a turn would mark the page just
        arrived at as read. */
     PageAudio.onEnded((page) => {
-      if (page === index + 1 && !runCoda()) announceReady();
+      if (page !== index + 1) return;
+      Sequence.done();          /* every window of it has now been said */
+      if (!runCoda()) announceReady();
     });
 
     /* The page that answers itself, or waits to be answered. Page 13 reads
@@ -1419,7 +1691,15 @@
        cover entrance is running, since that one announces for itself. */
     function awaitPresentation(coverRunning) {
       if (coverRunning) return;                        /* Cover.play announces */
-      if (PageAudio.on && PageAudio.hasClip) return;   /* onEnded announces */
+      /* onEnded announces, and onStep walks a page made of moments */
+      if (PageAudio.on && PageAudio.hasClip) return;
+      /* No voice, so a page made of moments has to walk itself — and the page
+         is not finished until it has. This is the only place that knows there
+         will not be a voice. The page it started on is remembered for the
+         same reason a coda's is: leaving mid-sequence must not mark whatever
+         is on screen when it ends as read. */
+      const mine = index;
+      if (Sequence.run(() => { if (mine === index) announceReady(); })) return;
       /* no voice to wait for — a coda page still owes its drums */
       if (runCoda()) return;
       announceReady();                                 /* nothing to wait for */
@@ -1667,6 +1947,219 @@
     };
   })();
 
+  /* ── Sequence ───────────────────────────────────────────────────────────
+     A page that is said in more than one breath, and shows one of them at a
+     time. Two pages have moments: Page 5, where Tez asks three things in one
+     bubble, and Page 16, three things Noori says to the reader that used to
+     be three pages of the same painting.
+
+     What belongs to a moment is tagged and what does not is left alone, so a
+     page can keep something on screen throughout — Page 5's bubble stays put
+     while only the words inside it change.
+
+     The voice paces it. Each window of the run opening is what brings the
+     next line on, so the picture and the recording are the same event and
+     cannot drift apart — a recording that takes a moment to load holds its
+     bubble back with it rather than being spoken over. With the narration
+     switched off there is no voice to follow, so it walks itself instead, on
+     the lengths those same windows would have taken: the same three moments,
+     the same shape, in silence.
+
+     The last moment stays. It is the line the book ends on and आगे appears
+     beside it, which is the picture the design draws — everything before it
+     leaves to make room for what comes next, but nothing follows the last.
+     -------------------------------------------------------------------- */
+  const Sequence = (() => {
+    /* the breath between one moment and the next when nothing is speaking.
+       With a voice the gap is the CSS one below and the load in front of the
+       next recording; this is what stands in for that. */
+    const GAP = 420;
+
+    let moments = [];    /* the layers of each moment, in order */
+    let cta = null;      /* the way out, held back until the last is said */
+    let at = -1, timer = 0;
+
+    function clear() { clearTimeout(timer); timer = 0; }
+
+    /* Bound as each page is painted, whether it has moments or not — a page
+       without them still has to put the last page's down. The layers are left
+       as the CSS draws them, out of sight: nothing is shown until there is a
+       reason to show it, so all three arrive the same way rather than the
+       first one being already there when the page lands. */
+    function bind(fx) {
+      clear();
+      moments = []; cta = null; at = -1;
+      if (!fx) return;
+      for (const el of fx.children) {
+        if (el.classList.contains("fx__cta")) { cta = el; continue; }
+        const n = el.dataset.step;
+        if (n === undefined) continue;
+        (moments[n] = moments[n] || []).push(el);
+      }
+    }
+
+    /* one moment, and only it. आगे goes back into hiding whenever the page is
+       speaking again, which is what makes tapping the words replay the whole
+       sequence rather than leaving the way out standing over the first line */
+    function show(n) {
+      if (n === at) return;
+      at = n;
+      moments.forEach((group, i) => {
+        for (const el of group) el.classList.toggle("is-here", i === n);
+      });
+      if (cta) cta.classList.add("is-held");
+    }
+
+    function done() {
+      clear();
+      if (!moments.length) return;
+      show(moments.length - 1);
+      if (cta) cta.classList.remove("is-held");
+    }
+
+    PageAudio.onStep((n) => { if (moments.length) show(n); });
+
+    return {
+      bind, done,
+
+      /* No voice to follow. The moments take the lengths their recordings
+         would have taken, so a reader with the narration off is shown the
+         same things for the same time rather than all of them at once —
+         these lines sit on top of one another and could not be.
+
+         Answers whether it has taken the page over, the way a coda does, and
+         says when it is done. A page that has not shown all its moments has
+         not finished presenting itself: without this the turn would be armed
+         the instant the page landed and Page 5 would be turned away from
+         after a second and a half, having asked only the first of its three
+         questions. Page 16 never noticed, being the page nothing follows. */
+      run(then) {
+        clear();
+        if (!moments.length) return false;
+        const spans = PageAudio.spans;
+        let i = 0;
+        const next = () => {
+          show(i);
+          const held = (spans[i] || 2600) + GAP;
+          i += 1;
+          timer = setTimeout(
+            i < moments.length ? next : () => { done(); if (then) then(); },
+            held);
+        };
+        next();
+        return true;
+      }
+    };
+  })();
+
+  /* ── Recital ────────────────────────────────────────────────────────────
+     The words lighting up as they are said: the line being spoken comes
+     forward while the ones still to come sit back, and inside it each word
+     takes its turn. A child who cannot yet read the whole of a page can at
+     least see which of it is being said to them.
+
+     It reads the needle, never a clock of its own. A timer started when the
+     voice started would be right for exactly as long as nothing went wrong;
+     PageAudio.at is where the sound actually is, so a clip that stalls, is
+     paused by a hidden tab, or is replayed from the top drags the light with
+     it rather than running on without the voice.
+
+     It draws only while there is a voice to follow — bound when the narration
+     starts, taken down when it stops — so a page nobody is reading aloud
+     looks exactly as it always has, and a page with no measured words is
+     never touched at all.
+     -------------------------------------------------------------------- */
+  const Recital = (() => {
+    let marks = [];     /* [from, to] per word, in the file's own seconds */
+    let words = [];     /* the spans they belong to, in the same order     */
+    let lines = [];     /* { el, first, last } — one per painted line      */
+    let raf = 0, atWord = -2, atDone = -2;
+
+    /* everything back to the page as it is drawn when no one is reading */
+    function clear() {
+      for (const w of words) w.classList.remove("is-saying", "is-said");
+      for (const l of lines) l.el.classList.remove("is-live", "is-waiting");
+      atWord = atDone = -2;
+    }
+
+    /* The words on the page that is actually on screen. Bound when the voice
+       starts rather than when the page lands: settle() takes is-active off
+       the leaving slot before it starts the clip, so by the time there is
+       anything to follow there is exactly one page to follow it on. */
+    function bind() {
+      clear();
+      marks = []; words = []; lines = [];
+
+      const page = PAGES[Book.index];
+      const fx = document.querySelector(".slot.is-active .fx");
+      if (!page || !fx) return;
+
+      const m = SAID[page.frame];
+      if (!m) return;
+
+      const all = [...fx.querySelectorAll(".fx__word")];
+      /* The table and the painting have to agree exactly. One word out and
+         every word after it lights on the wrong syllable, which is worse for
+         a child following along than no light at all — so a frame that does
+         not tally is simply left alone. */
+      if (all.length !== m.length) return;
+
+      marks = m;
+      words = all;
+      let n = 0;
+      for (const p of fx.querySelectorAll(".fx__say")) {
+        const own = p.querySelectorAll(".fx__word").length;
+        if (!own) continue;
+        lines.push({ el: p, first: n, last: n + own - 1 });
+        n += own;
+      }
+    }
+
+    function draw() {
+      const t = PageAudio.at;
+
+      /* the word being said now, or none at all — the gaps between the three
+         questions on Page 5 run over half a second, and holding the last word
+         lit across one of those would say the reader is still on it */
+      let saying = -1;
+      for (let i = 0; i < marks.length; i++) {
+        if (t >= marks[i][0] && t < marks[i][1]) { saying = i; break; }
+      }
+      /* and how many are behind us, which is what makes a word stay read */
+      let done = 0;
+      while (done < marks.length && t >= marks[done][1]) done++;
+
+      if (saying === atWord && done === atDone) return;
+      atWord = saying; atDone = done;
+
+      words.forEach((w, i) => {
+        w.classList.toggle("is-saying", i === saying);
+        w.classList.toggle("is-said", i < done);
+      });
+      for (const l of lines) {
+        const live = saying >= l.first && saying <= l.last;
+        l.el.classList.toggle("is-live", live);
+        /* a line not yet reached sits back; one already read stays where it
+           is, because it has been said and still counts */
+        l.el.classList.toggle("is-waiting", !live && done <= l.first);
+      }
+    }
+
+    function run() {
+      raf = requestAnimationFrame(run);
+      draw();
+    }
+
+    PageAudio.onState((speaking) => {
+      cancelAnimationFrame(raf); raf = 0;
+      if (!speaking) { clear(); return; }
+      bind();
+      if (marks.length) { draw(); run(); }
+    });
+
+    return { clear };
+  })();
+
   /* ── PlayMode ───────────────────────────────────────────────────────────
      "चलाओ" hands the screen over to the picture: the top bar lifts out of
      flow and fades, and the book grows to fill the page.
@@ -1836,7 +2329,7 @@
        syllable would read as an interruption, and the painting is worth a
        moment of its own once the words have stopped.
 
-       Page 18 is the one exception, and not because of its length: what
+       Page 16 is the one exception, and not because of its length: what
        follows it is not a page but the game, and going there is the child's
        decision to make rather than a timer's. canForward() already stops at
        the last page, so nothing here has to say so twice.
@@ -2137,7 +2630,7 @@
   })();
 
   /* ── Handoff ────────────────────────────────────────────────────────────
-     आगे, on Page 18, and what is on the other side of it.
+     आगे, on Page 16, and what is on the other side of it.
 
      The story ends and the game begins — Figma pages 19 → 35, the map, the
      five questions, the stickers and the film at the end. The game is its own

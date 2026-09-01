@@ -465,9 +465,71 @@ button { font: inherit; color: inherit; }
    pointer shape is the only cue; there is no hover effect on the scene */
 .slot.is-active .fx__say { pointer-events: auto; }
 
+/* ── the recital ─────────────────────────────────────────────────────────
+   The words lighting up as the narrator says them. Nothing in here moves a
+   glyph: it is all colour and opacity, so a page reads at exactly the width
+   and line breaks it has always had, and the highlight cannot re-wrap a
+   couplet by lighting a word in it. Every rule needs a class the script only
+   adds while a voice is actually running, so a page with the narration off
+   is untouched.
+   ------------------------------------------------------------------- */
+.fx__say  { transition: opacity .3s ease; }
+.fx__word { transition: color .16s ease, opacity .16s ease, text-shadow .16s ease; }
+
+/* the line being spoken comes forward and the ones still to come sit back. A
+   line already read is left alone — it has been said and it still counts. */
+.fx__say.is-waiting { opacity: .45; }
+
+/* and inside the live line the same again, a word at a time, so the sentence
+   fills in as it is read rather than arriving all at once */
+.fx__say.is-live .fx__word          { opacity: .5; }
+.fx__say.is-live .fx__word.is-said  { opacity: 1; }
+
+/* the word being said right now, in the terracotta the book accents with and
+   lit from behind in its gold — the two colours already in the artwork */
+.fx__word.is-saying {
+  opacity: 1;
+  color: var(--terracotta);
+  text-shadow: 0 0 .55cqw rgba(230, 165, 43, .62);
+}
+
+/* ── a page said in more than one breath ─────────────────────────────────
+   Page 16 is three things Noori says to the reader on one painting, and only
+   one of them is on the screen at a time. Each layer of a moment is drawn out
+   of sight and brought in when its turn comes.
+
+   The one being left goes before the next arrives, rather than the two
+   crossing over: the departure takes .22s and the arrival waits .26s to
+   begin, so there is a clear moment with nothing in the bubble. That gap is
+   the point — three lines fading through one another in the same place would
+   read as one line changing its mind, not as three things being said.
+
+   Held by visibility rather than display: nothing reflows, and a bubble that
+   is not on the page is out of reach of a finger, the Tab key and a screen
+   reader alike. Transform rather than the translate property, which .fx__say
+   is already using to centre itself on its line — the two compose, so the
+   arrival cannot knock the words off their own middle.
+   ------------------------------------------------------------------- */
+.fx > [data-step] {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.1cqw) scale(.965);
+  transition: opacity .22s ease,
+              transform .22s ease,
+              visibility 0s linear .22s;
+}
+.fx > [data-step].is-here {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity .34s cubic-bezier(.34, 1.36, .64, 1) .26s,
+              transform .34s cubic-bezier(.34, 1.36, .64, 1) .26s,
+              visibility 0s linear .26s;
+}
+
 /* ── आगे ─────────────────────────────────────────────────────────────────
    The button the design paints at the end of the story, and it is a real one:
-   Page 18 is the last page of the book, and आगे is the way out of it and into
+   Page 16 is the last page of the book, and आगे is the way out of it and into
    the game. Its shadow is a drop-shadow rather than a box-shadow: the artwork
    is an oval on transparency, and a box-shadow would draw the rectangle around
    it instead of following the oval. */
@@ -489,9 +551,23 @@ button { font: inherit; color: inherit; }
   font: inherit;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: transform .18s ease;
+  transition: transform .18s ease,
+              opacity .4s ease .24s,
+              visibility 0s linear .24s;
 }
 .slot.is-active .fx__cta { pointer-events: auto; }
+
+/* आगे is not on the page until the page has finished saying what it has to
+   say — the way out of the book, offered while Noori is still speaking,
+   invites the reader to leave in the middle of being spoken to. Held by
+   visibility, so while it is not there it cannot be pressed, tabbed to or
+   read out; and it does not sit breathing at nobody either. */
+.fx__cta.is-held {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .2s ease, visibility 0s linear .2s;
+}
+.fx__cta.is-held .fx__badge { animation-play-state: paused; }
 /* the page waiting in the other slot is only at opacity 0, which still leaves
    a button in it reachable by Tab — this takes it out of reach as well */
 .slot:not(.is-active) .fx__cta { visibility: hidden; }
@@ -1026,6 +1102,9 @@ button { font: inherit; color: inherit; }
 
   /* the drums are still heard; the word simply arrives already there */
   .fx__dum.is-on, .is-fading-in { animation: none !important; opacity: 1; }
+  /* the recital still follows the voice, but each word simply is lit rather
+     than fading up to it */
+  .fx__say, .fx__word { transition: none; }
   /* the elephant is a GIF and animates itself — a browser cannot pause it,
      so he keeps drumming. He is small, far off, and the only thing moving. */
   .caption__text { transition-duration: .12s; }
@@ -1033,7 +1112,7 @@ button { font: inherit; color: inherit; }
 }
 
 /* ── 10. The handover ────────────────────────────────────────────────────────
-   Page 18's आगे leads out of the book and into the game. The game is a whole
+   Page 16's आगे leads out of the book and into the game. The game is a whole
    application of its own — its own artboard, its own reset, its own audio and
    its own keys — so it is given its own document in a frame here rather than
    folded into this one, where the two would fight over `*`, over `.layer` and
@@ -1090,4 +1169,9 @@ button { font: inherit; color: inherit; }
   .fx__cta { transition: none; }
   .fx__cta .fx__badge { animation: none !important; }
   .fx__cta:hover { transform: none; }
+  /* a moment still leaves before the next arrives — that is the sense of the
+     thing, not decoration — but it does so by appearing and disappearing
+     rather than by moving */
+  .fx > [data-step] { transform: none; transition: visibility 0s linear .18s; }
+  .fx > [data-step].is-here { transform: none; transition: visibility 0s linear .2s; }
 }
