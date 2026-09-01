@@ -290,9 +290,15 @@
        and nothing else is competing for the corner. */
     "Page 1":  [lay("hmm-p1.png", 565, 405, 440, 130, { fade: 1 })],
 
-    /* the fair, heard long before it is seen — cut from the render with its
-       sound-arcs, and beating in time with the drum (see cueScene) */
-    "Page 2":  [lay("dum-p2.png", 1145, 25, 760, 410, { dum: true })],
+    /* The fair, heard long before it is seen, beating in time with the drum
+       (see cueScene). The picture is whole: the export it came from was cut
+       too tight and took the tops off the upper डम-डम's "!!" and the tails
+       off the lower one's sound-waves, so on the page they stopped mid-stroke.
+       Nothing had to be redrawn — the file already held a whole copy of each
+       piece in the other of the two cries — see tools/uncut-dum-p2.ps1. The
+       box is taller by exactly what was put back, and starts at the top of
+       the page because that is as far up as the artwork ever reached. */
+    "Page 2":  [lay("dum-p2-uncut.png", 1145, 0, 760, 497, { dum: true })],
 
     "Page 3":  [bub("bubble-p3.png",  763.02, 245, 394.83),
                 say(["अरे! ये कैसी आवाज़ है?"], 973.5, 283, 339, 60)],

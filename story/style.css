@@ -611,13 +611,20 @@ button { font: inherit; color: inherit; }
    pulse, two beats to a turn, going on under the page for as long as the
    drumming does — which is until the page is left.
 
-   The whole cluster — both cries and both sets of arcs — is one cut-out from
-   the Figma render, so it beats as one thing, exactly as it is drawn.
+   The whole cluster — both cries and both sets of arcs — is one picture, so
+   it beats as one thing, exactly as it is drawn.
    -------------------------------------------------------------------- */
 .fx__dum {
   transform-origin: 16% 60%;    /* the arcs: it swings from the source */
   opacity: 0;
 }
+/* Page 2's picture is 497 tall where Page 13's is 330, because Page 2's was
+   given back the parts its export had cut off. A pivot written as a
+   percentage would have drifted down the page with that extra height, so it
+   is restated here as the share of the new height that lands on the very same
+   point of the picture: 60% of the old 410 and 54.5% of the new 497 are both
+   the arcs. Page 13 is untouched and keeps the 60% above. */
+.fx__dum:not(.is-late) { transform-origin: 16% 54.5%; }
 .fx__dum.is-on {
   animation:
     dumIn   1.5s cubic-bezier(.3, 1.32, .42, 1) both,
