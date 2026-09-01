@@ -14,7 +14,6 @@
   --scale-y: 1;
 
   /* Sampled from the Figma artwork */
-  --gold:        #f7cd54;   /* question text (node 358:108) */
   --wood-dark:   #4a2412;
   --wood-mid:    #8a4520;
   --wood-light:  #c9702f;
@@ -188,7 +187,14 @@ html,body{
   100%{ transform:translateY(0)     scale(1);    opacity:1; }
 }
 
-/* question text: node 358:108 — Baloo Bhai 2 Medium 70px #f7cd54, w1360 */
+/* question text: node 358:108 — Baloo Bhai 2 Medium 70px, w1360.
+
+   Set in white, which is the one departure from that node: the design has it
+   in gold, #f7cd54. All five questions are asked on the same dark wooden
+   plaque, and white carries further across a room on it than the gold does —
+   the plank runs about #8a4520 through the middle, where white lands near
+   7:1 against roughly 5:1 for the gold. The drop shadow below stays and does
+   more work now, holding the letters off the lighter grain at either end. */
 .q-text{
   position:absolute;
   left:280px;                        /* Figma x for every question page */
@@ -198,7 +204,7 @@ html,body{
   font-weight:500;
   font-size:70px;
   line-height:1;
-  color:var(--gold);
+  color:#fff;
   text-align:center;
   word-break:break-word;
   text-shadow:0 2px 2px rgba(0,0,0,.45);
