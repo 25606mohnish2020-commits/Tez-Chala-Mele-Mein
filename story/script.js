@@ -297,8 +297,13 @@
        Nothing had to be redrawn — the file already held a whole copy of each
        piece in the other of the two cries — see tools/uncut-dum-p2.ps1. The
        box is taller by exactly what was put back, and starts at the top of
-       the page because that is as far up as the artwork ever reached. */
-    "Page 2":  [lay("dum-p2-uncut.png", 1145, 0, 760, 497, { dum: true })],
+       the page because that is as far up as the artwork ever reached.
+
+       The cry itself now reads डम-डम! rather than डम-डम.!!, reset from the
+       supplied artwork into the render's own arcs at the render's own glyph
+       height, tilt and leading edge — see tools/reword-dum.ps1. The box is
+       the one the design gives, to the pixel; only the lettering changed. */
+    "Page 2":  [lay("dum-p2-cry.png", 1145, 0, 760, 497, { dum: true })],
 
     "Page 3":  [bub("bubble-p3.png",  763.02, 245, 394.83),
                 say(["अरे! ये कैसी आवाज़ है?"], 973.5, 283, 339, 60)],
@@ -358,7 +363,7 @@
        `late`, because on this page they are not there when the reader
        arrives. The couplet promises them; the coda brings them. */
     "Page 13": [verse(["फूलों वाली राह अपनाई,", "डम-डम की आवाज़ फिर से आई।"], 467.5, 120 + VERSE_DROP, 873),
-                lay("dum-p13.png", 1340, 15, 580, 330, { dum: "late" })],
+                lay("dum-p13-cry.png", 1340, 15, 580, 330, { dum: "late" })],
 
     /* the elephant is a 36-frame drumming loop; the design flips him to face
        Tez and Noori, and lays a soft ellipse under his feet */
