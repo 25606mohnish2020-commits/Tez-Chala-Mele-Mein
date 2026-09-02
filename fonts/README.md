@@ -22,8 +22,8 @@ And one character from a third:
   speech, and at the end of each of the game's questions. The design sets the
   `?` in Roboto on Baloo words in both places, so each stylesheet declares a
   family from a Roboto Latin cut limited to `U+003F` and leads the relevant
-  font stack with it — the mark comes from Roboto, every letter around it
-  still from Baloo. Two weights, because that is what the two texts are set
+  font stack with it — the mark comes from Roboto and nothing else about
+  the line changes. Two weights, because that is what the two texts are set
   in: Semi Bold (600) for the speech in `story/style.css`, Medium (500) for
   the questions in `TCMM My Dev Game/style.css`.
 
@@ -32,7 +32,9 @@ the SIL Open Font License 1.1 (`OFL-Roboto.txt`).
 
 ## What is in here
 
-- `fonts.css` — the `@font-face` rules. This is the one file a page links; it
+- `fonts.css` — the Baloo `@font-face` rules (the two one-character Roboto
+  faces are declared in the page stylesheets that use them, see above). This
+  is the one file a page links; it
   is Google's own generated stylesheet with the `fonts.gstatic.com` URLs
   swapped for `files/`, so the `unicode-range` splits are untouched and a
   browser still downloads only the subsets it actually paints. A page showing

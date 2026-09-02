@@ -308,9 +308,24 @@
     "Page 3":  [bub("bubble-p3.png",  763.02, 245, 394.83),
                 say(["अरे! ये कैसी आवाज़ है?"], 973.5, 283, 339, 60)],
 
-    /* flipped in Figma: reported at 562, actually at 840 */
+    /* flipped in Figma: reported at 562, actually at 840.
+
+       Noori's answer is one text layer in the file, wrapped to two lines, but
+       the recording says it in three breaths — "अरे!", the question, then the
+       news — with a held pause after each. So it is shown the way Page 5 is:
+       a breath at a time, each line coming, being said, and leaving before
+       the next (see Page 5 below for the whole argument). The bubble is not
+       part of any moment and stays put; only the words inside it change.
+
+       All three sit at 194. The block the designer drew runs 159 to 299 and
+       is centred on 229, and one line of 70 placed at 194 is centred there
+       too, so each piece lands in the middle of the bubble rather than high
+       in it. The width is the block's own 390, and every piece fits it on one
+       line. */
     "Page 4":  [bub("bubble-p4.png",  835.96, 100, 526.10),
-                say(["अरे! तुम्हें नहीं पता? आज मेला लगा है।"], 1135, 159, 390, 55)],
+                ...moment(0, say(["अरे!"],             1135, 194, 390, 55)),
+                ...moment(1, say(["तुम्हें नहीं पता?"], 1135, 194, 390, 55)),
+                ...moment(2, say(["आज मेला लगा है।"],   1135, 194, 390, 55))],
 
     /* Flipped too — and three separate text layers, not one wrapped block,
        which is what lets the question be asked a piece at a time.
@@ -664,7 +679,14 @@
   const NARRATION = {
     "Page 1":  ["Page 1.mp3", 0.61,  2.17],
     "Page 3":  ["Page 3.wav",  0.09,  2.41],
-    "Page 4":  ["Page 4.wav",  0.19,  5.32],
+    /* Three windows into one recording, cut the way Page 5's are below,
+       because Noori's answer is shown a breath at a time — see SCENES. They
+       are contiguous, the outer edges are the 0.19 and 5.32 this frame has
+       always had, and each is cut just after its sentence ends, so the words
+       are in the bubble before they are spoken. */
+    "Page 4":  [["Page 4.wav", 0.19, 1.01],     /* अरे!             — speech 0.24–0.89 */
+                ["Page 4.wav", 1.01, 2.76],     /* तुम्हें नहीं पता? — speech 1.45–2.64 */
+                ["Page 4.wav", 2.76, 5.32]],    /* आज मेला लगा है।  — speech 3.16–5.21, a breath drawn from 2.94 */
     /* Three windows into one recording, because Tez asks three things and
        the page now shows them one at a time — see SCENES.
 
@@ -1016,8 +1038,9 @@
       get hasClip() { return !!runs; },
 
       /* how many windows this frame has: one for almost every page, three for
-         Page 16, and none for a page with no recording. What paces a page
-         that has to run its own moments in silence reads this. */
+         Page 4, Page 5 and Page 16, and none for a page with no recording.
+         What paces a page that has to run its own moments in silence reads
+         this. */
       get legs() { return runs ? runs.length : 0; },
 
       /* the windows themselves, in ms, for the same reason */
@@ -1992,13 +2015,15 @@
 
   /* ── Sequence ───────────────────────────────────────────────────────────
      A page that is said in more than one breath, and shows one of them at a
-     time. Two pages have moments: Page 5, where Tez asks three things in one
+     time. Three pages have moments: Page 4 and Page 5, where Noori answers
+     and then Tez asks, each saying three things in one
      bubble, and Page 16, three things Noori says to the reader that used to
      be three pages of the same painting.
 
      What belongs to a moment is tagged and what does not is left alone, so a
-     page can keep something on screen throughout — Page 5's bubble stays put
-     while only the words inside it change.
+     page can keep something on screen throughout — the bubbles on Page 4 and
+     Page 5 stay put
+     while only the words inside them change.
 
      The voice paces it. Each window of the run opening is what brings the
      next line on, so the picture and the recording are the same event and
