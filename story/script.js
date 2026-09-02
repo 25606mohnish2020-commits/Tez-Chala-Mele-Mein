@@ -270,11 +270,11 @@
      own units — 40 of 1080, so a shade under 4% of the picture's height, or
      just under half a line of the verse. It is a deliberate departure from
      the file and the only one in this table, which is why it is a named
-     number rather than five edited coordinates: see the recital below. */
+     number rather than six edited coordinates: see the recital below. */
   const VERSE_DROP = 40;
 
   /* the two voices of the book: speech inside a box, and the recital that
-     runs bare across the sky from Page 9 to Page 15 */
+     runs bare across the sky from Page 8 to Page 15 */
   const say   = (lines, cx, y, w, size) =>
     words(lines, cx, y, w, size, 70, 600, "#773300", false);
   const verse = (lines, cx, y, w, nw = true) =>
@@ -338,21 +338,35 @@
     "Page 6":  [bub("bubble-p6.png", 1286.99, 230, 458.70),
                 say(["चलो मेरे साथ, रास्ता मैं बताती हूँ।"], 1537.5, 285, 357, 55)],
 
-    /* Page 8 carries no words in the design — the picture walks them on */
+    /* the recital, which opens here: Page 8 is where the two of them set off
+       and where the poem's first couplet is spoken. Page 9 sets its two lines
+       as separate layers, the rest as one block of two, which is how the file
+       has them.
 
-    /* the recital. Page 9 sets its two lines as separate layers, the rest as
-       one block of two, which is how the file has them.
+       Page 8's painting is centred — a tree either side and the path up the
+       middle — and the design centres the couplet on the frame with it, which
+       is why its cx is 960 where every other page's is measured off to one
+       side. Its box is the design's own 554 (the layer is 721 in the text
+       export, which is drawn at 2500 across rather than 1920).
 
-       Every y from Page 9 to Page 13 is the design's own plus VERSE_DROP:
+       Every y from Page 8 to Page 13 is the design's own plus VERSE_DROP:
        the recital sat too near the top edge of the picture, hardest on
        Page 11 where the design starts it 53 units down — under 5% of the
        frame — and it reads as though it is falling off. The drop is applied
-       to all five as one number rather than page by page, because the poem
-       is one recital and the five screens have to sit on the same line as
+       to all six as one number rather than page by page, because the poem
+       is one recital and the six screens have to sit on the same line as
        each other; to move it again, move this and nothing else. Page 14 and
        Page 15 are left where the design puts them: they are the arrival at
        the fair, and their words are placed against that painting rather
-       than against the run of the river. */
+       than against the run of the river.
+
+       The design sets Page 8's couplet about a seventh larger than the rest
+       of the recital's. It is set here at the recital's own size, because the
+       poem reads as one voice and a line that changes size mid-poem reads as
+       a different one. To follow the file instead, this is the page to give
+       its own size and line-height to. */
+    "Page 8":  [verse(["नूरी और तेज़ मेले को चले,", "गाते-गाते आगे बढ़े।"], 960, 70 + VERSE_DROP, 554)],
+
     "Page 9":  [verse(["चलते-चलते नदी नज़र आई,"], 1431,   88 + VERSE_DROP, 680),
                 verse(["नीले पानी में लहरें छाईं।"], 1430.5, 212 + VERSE_DROP, 567)],
     "Page 10": [verse(["नदी किनारे भेड़िया सोया,", "उसे देखकर चैन खोया।"], 1568.5, 106 + VERSE_DROP, 565)],
