@@ -9,6 +9,31 @@
    viewport units, so it is never cropped or blown up by that scaling.
    ========================================================================= */
 
+/* ---------- The question mark ----------
+   One character, given its own family so that it can be set on its own.
+
+   The design draws the question mark that closes each question in Roboto
+   Medium, and only that: the words in front of it stay in Baloo. So this is
+   Roboto's Latin cut at 500 — the one weight .q-text is set in — with
+   `unicode-range` narrowed to U+003F alone. A family that covers a single
+   character contributes that character and steps aside for the rest, so
+   leading .q-text's font-family with it puts the mark in Roboto and leaves
+   every letter exactly where it was. The mark needs no colour of its own:
+   it takes the #fff the question is already set in, which is the white the
+   design asks for it too.
+
+   The story does the same for its speech, at 600; the two cuts sit side by
+   side in fonts/files/ under the family-weight-subset naming, and under the
+   same licence — see fonts/README.md.                                       */
+@font-face{
+  font-family:'Roboto Question';
+  font-style:normal;
+  font-weight:500;
+  font-display:swap;
+  src:url(../fonts/files/roboto-500-latin.woff2) format('woff2');
+  unicode-range:U+003F;
+}
+
 :root{
   --scale-x: 1;
   --scale-y: 1;
@@ -194,13 +219,17 @@ html,body{
    plaque, and white carries further across a room on it than the gold does —
    the plank runs about #8a4520 through the middle, where white lands near
    7:1 against roughly 5:1 for the gold. The drop shadow below stays and does
-   more work now, holding the letters off the lighter grain at either end. */
+   more work now, holding the letters off the lighter grain at either end.
+
+   The "?" that closes each question is the one glyph not Baloo's — see
+   'Roboto Question' at the top of this file. The font-family below leads
+   with it, and the mark inherits this white. */
 .q-text{
   position:absolute;
   left:280px;                        /* Figma x for every question page */
   width:1360px; height:100px;
   display:flex; align-items:center; justify-content:center;
-  font-family:'Baloo Bhai 2','Nirmala UI',sans-serif;
+  font-family:'Roboto Question','Baloo Bhai 2','Nirmala UI',sans-serif;
   font-weight:500;
   font-size:70px;
   line-height:1;

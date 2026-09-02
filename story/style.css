@@ -2,10 +2,11 @@
    आरु की छींक · Aaru's Sneeze
    An interactive animated picture book
    ----------------------------------------------------------------------------
-   1. Tokens & reset          5. Story text
-   2. Page shell & texture    6. Ambient life (dust motes, sneeze puffs)
-   3. Top bar & controls      7. Responsive
-   4. Book · frame · slots    8. Motion & state preferences
+   0. The question mark       5. Story text
+   1. Tokens & reset          6. Ambient life (dust motes, sneeze puffs)
+   2. Page shell & texture    7. Responsive
+   3. Top bar & controls      8. Motion & state preferences
+   4. Book · frame · slots
    ========================================================================== */
 
 /* ── 0. The question mark ────────────────────────────────────────────────────
@@ -83,9 +84,11 @@
      font has to lead this stack: Baloo Bhai 2 cannot draw them.
 
      The question mark is a choice of its own. The design sets every "?" in
-     the speech in Roboto Semi Bold, on Baloo words — a plainer, narrower
+     the speech in Roboto Semi Bold, on Baloo words — a plainer, straighter
      mark than the one Baloo Bhai 2 would otherwise supply from the front of
-     this stack. "Roboto Question" (section 0) is that one character and
+     this stack, a shade taller and a hair wider (at 55px, 27.1 to Baloo
+     Bhai 2's 26.4 of advance). "Roboto Question" (section 0) is that one
+     character and
      nothing else, and it leads here so the mark is Roboto's while everything
      around it is exactly what it was. */
   --font: "Roboto Question", "Baloo Bhai 2", "Baloo 2", "Nirmala UI",
@@ -468,10 +471,12 @@ button { font: inherit; color: inherit; }
 
 /* ── the words ───────────────────────────────────────────────────────────
    Speech is Baloo Bhai 2 SemiBold on #773300, the verse Baloo Bhai 2 Medium
-   on #572701 — both straight from the file. --font leads with Baloo Bhai 2
-   and falls to Baloo 2 for the Devanagari, which is the same substitution
-   Figma is making: Baloo Bhai 2 has no Devanagari of its own, and the two
-   are one design, so the join is invisible.
+   on #572701 — both straight from the file. After the one-character
+   "Roboto Question" (section 0), --font leads with Baloo Bhai 2 and falls to
+   Baloo 2 for the Devanagari, which is the same substitution Figma is making:
+   Baloo Bhai 2 has no Devanagari of its own, and the two are one design, so
+   the join is invisible. The question mark in the speech is the one glyph
+   set apart, in Roboto Semi Bold, as the design has it.
 
    The design centres each text layer on a line rather than setting a left
    edge, so the box is placed by its middle and pulled back half its width.

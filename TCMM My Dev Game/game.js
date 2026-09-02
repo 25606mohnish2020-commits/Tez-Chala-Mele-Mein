@@ -171,9 +171,20 @@ const QUESTIONS = [
       /* The three recordings spell the ducks with one त and the five with a
          chandrabindu, where the labels here have त्त and an anusvara. The
          path is written out per option rather than built from the label for
-         exactly this reason: the spoken files are named as they are named. */
+         exactly this reason: the spoken files are named as they are named.
+
+         "दो बतखें" was re-recorded — 1.63 s where the first take was 1.05 s —
+         under the same name, and the card is named with it the moment it is
+         dealt (see introduce()). The ?v=2 is for the browser that has already
+         played the game once and holds the first take in its cache under this
+         very URL: a new query is a new URL to it, and the second take is what
+         it fetches. encodeURI() leaves the query alone, and a static host
+         ignores it, so the file on disk is still found under its own name.
+         index.html carries the same ?v=2 on its game.js tag, so that browser
+         is handed this script afresh and, with it, this query — a stamp on the
+         path alone would sit unseen inside the copy of game.js it had kept. */
       { src:'Assets/Stickers/image 292 (1).png', label:'दो बत्तखें',   x: 248, y:537, w:430, h:287,
-        voice:'Assets/Audio/options/दो बतखें.wav' },
+        voice:'Assets/Audio/options/दो बतखें.wav?v=2' },
       { src:'Assets/Stickers/image 309.png',     label:'तीन बत्तखें',  x: 726, y:540, w:430, h:287, correct:true,
         voice:'Assets/Audio/options/तीन बतखें.wav' },
       { src:'Assets/Stickers/image 293.png',     label:'पांच बत्तखें', x:1235, y:545, w:412, h:274,
