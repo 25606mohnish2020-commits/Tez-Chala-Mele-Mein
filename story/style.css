@@ -594,6 +594,57 @@ button { font: inherit; color: inherit; }
   50%      { transform: scale(1.055); }
 }
 
+/* ── the nudge on आगे ─────────────────────────────────────────────────────
+   The pointing hand, for the reader who has reached the end of the book and
+   not worked out that the badge is the way on. It waits two seconds after
+   आगे appears before it comes — long enough that a reader who was already
+   reaching for the button is never interrupted by being told what they were
+   about to do, short enough that one who is stuck is not left there.
+
+   Everything about when it is on screen comes free from living inside the
+   button: .is-held hides it with its parent while Noori is still speaking,
+   and the reset below means the two seconds are counted from when आगे
+   actually appears — and counted again from scratch if the reader taps the
+   words and sets the three moments running a second time.
+
+   Sized and placed against the button rather than the page. The drawing is
+   280x356 and the fingertip — the topmost yellow pixel, the part that has to
+   land on the thing being pointed at — sits at (110, 85), 39.3% across and
+   23.9% down. The numbers below put that point on the badge's arrow at
+   mid-height, which is the one place on a button this small where a hand can
+   land without covering the word it is pointing at: 135 of the artboard's
+   units tall, so it reads as a hand on a button rather than a hand holding
+   one, and it hangs down and to the right off the oval onto the grass.
+   Percentages of the button, so it holds at every screen size. */
+.fx__cta .fx__hand {
+  position: absolute;          /* beats .fx__cta img, which fills the button */
+  left: 57.6%; top: 33.7%;
+  width: 39.9%; height: 76.1%;
+  opacity: 0;                  /* until the animation below brings it in */
+  filter: drop-shadow(0 .3cqw .4cqw rgba(0, 0, 0, .45));
+  animation: handIn  .32s ease            2s   both,
+             handTap 1.5s ease-in-out     2.32s infinite;
+}
+/* No animation at all while आगे is held back, rather than a paused one: this
+   is what makes the wait start again from the beginning next time. */
+.fx__cta.is-held .fx__hand { animation: none; }
+
+@keyframes handIn {
+  from { opacity: 0; transform: translateY(-16%) scale(.86); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+/* down onto the button, a beat, and back — the shape of a real tap rather
+   than an even bob, which is why the fall is quicker than the lift. The
+   travel is a share of the hand's own height, so it taps the same distance
+   on a phone as on a desk. */
+@keyframes handTap {
+  0%, 100% { transform: translateY(0)   scale(1);   }
+  30%      { transform: translateY(11%) scale(.95); }
+  46%      { transform: translateY(11%) scale(.95); }
+  62%      { transform: translateY(0)   scale(1);   }
+}
+@keyframes handFade { from { opacity: 0; } to { opacity: 1; } }
+
 /* Page 1: the हम्ममममम arrives with him settling under the tree */
 .is-fading-in { animation: fxFade .9s ease-out both; }
 @keyframes fxFade {
@@ -1178,6 +1229,10 @@ button { font: inherit; color: inherit; }
   .fx__cta { transition: none; }
   .fx__cta .fx__badge { animation: none !important; }
   .fx__cta:hover { transform: none; }
+  /* the nudge still comes, and still waits its two seconds — it is guidance,
+     not decoration, and a reader who needs it needs it here most of all. It
+     simply fades in where it stands rather than dropping in and tapping. */
+  .fx__cta .fx__hand { animation: handFade .32s ease 2s both; }
   /* a moment still leaves before the next arrives — that is the sense of the
      thing, not decoration — but it does so by appearing and disappearing
      rather than by moving */

@@ -417,7 +417,8 @@
       ...moment(2, bub("bubble-p16.png", 733.98, 300, 498.40),
                    say(["चलो, अब तुम भी मेले तक आओ।"], 1008.5, 366, 414, 55)),
       lay("badge.png?v=2", 1473, 838, 266, 177.33,
-          { lift: true, cta: true, hold: true, label: "आगे — खेल शुरू करो" })
+          { lift: true, cta: true, hold: true, nudge: true,
+            label: "आगे — खेल शुरू करो" })
     ]
   };
 
@@ -1563,6 +1564,27 @@
           if (l.h) b.style.height = im.style.height;
           im.style.left = im.style.top = im.style.width = im.style.height = "";
           b.append(im);
+
+          /* The nudge, where the control asks for one: the pointing hand
+             comes down on the button a couple of seconds after it appears,
+             for the reader who has not worked out that the button is the way
+             on. It is the same drawing the game points at its answer cards
+             with, and the same gesture.
+
+             It goes inside the button rather than beside it, so the button's
+             own state is the only thing that has to be right: held back while
+             Noori is still speaking, shown when she has finished, and reset
+             if the reader taps the words and sets her off again. Its size and
+             its corner are in the stylesheet, measured against the control
+             rather than against the page. */
+          if (l.nudge) {
+            const hand = document.createElement("img");
+            hand.className = "fx__hand";
+            hand.src = "assets/icons/hand-tap.png";
+            hand.alt = "";
+            hand.decoding = "async";
+            b.append(hand);
+          }
           return b;
         }
         return im;
