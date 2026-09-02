@@ -339,15 +339,11 @@
                 say(["चलो मेरे साथ, रास्ता मैं बताती हूँ।"], 1537.5, 285, 357, 55)],
 
     /* the recital, which opens here: Page 8 is where the two of them set off
-       and where the poem's first couplet is spoken. Page 9 sets its two lines
-       as separate layers, the rest as one block of two, which is how the file
-       has them.
-
-       Page 8's painting is centred — a tree either side and the path up the
-       middle — and the design centres the couplet on the frame with it, which
-       is why its cx is 960 where every other page's is measured off to one
-       side. Its box is the design's own 554 (the layer is 721 in the text
-       export, which is drawn at 2500 across rather than 1920).
+       and where the poem's first couplet is spoken. Page 8 and Page 9 set
+       their two lines as separate layers, the rest as one block of two, which
+       is how the file has them — and being separate layers, the gap between
+       Page 8's lines is the 131 between their two tops rather than anything
+       the line-height does.
 
        Every y from Page 8 to Page 13 is the design's own plus VERSE_DROP:
        the recital sat too near the top edge of the picture, hardest on
@@ -360,12 +356,12 @@
        the fair, and their words are placed against that painting rather
        than against the run of the river.
 
-       The design sets Page 8's couplet about a seventh larger than the rest
-       of the recital's. It is set here at the recital's own size, because the
-       poem reads as one voice and a line that changes size mid-poem reads as
-       a different one. To follow the file instead, this is the page to give
-       its own size and line-height to. */
-    "Page 8":  [verse(["नूरी और तेज़ मेले को चले,", "गाते-गाते आगे बढ़े।"], 960, 70 + VERSE_DROP, 554)],
+       Page 8's frame is the one the file calls Page 36, where the painting
+       was redrawn: its couplet is Baloo Bhai 2 Medium at 70 in #572701,
+       which is exactly what verse() already sets, so the recital's own type
+       carries it with nothing said here. */
+    "Page 8":  [verse(["नूरी और तेज़ मेले को चले,"], 994.5,  61 + VERSE_DROP, 721),
+                verse(["गाते-गाते आगे बढ़े।"],       995,   192 + VERSE_DROP, 544)],
 
     "Page 9":  [verse(["चलते-चलते नदी नज़र आई,"], 1431,   88 + VERSE_DROP, 680),
                 verse(["नीले पानी में लहरें छाईं।"], 1430.5, 212 + VERSE_DROP, 567)],

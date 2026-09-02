@@ -16,6 +16,18 @@ Two families, because between them they cover the text:
 Both are by Ek Type, released under the SIL Open Font License 1.1 (`OFL.txt`),
 which is what lets them be committed here and travel with the repository.
 
+And one character from a third:
+
+- **Roboto**, Semi Bold, draws the question mark in the story's speech and
+  nothing else. The design sets the `?` in the dialogue boxes in Roboto on
+  Baloo words, so `story/style.css` declares a family from Roboto's Latin cut
+  limited to `U+003F` and leads `--font` with it — the mark comes from Roboto,
+  every letter around it still from Baloo. One weight and one subset, because
+  that is all a question mark in 600-weight speech can ever ask for.
+
+Roboto is by Christian Robertson and the Roboto Project Authors, also under
+the SIL Open Font License 1.1 (`OFL-Roboto.txt`).
+
 ## What is in here
 
 - `fonts.css` — the `@font-face` rules. This is the one file a page links; it
@@ -24,10 +36,12 @@ which is what lets them be committed here and travel with the repository.
   browser still downloads only the subsets it actually paints. A page showing
   Hindi and a little English pulls the Devanagari and Latin cuts and leaves the
   Vietnamese, Gujarati and latin-ext ones alone.
-- `files/` — 40 `.woff2` cuts, named `family-weight-subset.woff2`. Baloo 2 and
+- `files/` — 41 `.woff2` cuts, named `family-weight-subset.woff2`. Baloo 2 and
   Baloo Bhai 2, weights 400 through 800, in the subsets Google slices them
-  into. About 2 MB in total, and no single page loads more than a fraction.
-- `OFL.txt` — the licence.
+  into; and `roboto-600-latin.woff2`, the one cut the question mark needs.
+  About 2 MB in total, and no single page loads more than a fraction.
+- `OFL.txt` — the Baloos' licence; `OFL-Roboto.txt` — Roboto's, the same
+  licence under a different copyright line.
 
 ## Linking it
 
