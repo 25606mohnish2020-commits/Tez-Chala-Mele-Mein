@@ -37,11 +37,11 @@ cut. That is what lets one 36-second poem recording serve seven pages.
 | Cover Page | — | |
 | Page 1 | `Page 1.mp3` † | 0.61 – 2.17 |
 | Page 2 | — | |
-| Page 3 | `Page 3.wav` | 0.09 – 2.41 |
+| Page 3 | `Page 3.wav` | 0.16 – 2.85 |
 | Page 4 | `Page 4.wav` | 0.19 – 5.32 |
-| Page 5 § | `Page 5.wav` | 0.09 – 1.01 |
-| ″ | ″ | 1.01 – 2.19 |
-| ″ | ″ | 2.19 – 4.37 |
+| Page 5 § | `Page 5.wav` | 0.13 – 1.15 |
+| ″ | ″ | 1.15 – 2.68 |
+| ″ | ″ | 2.68 – 5.06 |
 | Page 6 | `Page 6.wav` | 0.32 – 3.93 |
 | Page 8 | `Page 8.wav` | 0.14 – 4.90 |
 | Page 9 | `Page 9 to Page 15 Poem.wav` | 0.26 – 7.15 |
@@ -68,11 +68,19 @@ three windows: Tez asks three things, and the bubble now shows them one at a
 time instead of all at once.
 
 Page 5's three are **contiguous** — each ends exactly where the next begins,
-and the outer edges are the `0.09` and `4.37` the frame has always had. So
-nothing is cut and nothing is skipped, and the needle never jumps: the seek at
-each boundary finds itself already there and does not move. The recording
-plays straight through exactly as it did when it was one window. The
-boundaries only say when the words in the bubble change.
+and the outer edges are the whole recording measured the way every window is,
+speech at −45 dB pulled out by the 60 ms lead and 120 ms tail. So nothing is
+cut and nothing is skipped, and the needle never jumps: the seek at each
+boundary finds itself already there and does not move. The recording plays
+straight through as if it were one window. The boundaries only say when the
+words in the bubble change.
+
+**`Page 3.wav` and `Page 5.wav` are second takes**, supplied 2 September
+2026 in place of the originals. Both say exactly what the first takes said, a
+little slower and with longer breaths held between sentences: Page 3 runs
+3.08 s where it ran 2.54, Page 5 runs 5.32 s where it ran 4.50. Their windows
+and Page 5's word timings were measured again from the new files; nothing
+else about either page changed.
 
 They are cut just after each sentence ends rather than at the midpoint of the
 pause, which is where the poem's page boundaries fall. A page turn has 780 ms
@@ -83,9 +91,9 @@ arriving with them.
 
 | | sentence | speech | window |
 | --- | --- | --- | --- |
-| 1 | मेला! | 0.153 – 0.885 | 0.09 – 1.01 |
-| 2 | कहाँ? | 1.561 – 2.065 | 1.01 – 2.19 |
-| 3 | और वहाँ पहुँचना कैसे है? | 2.465 – 4.246 | 2.19 – 4.37 |
+| 1 | मेला! | 0.187 – 1.033 | 0.13 – 1.15 |
+| 2 | कहाँ? | 1.782 – 2.562 | 1.15 – 2.68 |
+| 3 | और वहाँ पहुँचना कैसे है? | 2.919 – 4.941 | 2.68 – 5.06 |
 
 Cover Page and Page 2 have no recording in the folder, so they have no entry,
 and the book does not wait on one — their beat begins as soon as they are on

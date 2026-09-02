@@ -336,7 +336,7 @@
 
        The bubble itself is not part of any moment and so never leaves. It is
        one speech bubble — one animal, drawing one breath, asking three things
-       in four seconds — and popping it in and out three times in that space
+       in five seconds — and popping it in and out three times in that space
        would read as a fault rather than as speech. What changes inside it is
        the words; the box that holds them stays.
 
@@ -678,7 +678,10 @@
 
   const NARRATION = {
     "Page 1":  ["Page 1.mp3", 0.61,  2.17],
-    "Page 3":  ["Page 3.wav",  0.09,  2.41],
+    /* Re-recorded: 3.08 s where the first take was 2.54 s, with the same two
+       breaths in it — "अरे!" at 0.22–0.61 and the question at 1.32–2.73 — so
+       the one window simply moves out to the new edges. */
+    "Page 3":  ["Page 3.wav",  0.16,  2.85],
     /* Three windows into one recording, cut the way Page 5's are below,
        because Noori's answer is shown a breath at a time — see SCENES. They
        are contiguous, the outer edges are the 0.19 and 5.32 this frame has
@@ -691,11 +694,18 @@
        the page now shows them one at a time — see SCENES.
 
        They are contiguous: each ends exactly where the next begins, and the
-       outer edges are the 0.09 and 4.37 this frame has always had. So nothing
-       is cut and nothing is skipped, and the needle never jumps — the seek at
-       each boundary finds itself already there and does not move. The
-       recording plays straight through exactly as it did when it was one
-       window; the boundaries only say when the words in the bubble change.
+       outer edges are the whole of the recording measured the way every
+       window is — the speech edges at −45 dB, 0.187 and 4.941, pulled out
+       by the usual 60 ms lead and 120 ms tail. So nothing is cut and nothing
+       is skipped, and the needle never jumps — the seek at each boundary
+       finds itself already there and does not move. The recording plays
+       straight through as if it were one window; the boundaries only say
+       when the words in the bubble change.
+
+       This is the second take of the page: 5.32 s where the first ran 4.50,
+       the same three questions read a little slower and with a longer breath
+       held after each, so all three windows and the word times in SAID below
+       were measured again from the new file.
 
        Each is cut just after its sentence ends rather than at the midpoint of
        the pause the way the poem's pages are. A page turn has 780 ms of its
@@ -703,9 +713,9 @@
        arriving has about 480 ms, and cutting early gives that the whole
        breath to happen in, so the words are on the page before they are
        spoken rather than arriving with them. */
-    "Page 5":  [["Page 5.wav", 0.09, 1.01],     /* मेला!    — speech 0.153–0.885 */
-                ["Page 5.wav", 1.01, 2.19],     /* कहाँ?    — speech 1.561–2.065 */
-                ["Page 5.wav", 2.19, 4.37]],    /* और वहाँ… — speech 2.465–4.246 */
+    "Page 5":  [["Page 5.wav", 0.13, 1.15],     /* मेला!    — speech 0.187–1.033 */
+                ["Page 5.wav", 1.15, 2.68],     /* कहाँ?    — speech 1.782–2.562 */
+                ["Page 5.wav", 2.68, 5.06]],    /* और वहाँ… — speech 2.919–4.941 */
     "Page 6":  ["Page 6.wav",  0.32,  3.93],
     "Page 8":  ["Page 8.wav",  0.14,  4.90],
     "Page 9":  [POEM,  0.26,  7.15],
@@ -771,26 +781,32 @@
      -------------------------------------------------------------------- */
   const SAID = {
     /* "मेला! कहाँ? और वहाँ पहुँचना कैसे है?" — three sentences, seven words,
-       across the 0.09–4.37 the frame runs to. The three are far apart: 0.68 s
-       of held breath after "मेला!" and 0.45 s after "कहाँ?", which is the
+       across the 0.13–5.06 the frame runs to. The three are far apart: 0.75 s
+       of held breath after "मेला!" and 0.36 s after "कहाँ?", which is the
        pause a child needs to take in one question before the next arrives —
        and which is also the room the page uses to change the words in the
        bubble, since those same two pauses are where its three windows are
        cut.
 
        These stay one unbroken list of seven in reading order even though the
-       page is now shown in three parts, because they are times in the file
-       and the file did not change. The recital counts the words painted on
-       the page against them, and all seven are painted — only one line of
-       them is on screen at a time. */
+       page is shown in three parts, because they are times in the file and
+       the recital counts the words painted on the page against them — all
+       seven are painted, only one line of them is on screen at a time.
+
+       Measured from the second take of the recording. Two joins in the last
+       question do not show up as gaps at any threshold and were read off the
+       20 ms envelope instead: the stop in the middle of "पहुँचना" at 4.04 is
+       inside the word, not between two, and "कैसे" runs into "है?" with the
+       /h/ voiced straight through, so that boundary is put where the vowel of
+       "से" gives way to the falling tail of "है?". */
     "Page 5": [
-      [0.14, 0.89],                                   /* मेला!    */
-      [1.56, 2.01],                                   /* कहाँ?    */
-      [2.46, 2.72],                                   /* और       */
-      [2.86, 3.16],                                   /* वहाँ     */
-      [3.30, 3.78],                                   /* पहुँचना   */
-      [3.80, 4.10],                                   /* कैसे     */
-      [4.10, 4.26]                                    /* है?      */
+      [0.19, 1.00],                                   /* मेला!    */
+      [1.78, 2.30],                                   /* कहाँ?    */
+      [2.92, 3.21],                                   /* और       */
+      [3.37, 3.76],                                   /* वहाँ     */
+      [3.86, 4.29],                                   /* पहुँचना   */
+      [4.34, 4.72],                                   /* कैसे     */
+      [4.72, 4.92]                                    /* है?      */
     ]
   };
 
@@ -876,7 +892,7 @@
     /* ?v= bumps whenever the windows in NARRATION are re-measured — the
        filenames stay the same, so without it a refresh would quietly serve
        the previously cached copy */
-    const CUT = 2;
+    const CUT = 3;
 
     let on    = localStorage.getItem(KEY)  !== "off";   /* narration on by default */
     let muted = localStorage.getItem(MUTE) === "off";
@@ -2199,7 +2215,7 @@
       const t = PageAudio.at;
 
       /* the word being said now, or none at all — the gaps between the three
-         questions on Page 5 run over half a second, and holding the last word
+         questions on Page 5 run to three quarters of a second, and holding the last word
          lit across one of those would say the reader is still on it */
       let saying = -1;
       for (let i = 0; i < marks.length; i++) {
