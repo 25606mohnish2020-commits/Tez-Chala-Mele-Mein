@@ -1077,8 +1077,9 @@
       },
 
       stop,
-      play()   { if (on) start(); },   /* auto-play when a page arrives */
-      replay() { start(); },           /* tapping the words */
+      play()   { if (on) start(); },   /* auto-play when a page arrives — the
+                                          only way a page is ever read; the
+                                          words themselves are not a control */
 
       toggle() {
         on = !on;
@@ -1608,8 +1609,7 @@
 
              It goes inside the button rather than beside it, so the button's
              own state is the only thing that has to be right: held back while
-             Noori is still speaking, shown when she has finished, and reset
-             if the reader taps the words and sets her off again. Its size and
+             Noori is still speaking, shown when she has finished. Its size and
              its corner are in the stylesheet, measured against the control
              rather than against the page. */
           if (l.nudge) {
@@ -1996,9 +1996,6 @@
         awaitPresentation(coverRunning);
       },
 
-      /* tapping the words reads that page again, whatever the toggle says */
-      replay() { PageAudio.replay(); },
-
       start() {
         /* #p7 opens the book at page 7 — handy for sharing a favourite page */
         const fromHash = parseInt((location.hash.match(/^#p(\d+)$/) || [])[1], 10);
@@ -2083,8 +2080,8 @@
     }
 
     /* one moment, and only it. आगे goes back into hiding whenever the page is
-       speaking again, which is what makes tapping the words replay the whole
-       sequence rather than leaving the way out standing over the first line */
+       speaking again — turning the narration back on mid-page, say — so the
+       way out never stands over the first line while the rest is unsaid */
     function show(n) {
       if (n === at) return;
       at = n;
@@ -2475,15 +2472,6 @@
       return (delay || 0) + (to - from) * 1000;
     };
 
-    /* Tapping the words reads the page again, and the turn waits for that
-       reading rather than landing in the middle of it — the clip's own
-       ending arms it afresh. A page with no recording has nothing to wait
-       for, so its beat is left running. */
-    const replay = () => {
-      if (PageAudio.hasClip) AutoTurn.cancel();
-      Book.replay();
-    };
-
     function sync(i) {
       /* whatever was armed was armed for the page we have just left */
       AutoTurn.cancel();
@@ -2659,8 +2647,10 @@
          and would otherwise leave the latch set over the next press */
       frame.addEventListener("pointercancel", () => { ctaSounded = false; });
 
-      /* what a tap on the picture itself means: आगे leads out of the book,
-         and the words read their page again */
+      /* what a tap on the picture itself means: आगे leads out of the book.
+         The words in the bubbles are not a control — a tap on them, or on
+         the caption under the picture on a phone, does nothing, so a page is
+         read once and a stray finger on the speech cannot start it over. */
       frame.addEventListener("click", (e) => {
         const el = e.target instanceof Element ? e.target : null;
         if (!el) return;
@@ -2668,11 +2658,8 @@
           if (!ctaSounded) Tap.play();
           ctaSounded = false;
           Handoff.go();
-          return;
         }
-        if (el.closest(".fx__say")) replay();
       });
-      $(".caption").addEventListener("click", () => replay());
 
       /* stop the world when the tab is hidden --------------------------- */
       document.addEventListener("visibilitychange", () => {

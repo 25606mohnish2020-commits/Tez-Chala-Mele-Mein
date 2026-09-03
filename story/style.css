@@ -496,9 +496,10 @@ button { font: inherit; color: inherit; }
    way the design wraps them. */
 .fx__say.is-nowrap { white-space: nowrap; }
 
-/* the words on the visible page can be tapped to hear them again — the
-   pointer shape is the only cue; there is no hover effect on the scene */
-.slot.is-active .fx__say { pointer-events: auto; }
+/* The words are artwork, not a control: they stay behind .fx's
+   pointer-events: none like the rest of the scene, so a tap on a speech
+   bubble neither replays the page nor shows a pointer. Only आगे (.fx__cta
+   below) is let through that gate. */
 
 /* ── the recital, deliberately undrawn ───────────────────────────────────
    There is no rule here, and that is on purpose rather than an oversight.
@@ -572,7 +573,8 @@ button { font: inherit; color: inherit; }
 /* The control the badge sits inside. It is placed and sized exactly where the
    design puts the picture, and the picture simply fills it, so making it
    pressable moves nothing by a pixel. Only the page actually on screen can be
-   pressed — .fx itself is pointer-events: none, the same gate the words use. */
+   pressed — .fx itself is pointer-events: none, and this is the one thing on
+   the scene let through it. */
 .fx__cta {
   position: absolute;
   display: block;
