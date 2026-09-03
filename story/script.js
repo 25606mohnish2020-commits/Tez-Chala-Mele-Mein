@@ -2784,6 +2784,21 @@
     /* the game lives beside the book, not inside it; the folder is named with
        spaces and is left that way, so the path is encoded rather than renamed */
     const GAME = "../TCMM%20My%20Dev%20Game/index.html";
+    /* The host binds the journey on the URL — ?context_id=…&journey_id=…, and
+       optionally &medium= and &dev=1 — and the game echoes those into every
+       analytics statement it sends (see the game's XAPI_EVENTS.md). Whatever
+       of them reached the book is carried into the game unchanged; the book
+       itself adds nothing and reads none of them. */
+    const CARRY = (() => {
+      const here = new URLSearchParams(location.search);
+      const out  = new URLSearchParams();
+      for (const k of ["context_id", "journey_id", "medium", "dev"]) {
+        if (here.has(k)) out.set(k, here.get(k));
+      }
+      return out.toString();
+    })();
+    const FRAME_URL = GAME + "?embed=1" + (CARRY ? "&" + CARRY : "");
+    const WHOLE_URL = GAME + (CARRY ? "?" + CARRY : "");
     const portal = $("#gamePortal");
     const frame  = $("#gameFrame");
 
@@ -2797,7 +2812,7 @@
          waiting for; the second never will be. */
       frame.addEventListener("load",  () => { settled = true; }, { once: true });
       frame.addEventListener("error", () => { settled = true; }, { once: true });
-      frame.src = GAME + "?embed=1";
+      frame.src = FRAME_URL;
     }
 
     /* the game's own front door, once its document is up */
@@ -2849,7 +2864,7 @@
          no game in it is not going to grow one */
       if (tries > 0 && !settled) { setTimeout(() => launch(tries - 1), 100); return; }
       /* the frame is not going to answer: let the game have the whole tab */
-      location.href = GAME;
+      location.href = WHOLE_URL;
     }
 
     function go() {
@@ -2857,7 +2872,7 @@
       going = true;
 
       /* nowhere to put it: the whole tab, then */
-      if (!portal || !frame) { location.href = GAME; return; }
+      if (!portal || !frame) { location.href = WHOLE_URL; return; }
 
       arm();                          /* not armed yet? then it loads now */
 

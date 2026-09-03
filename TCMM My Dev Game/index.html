@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" sizes="180x180" href="Assets/Icons/skateboard-180.png">
 <link rel="apple-touch-icon" sizes="180x180" href="Assets/Icons/skateboard-180.png">
 <link href="../fonts/fonts.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -127,6 +127,11 @@
     <!-- Finale replay button (Figma page 35) -->
     <button id="btnReplay" class="wood-pill hidden" type="button">फिर से खेलें</button>
 
+    <!-- आगे बढ़ें: offered over the film's last frame once it has run. This tap
+         is the one thing that reports the activity complete (XAPI_EVENTS.md)
+         and then hands the tab back to the book. -->
+    <button id="btnNext" class="wood-pill hidden" type="button">आगे बढ़ें</button>
+
     <!-- Start gate (needed to unlock audio playback) -->
     <div id="startGate" class="start-gate">
       <div class="start-card">
@@ -138,6 +143,10 @@
 
 </div>
 
-<script src="game.js?v=2"></script>
+<!-- analytics: the platform bridge first, then the bus and the seven-verb map,
+     then the game, which only ever talks to GameBus — see XAPI_EVENTS.md -->
+<script src="swiftpal-bridge.js?v=1"></script>
+<script src="xapi.js?v=1"></script>
+<script src="game.js?v=3"></script>
 </body>
 </html>

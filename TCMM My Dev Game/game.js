@@ -281,6 +281,7 @@ const elErasePath = $('erasePath');
 const elBackdrop  = $('backdrop');
 const elVideo     = $('finaleVideo');
 const elReplay    = $('btnReplay');
+const elNext      = $('btnNext');      // आगे बढ़ें, offered once the film has run
 const elGate      = $('startGate');
 const btnStart    = $('btnStart');
 
@@ -946,6 +947,9 @@ let namingTimer = 0;
    the page: two wrong guesses on Question 3 do not bring the hand out on
    Question 4. */
 let wrongCount = 0;
+/* every tap on this question, right or wrong — what question_answered reports
+   as `attempt` (see xapi.js); reset with wrongCount when a question is asked */
+let answerTaps = 0;
 
 function renderQuestion(q){
   elQTmpl.style.top  = px(q.tmplY);
@@ -961,6 +965,7 @@ function renderQuestion(q){
   optsPhase = 'idle';
   namingAt  = 0;
   wrongCount = 0;                      // a new question is asked in good faith
+  answerTaps = 0;
   q.options.forEach((o, i) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -1113,6 +1118,17 @@ function pick(i){
 
   Audio2.hush();
 
+  /* Every answer tap is reported, right or wrong. The options are dealt in
+     the order they are authored — nothing is shuffled — so the position shown
+     and the position written are the same number. */
+  answerTaps++;
+  GameBus.emit('question:answered', {
+    id: 'P' + q.page, qi: currentQi,
+    correct: !!opt.correct, attempt: answerTaps,
+    ui_index: i, original_index: i,
+    option: { type: 'image', id: 'opt_' + i, text: opt.label, mediaUrl: opt.src }
+  });
+
   if(opt.correct){
     answering = false;
     hideNudge();                       // it has been taken; nothing left to point at
@@ -1163,6 +1179,7 @@ function replayVoice(){
     // from the card the naming had reached; once they are live it does
     // nothing, and this is only a re-reading of the question.
     const my = stepToken;
+    GameBus.emit('audio:replayed', { id: 'question_voice', question: 'P' + QUESTIONS[step.qi].page });
     Audio2.duckBgm(true);
     currentVoice = Audio2.say(QUESTIONS[step.qi].voice, {
       onend: () => {
@@ -1201,6 +1218,7 @@ async function runStep(i){
 
   elFx.innerHTML = '';
   elReplay.classList.add('hidden');
+  elNext.classList.add('hidden');
   // a tap-to-skip must not leave a celebration's sounds ringing over the map
   Audio2.stopSfx(A.leaves);
   Audio2.stopSfx(A.drum);
@@ -1213,6 +1231,9 @@ async function runStep(i){
   /* ----------------------------------------------------------- MAP pages */
   if(step.type === 'map'){
     const first = (i === 0);
+    // a passive screen mounting. Page 19 is the start screen's own backdrop
+    // and is up before anything has been launched, so it is not reported.
+    if(!first) GameBus.emit('screen:viewed', { id: 'P' + step.page, index: i, template: 'MAP_JOURNEY' });
     // 19 → 20 stays continuous; arriving from a question/celebration page the
     // overlay waits for the plate crossfade so it never sits on the old art.
     const continuous = first || prev === 'map';
@@ -1270,6 +1291,12 @@ async function runStep(i){
       await playFinale({ hold: true });
       if(!alive(my)) return;
 
+      // The ending is chosen, not imposed. आगे बढ़ें is offered over the held
+      // last frame, and only that tap reports the activity complete — never
+      // the celebration appearing — and then hands the tab back to the book.
+      await offerNext(my);
+      if(!alive(my)) return;
+      GameBus.emit('activity:completed');
       returnToStory();
       return;                                   // journey complete
     }
@@ -1285,6 +1312,8 @@ async function runStep(i){
   if(step.type === 'q'){
     currentQi = step.qi;
     const q = QUESTIONS[step.qi];
+    GameBus.emit('question:started', { id: 'P' + q.page, index: i, qi: step.qi,
+                                       template: 'CHOOSE_CORRECT_PICTURE', format: 'mcq' });
     answering = false;
     Audio2.stopSfx(A.skateboard);               // never let it run under a question
     showLayer('none');
@@ -1317,6 +1346,7 @@ async function runStep(i){
   /* --------------------------------------------------- CELEBRATION pages */
   if(step.type === 'celeb'){
     const q = QUESTIONS[step.qi];
+    GameBus.emit('screen:viewed', { id: 'P' + q.celebPage, index: i, template: 'CELEBRATION' });
     showLayer('none');
     await setPlate(plate(q.celebPage));
     if(!alive(my)) return;
@@ -1423,6 +1453,29 @@ function playFinale({ hold = false } = {}){
    game is not somewhere Back should return to.                             */
 const STORY_COVER = '../story/index.html';
 
+/* आगे बढ़ें, over the film's last frame. Shown only here, only after the film
+   has run, and answered by the child's tap alone — Enter and Space reach it
+   through the keydown handler, which clicks it. Settles when tapped; a step
+   change underneath it (skipWaits cannot reach the finale, but the replay
+   button's fresh run can) hides it through runStep and the promise is simply
+   never resolved, the same as every other await in that step. */
+let nextWaiting = null;
+function offerNext(my){
+  return new Promise(resolve => {
+    nextWaiting = () => { if(alive(my)) resolve(); };
+    elNext.classList.remove('hidden');
+    elNext.focus({ preventScroll: true });
+  });
+}
+
+elNext.addEventListener('click', e => {
+  e.stopPropagation();
+  elNext.classList.add('hidden');
+  const done = nextWaiting;
+  nextWaiting = null;
+  if(done) done();
+});
+
 function returnToStory(){
   const url = new URL(STORY_COVER, location.href).href;
   try{
@@ -1498,6 +1551,7 @@ document.addEventListener('keydown', e => {
   }
   if(e.key === ' ' || e.key === 'Enter'){
     if(!elGate.classList.contains('gone')){ btnStart.click(); e.preventDefault(); return; }
+    if(!elNext.classList.contains('hidden')){ elNext.click(); e.preventDefault(); return; }
     if(step && step.type !== 'q' && !step.finale){ skipWaits(); e.preventDefault(); }
   }
 });
@@ -1529,6 +1583,9 @@ let gameStarted = false;
 function beginGame(wantFullscreen){
   if(gameStarted) return;
   gameStarted = true;
+
+  /* the start: शुरू करें on the gate, or the book's आगे standing in for it */
+  GameBus.emit('activity:launched');
 
   if(wantFullscreen) goFullscreen();
 
