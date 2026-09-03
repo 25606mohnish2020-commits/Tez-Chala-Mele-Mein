@@ -30,12 +30,15 @@ picture.
 
 Each entry is `[ file, from, to ]` — a **window** into the file, in seconds.
 The element is told where to start and where to stop; the file itself is never
-cut. That is what lets one 36-second poem recording serve seven pages.
+cut. That is what lets one 36-second poem recording serve seven pages. A
+window in a run may carry a fourth number, a **pause in ms** before it opens;
+only Page 1's hum uses it.
 
 | Frame | Narration | Window (s) |
 | --- | --- | --- |
 | Cover Page | — | |
-| Page 1 | `Page 1.mp3` † | 0.61 – 2.17 |
+| Page 1 § | `Title Vo.wav` | 0.19 – 2.83 |
+| ″ | `Page 1.mp3` † | 0.61 – 2.17, after a 1 s pause |
 | Page 2 | — | |
 | Page 3 | `Page 3.wav` | 0.16 – 2.85 |
 | Page 4 | `Page 4.wav` | 0.19 – 5.32 |
@@ -54,6 +57,14 @@ cut. That is what lets one 36-second poem recording serve seven pages.
 | Page 16 § | `Page 16.wav` | 0.22 – 2.98 |
 | ″ | `Page 17.wav` | 0.20 – 4.24 |
 | ″ | `Page 18.wav` | 0.21 – 2.75 |
+
+§ **Page 1 opens the book by name.** Play on the cover turns to Page 1, and
+the first thing heard there is `Title Vo.wav` — तेज़ चला मेले में, 3.20 s read
+once in two breaths, speech at 0.25–1.37 and 1.66–2.71 — then one second of
+silence, then the page's own hum and the same flow as always: the page is not
+finished, and the turn not armed, until the hum has been heard. The two are
+one run, so nothing between them is a new reading; the bed stays ducked under
+the pause and a page turn during it goes through the same `stop()` as ever.
 
 § **Pages 5 and 16 are runs of three windows, not one.** `NARRATION` takes
 either a single `[file, from, to]` or a list of them; a list plays back to

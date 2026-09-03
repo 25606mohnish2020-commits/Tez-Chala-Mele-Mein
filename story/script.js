@@ -677,7 +677,17 @@
   const POEM = "Page 9 to Page 15 Poem.wav";
 
   const NARRATION = {
-    "Page 1":  ["Page 1.mp3", 0.61,  2.17],
+    /* The book is opened by name. Play on the cover turns to Page 1, and the
+       first thing heard on it is the title — तेज़ चला मेले में, read once in
+       two breaths (0.25–1.37 and 1.66–2.71 in the file) — then a second of
+       silence, and then the page's own hum and everything that always
+       followed it, unchanged. It is one run: the title window, the hum window,
+       and the 1000 in the hum's fourth slot is the breath between them (see
+       open() in PageAudio — a window may ask for a pause before it opens). The
+       page is not finished, and the turn is not armed, until the hum has been
+       heard, exactly as before; the title is simply said first. */
+    "Page 1":  [["Title Vo.wav", 0.19, 2.83],           /* the title — speech 0.253–2.711 */
+                ["Page 1.mp3",   0.61, 2.17, 1000]],    /* the hum, a second later */
     /* Re-recorded: 3.08 s where the first take was 2.54 s, with the same two
        breaths in it — "अरे!" at 0.22–0.61 and the question at 1.32–2.73 — so
        the one window simply moves out to the new edges. */
@@ -892,7 +902,7 @@
     /* ?v= bumps whenever the windows in NARRATION are re-measured — the
        filenames stay the same, so without it a refresh would quietly serve
        the previously cached copy */
-    const CUT = 3;
+    const CUT = 4;
 
     let on    = localStorage.getItem(KEY)  !== "off";   /* narration on by default */
     let muted = localStorage.getItem(MUTE) === "off";
@@ -903,6 +913,7 @@
     let runs = null;            /* its windows, in order, or null */
     let leg = 0;                /* which of them is playing */
     let stopAt = 0, timer = 0, playing = false;
+    let resting = false;        /* in the pause a window asked for before it */
     const listeners = [];   /* told when sound starts and stops */
     const enders = [];      /* told when a clip is done for good */
     const steppers = [];    /* told which window of a run has begun */
@@ -961,6 +972,7 @@
        the page, which is what keeps the turn gate honest about a frame that
        has three things to say rather than one. */
     function close() {
+      if (resting) return;                  /* nothing is running out in a pause */
       if (!stopAt && !playing) return;      /* already done, or never started */
       if (runs && leg + 1 < runs.length) { open(leg + 1); return; }
       finish();
@@ -969,6 +981,7 @@
     function stop() {
       token++;
       stopAt = 0;
+      resting = false;
       clearTimeout(timer); timer = 0;
       /* Pause and rewind only. Tearing the source down here (removeAttribute
          + load) leaves a teardown in flight that collides with the next
@@ -983,7 +996,7 @@
        the next one by close() as each runs out — the token is deliberately
        not bumped in between, because moving from one window of a page to the
        next is the same reading carrying on, not a new one starting. */
-    function open(n) {
+    function open(n, rested) {
       if (halted) return;            /* the book is over; the game has the screen */
       if (!runs || !runs[n]) { finish(); return; }
 
@@ -991,10 +1004,32 @@
       stopAt = 0;
       clearTimeout(timer); timer = 0;
 
-      const [file, from, to] = runs[n];
+      const [file, from, to, pause] = runs[n];
       const mine = token;
       const a = element();
       a.muted = muted;
+
+      /* A window may ask for a breath before it: an optional fourth number,
+         the pause in ms between the window before it closing and this one
+         opening. Page 1 uses it to put a second of silence between the title
+         and the hum. The element is halted for the pause — a clip left
+         running past its edge would reach its own end during the breath and
+         try to open this window early — and the pause counts as the same
+         reading carrying on: the token is not bumped, `playing` stays true so
+         the bed stays ducked under the silence, and the page-turn gate is not
+         told anything until the run really ends. Leaving the page goes
+         through stop(), which bumps the token and lets the timer die. */
+      if (pause && n > 0 && !rested) {
+        try { a.pause(); } catch { /* not started */ }
+        resting = true;
+        timer = setTimeout(() => {
+          if (mine !== token) return;
+          resting = false;
+          open(n, true);
+        }, pause);
+        return;
+      }
+      resting = false;
       /* Assigning src is enough to start the load; an explicit load() adds
          nothing and only risks aborting it. The poem stays loaded across all
          seven of its pages, because only currentTime changes between them. */
@@ -1053,8 +1088,9 @@
          must wait out and one with nothing to wait for. */
       get hasClip() { return !!runs; },
 
-      /* how many windows this frame has: one for almost every page, three for
-         Page 4, Page 5 and Page 16, and none for a page with no recording.
+      /* how many windows this frame has: one for almost every page, two for
+         Page 1, three for Page 4, Page 5 and Page 16, and none for a page
+         with no recording.
          What paces a page that has to run its own moments in silence reads
          this. */
       get legs() { return runs ? runs.length : 0; },
