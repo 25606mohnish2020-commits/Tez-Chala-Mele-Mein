@@ -281,7 +281,6 @@ const elErasePath = $('erasePath');
 const elBackdrop  = $('backdrop');
 const elVideo     = $('finaleVideo');
 const elReplay    = $('btnReplay');
-const elNext      = $('btnNext');      // आगे बढ़ें, offered once the film has run
 const elGate      = $('startGate');
 const btnStart    = $('btnStart');
 
@@ -1218,7 +1217,6 @@ async function runStep(i){
 
   elFx.innerHTML = '';
   elReplay.classList.add('hidden');
-  elNext.classList.add('hidden');
   // a tap-to-skip must not leave a celebration's sounds ringing over the map
   Audio2.stopSfx(A.leaves);
   Audio2.stopSfx(A.drum);
@@ -1291,11 +1289,10 @@ async function runStep(i){
       await playFinale({ hold: true });
       if(!alive(my)) return;
 
-      // The ending is chosen, not imposed. आगे बढ़ें is offered over the held
-      // last frame, and only that tap reports the activity complete — never
-      // the celebration appearing — and then hands the tab back to the book.
-      await offerNext(my);
-      if(!alive(my)) return;
+      // The film is the end. Once it has run, the activity is reported
+      // complete — every answer is in and the whole celebration has been
+      // seen — and the tab goes straight back to the book, open on its cover
+      // with the play button, without a button to press first.
       GameBus.emit('activity:completed');
       returnToStory();
       return;                                   // journey complete
@@ -1453,29 +1450,6 @@ function playFinale({ hold = false } = {}){
    game is not somewhere Back should return to.                             */
 const STORY_COVER = '../story/index.html';
 
-/* आगे बढ़ें, over the film's last frame. Shown only here, only after the film
-   has run, and answered by the child's tap alone — Enter and Space reach it
-   through the keydown handler, which clicks it. Settles when tapped; a step
-   change underneath it (skipWaits cannot reach the finale, but the replay
-   button's fresh run can) hides it through runStep and the promise is simply
-   never resolved, the same as every other await in that step. */
-let nextWaiting = null;
-function offerNext(my){
-  return new Promise(resolve => {
-    nextWaiting = () => { if(alive(my)) resolve(); };
-    elNext.classList.remove('hidden');
-    elNext.focus({ preventScroll: true });
-  });
-}
-
-elNext.addEventListener('click', e => {
-  e.stopPropagation();
-  elNext.classList.add('hidden');
-  const done = nextWaiting;
-  nextWaiting = null;
-  if(done) done();
-});
-
 function returnToStory(){
   const url = new URL(STORY_COVER, location.href).href;
   try{
@@ -1551,7 +1525,6 @@ document.addEventListener('keydown', e => {
   }
   if(e.key === ' ' || e.key === 'Enter'){
     if(!elGate.classList.contains('gone')){ btnStart.click(); e.preventDefault(); return; }
-    if(!elNext.classList.contains('hidden')){ elNext.click(); e.preventDefault(); return; }
     if(step && step.type !== 'q' && !step.finale){ skipWaits(); e.preventDefault(); }
   }
 });

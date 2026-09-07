@@ -191,9 +191,11 @@
     send('audio_replayed', { type: 'audio', id: d.id || 'question_voice' });
   });
 
-  /* ONLY the child's tap on आगे बढ़ें at the end. There is no partial variant:
-     completed is always true and progress always 100, and the celebration is
-     always seen first because the event does not exist until the tap. */
+  /* The end of the journey. This game has no आगे बढ़ें button: the closing film
+     is the last thing on screen and the tab goes back to the book on its own
+     when it ends, so the event is raised at that moment — after every answer
+     is in and the whole celebration and film have been seen. There is still
+     no partial variant: completed is always true and progress always 100. */
   GameBus.on('activity:completed', () => {
     const result = {
       completed: true,

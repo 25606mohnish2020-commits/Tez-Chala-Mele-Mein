@@ -677,17 +677,15 @@
   const POEM = "Page 9 to Page 15 Poem.wav";
 
   const NARRATION = {
-    /* The book is opened by name. Play on the cover turns to Page 1, and the
-       first thing heard on it is the title — तेज़ चला मेले में, read once in
-       two breaths (0.25–1.37 and 1.66–2.71 in the file) — then a second of
-       silence, and then the page's own hum and everything that always
-       followed it, unchanged. It is one run: the title window, the hum window,
-       and the 1000 in the hum's fourth slot is the breath between them (see
-       open() in PageAudio — a window may ask for a pause before it opens). The
-       page is not finished, and the turn is not armed, until the hum has been
-       heard, exactly as before; the title is simply said first. */
-    "Page 1":  [["Title Vo.wav", 0.19, 2.83],           /* the title — speech 0.253–2.711 */
-                ["Page 1.mp3",   0.61, 2.17, 1000]],    /* the hum, a second later */
+    /* The book is opened by name, on its own cover. Nothing plays here until
+       चलाओ is pressed — start() binds the cover but never starts it — and
+       that press is what reads the title: तेज़ चला मेले में, once, in two
+       breaths (0.25–1.37 and 1.66–2.71 in the file), over the cover picture.
+       The cover is then a page like any other that has said its piece: it
+       takes the usual beat and turns to Page 1, and from there the flow is
+       exactly what it always was. */
+    "Cover Page": ["Title Vo.wav", 0.19, 2.83],     /* the title — speech 0.253–2.711 */
+    "Page 1":  ["Page 1.mp3", 0.61,  2.17],
     /* Re-recorded: 3.08 s where the first take was 2.54 s, with the same two
        breaths in it — "अरे!" at 0.22–0.61 and the question at 1.32–2.73 — so
        the one window simply moves out to the new edges. */
@@ -748,9 +746,9 @@
                 ["Page 18.wav", 0.21, 2.75]]
   };
 
-  /* Cover Page and Page 2 have no recording in the folder, so they get no
-     entry and the book does not wait on one — their beat begins as soon as
-     they are on screen.
+  /* Page 2 has no recording in the folder, so it gets no entry and the book
+     does not wait on one — its beat begins as soon as it is on screen. The
+     cover's entry is the title, and it is only ever started by चलाओ.
 
      Page 1 used to be the one window here that was not the whole of its
      recording: `Page 1.wav` ran 10.4 s in two read sentences and the page was
@@ -902,7 +900,7 @@
     /* ?v= bumps whenever the windows in NARRATION are re-measured — the
        filenames stay the same, so without it a refresh would quietly serve
        the previously cached copy */
-    const CUT = 4;
+    const CUT = 5;
 
     let on    = localStorage.getItem(KEY)  !== "off";   /* narration on by default */
     let muted = localStorage.getItem(MUTE) === "off";
@@ -1011,8 +1009,8 @@
 
       /* A window may ask for a breath before it: an optional fourth number,
          the pause in ms between the window before it closing and this one
-         opening. Page 1 uses it to put a second of silence between the title
-         and the hum. The element is halted for the pause — a clip left
+         opening. No window asks for one at the moment; the title once did,
+         when it shared Page 1 with the hum. The element is halted for the pause — a clip left
          running past its edge would reach its own end during the breath and
          try to open this window early — and the pause counts as the same
          reading carrying on: the token is not bumped, `playing` stays true so
@@ -1088,9 +1086,8 @@
          must wait out and one with nothing to wait for. */
       get hasClip() { return !!runs; },
 
-      /* how many windows this frame has: one for almost every page, two for
-         Page 1, three for Page 4, Page 5 and Page 16, and none for a page
-         with no recording.
+      /* how many windows this frame has: one for almost every page, three for
+         Page 4, Page 5 and Page 16, and none for a page with no recording.
          What paces a page that has to run its own moments in silence reads
          this. */
       get legs() { return runs ? runs.length : 0; },
@@ -1756,7 +1753,7 @@
        same on every page: a page with a recording ends on its narration, a
        layered cover ends on its entrance, and a page whose clip is switched
        off, missing or refused has nothing to wait for at all — which is the
-       case for Cover Page and Page 2 here.
+       case for Page 2 here.
        Whichever it is, it arrives here once per visit, and the gate that
        turns the page upstream is the only thing that listens.
        -------------------------------------------------------------------- */

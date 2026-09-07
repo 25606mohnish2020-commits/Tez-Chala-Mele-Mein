@@ -81,7 +81,13 @@ calls in `game.js`. Load order in `index.html`: bridge, xapi, game.
 | map between questions (Pages 20, 23, 26, 29, 32, 35) | `P20` … `P35` | `MAP_JOURNEY` | `screen_viewed` |
 | question (Pages 21, 24, 27, 30, 33) | `P21` … `P33` | `CHOOSE_CORRECT_PICTURE`, format `mcq` | `question_started`, then `question_answered` per tap |
 | celebration (Pages 22, 25, 28, 31, 34) | `P22` … `P34` | `CELEBRATION` | `screen_viewed` |
-| finale film, then आगे बढ़ें | `P35` | `MAP_JOURNEY` | `activity_completed` on the tap only, then `swiftpal:lesson_complete` and `swiftpal:proceed` |
+| finale film | `P35` | `MAP_JOURNEY` | `activity_completed` when the film ends, then `swiftpal:lesson_complete` and `swiftpal:proceed`; the tab then returns to the book's cover on its own |
+
+**One deliberate departure from the table above.** This game has no आगे बढ़ें button at the end:
+the closing film is the last screen and the game returns to the book's cover by itself when it
+ends. `activity_completed` is therefore raised at the film's end — after every answer is in and
+the whole celebration and film have been seen — rather than on a tap. A host that redirects on
+it still never cuts the celebration short, because the event does not exist until the film has run.
 
 - Options are not shuffled in this game, so `ui_index` and `original_index` are always equal; option
   ids are `opt_<ui_index>`. Every option is a picture: `type:"image"`, `mediaUrl` is the sticker file,
