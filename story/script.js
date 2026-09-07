@@ -2302,6 +2302,13 @@
 
      Nothing here touches the page-turn: the book keeps its own size rules,
      play mode only changes what those rules resolve to.
+
+     It is entered and never stepped out of. There used to be a cross in the
+     top-right corner — and Escape — that shrank the book back under its top
+     bar; both are gone. Once चलाओ is pressed the book is the screen until it
+     ends: the story runs into the game, and the game brings the tab back to
+     the cover. halt() is the only way play mode is ever let go of, and that
+     is the handover, not a way back.
      -------------------------------------------------------------------- */
   const PlayMode = (() => {
     const root  = document.documentElement;
@@ -2309,9 +2316,8 @@
     const bar   = $(".topbar");
     const ZOOM  = 700;                       /* inside the 500-800ms brief */
     const EASE  = "cubic-bezier(.45,.05,.2,1)";
-    const IDLE  = 2600;
 
-    let on = false, zoom = null, idle = 0;
+    let on = false, zoom = null;
 
     /* measure -> relayout -> animate the difference away */
     function flip(change) {
@@ -2341,68 +2347,22 @@
       zoom.finished.then(done).catch(done);
     }
 
-    /* the exit button rests when the reader is still */
-    function stir() {
-      root.classList.add("is-stirring");
-      clearTimeout(idle);
-      idle = setTimeout(() => root.classList.remove("is-stirring"), IDLE);
-    }
-
-    const onKey = (e) => {
-      if (e.key === "Escape") { exit(); return; }
-      stir();
-    };
-
-    function listen(add) {
-      const fn = add ? "addEventListener" : "removeEventListener";
-      window[fn]("pointermove", stir, { passive: true });
-      window[fn]("pointerdown", stir, { passive: true });
-      window[fn]("keydown", onKey);
-    }
-
     function enter() {
       if (on) return;
       on = true;
-      /* only rescue focus for keyboard users: the bar is about to go inert,
-         but a mouse click shouldn't leave a focus ring on a control */
-      const el = document.activeElement;
-      const byKeyboard = !!(el && el.matches && el.matches(":focus-visible"));
-
       flip(() => root.classList.add("is-play"));
       bar.inert = true;                      /* keep hidden controls off the tab order */
-      listen(true);
-      stir();
-      if (byKeyboard) $("#exitBtn").focus({ preventScroll: true });
-    }
-
-    function exit() {
-      if (!on) return;
-      on = false;
-      flip(() => root.classList.remove("is-play"));
-      bar.inert = false;
-      listen(false);
-      clearTimeout(idle);
-      root.classList.remove("is-stirring");
-      const el = document.activeElement;
-      if (el && el.matches && el.matches(":focus-visible")) {
-        $("#playBtn").focus({ preventScroll: true });
-      }
     }
 
     return {
       get on() { return on; },
-      enter, exit,
-      toggle() { on ? exit() : enter(); },
+      enter,
 
-      /* Leaving for good, rather than stepping back out to the book. exit()
-         would animate the shrink and re-arm the top bar for a page nobody is
-         going to look at again; this only lets go of the window: the roaming
-         listeners, the idle timer and the class they set. */
+      /* Leaving for good: the handover to the game. Nothing is shrunk back
+         and the top bar is not re-armed, because no page is going to be
+         looked at again; this only cancels a zoom still in flight. */
       halt() {
         on = false;
-        listen(false);
-        clearTimeout(idle);
-        root.classList.remove("is-stirring");
         if (zoom) { try { zoom.cancel(); } catch { /* already gone */ } }
       }
     };
@@ -2416,7 +2376,6 @@
     const playBtn = $("#playBtn");
     const playLabel = $("#playLabel");
     const startBtn = $("#startBtn");
-    const exitBtn = $("#exitBtn");
     const frame = $("#frame");
 
     /* The book is Hindi. There is no second label set and nothing switches
@@ -2425,7 +2384,7 @@
       mute: "आवाज़ बंद करें", unmute: "आवाज़ चालू करें",
       read: "पढ़कर सुनाओ", reading: "पढ़ना रोको",
       play: "चलाओ", playHint: "कहानी बड़ी करके देखो",
-      start: "कहानी चलाओ", exit: "बाहर आओ"
+      start: "कहानी चलाओ"
     };
 
     /* ── the gate ─────────────────────────────────────────────────────────
@@ -2519,7 +2478,6 @@
       playLabel.textContent = L.play;
       playBtn.setAttribute("aria-label", `${L.play} — ${L.playHint}`);
       startBtn.setAttribute("aria-label", L.start);
-      exitBtn.setAttribute("aria-label", L.exit);
     }
 
     function syncReadLabel() {
@@ -2642,8 +2600,6 @@
           startBtn.classList.remove("is-pop");
         }
       });
-      exitBtn.addEventListener("click", () => { Tap.play(); PlayMode.exit(); });
-
       /* read aloud, with word-by-word highlighting. Switching the narration
          off mid-page leaves that page waiting on a voice that is no longer
          coming, and with no arrow to press that would be the end of the
@@ -2742,7 +2698,7 @@
       /* the book's controls, put down for good */
       halt() {
         AutoTurn.cancel();
-        [soundBtn, readBtn, playBtn, startBtn, exitBtn]
+        [soundBtn, readBtn, playBtn, startBtn]
           .forEach((b) => { if (b) b.disabled = true; });
       }
     };

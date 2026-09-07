@@ -1013,27 +1013,9 @@ button { font: inherit; color: inherit; }
 /* the page itself warms a touch so the lit picture carries the screen */
 .is-play body { background-color: var(--paper-warm); }
 
-/* --- leaving Play Mode --------------------------------------------------- */
-.exitbtn {
-  position: fixed; z-index: 30;
-  top: clamp(10px, 1.6vh, 20px); right: clamp(10px, 1.6vw, 22px);
-  display: grid; place-items: center;
-  width: 44px; height: 44px;
-  border: 0; border-radius: 50%;
-  background: rgba(26, 18, 12, .74);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  color: #fff; cursor: pointer;
-  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, .6);
-  opacity: 0; visibility: hidden; transform: scale(.9);
-  transition: opacity .3s ease, transform .3s ease, visibility 0s linear .3s;
-}
-.exitbtn svg { width: 20px; height: 20px; }
-
-/* visible in play mode only, and only while the reader is active */
-.is-play.is-stirring .exitbtn {
-  opacity: 1; visibility: visible; transform: scale(1);
-  transition: opacity .3s ease, transform .3s ease, visibility 0s;
-}
+/* There is no control for leaving Play Mode. Once चलाओ has handed the screen
+   to the picture it stays there: the book turns itself, ends in the game, and
+   comes back to its own cover — nothing in the corner to tap out with. */
 
 /* the pulse the read-aloud button throws while it is speaking */
 @keyframes ringPulse {
