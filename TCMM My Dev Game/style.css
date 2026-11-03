@@ -141,7 +141,7 @@ html,body{
    Both drawings come with their own soft shadow painted in, so the old
    board's CSS drop-shadow is not put back on top of them.                 */
 .skate{
-  --deck:160px;
+  --deck:200px;
   position:absolute; left:0; top:0;
   width:0; height:0;
   will-change:transform;
