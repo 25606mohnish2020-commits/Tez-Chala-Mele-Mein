@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" sizes="180x180" href="Assets/Icons/skateboard-180.png">
 <link rel="apple-touch-icon" sizes="180x180" href="Assets/Icons/skateboard-180.png">
 <link href="../fonts/fonts.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -86,7 +86,16 @@
       <path id="trailPath" fill="none" d="M124.806 712C171.275 696.178 334.573 680.431 604.283 694.021L1140.57 699.018L1182.81 694.5L1223.31 678.5L1257.81 658L1282.35 626.069C1325.66 536.631 1350.06 354.457 1101.22 341.266H573.461H264.774C224.944 343.764 63.5793 339.067 33.9908 300.294C-12.7943 202.195 -42.7305 5.29806 211.806 2.5H872.191L1081.78 21.4869L1162.81 57L1246.81 91.5C1274.78 100.161 1340.39 98.8334 1365.81 64.4571"/>
     </svg>
 
-    <img id="skate" class="skate" src="Assets/Story elements/Skateboard.png" alt="स्केटबोर्ड">
+    <!-- Noori and Tez on their skateboard, drawn two ways: side on for the
+         stretches of road that run across the map, and from above for the
+         two U-bends at its edges. game.js decides which shows, turns them to
+         the road and crossfades between them — see "the board's two
+         drawings" there. The box itself is a point: the middle of the deck,
+         which is what rides the route. -->
+    <div id="skate" class="skate" role="img" aria-label="स्केटबोर्ड पर नूरी और तेज़">
+      <img id="skateSide" class="skate-side" src="Assets/Story elements/Skateboard horizontal.png" alt="">
+      <img id="skateTop"  class="skate-top"  src="Assets/Story elements/Skateboard diagonal.png"  alt="">
+    </div>
 
     <!-- ============ QUESTION LAYER (Figma pages 21, 24, 27, 30, 33) ============ -->
     <div id="qLayer" class="layer">
@@ -142,6 +151,6 @@
      then the game, which only ever talks to GameBus — see XAPI_EVENTS.md -->
 <script src="swiftpal-bridge.js?v=1"></script>
 <script src="xapi.js?v=2"></script>
-<script src="game.js?v=4"></script>
+<script src="game.js?v=5"></script>
 </body>
 </html>

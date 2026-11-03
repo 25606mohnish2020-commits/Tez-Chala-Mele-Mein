@@ -276,6 +276,8 @@ const elGif       = $('celebGif');
 const elLeaves    = $('leaves');
 const elFx        = $('fxLayer');
 const elSkate     = $('skate');
+const elSkateSide = $('skateSide');
+const elSkateTop  = $('skateTop');
 const elErase     = $('erase');
 const elErasePath = $('erasePath');
 const elBackdrop  = $('backdrop');
@@ -591,7 +593,8 @@ function preloadImages(){
             HAND_SRC,
             'Assets/Story elements/Question Template.png',
             'Assets/Story elements/image 228.png',
-            'Assets/Story elements/Skateboard.png');
+            'Assets/Story elements/Skateboard horizontal.png',
+            'Assets/Story elements/Skateboard diagonal.png');
   CHECKPOINTS.forEach(c => list.push(c.sticker.src));
   QUESTIONS.forEach(q => q.options.forEach(o => list.push(o.src)));
   [...new Set(list)].forEach(src => { const i = new Image(); i.src = encodeURI(src); imgCache.push(i); });
@@ -660,7 +663,7 @@ const TRAIL_OFF = { x: 282.24, y: 210.52 };
 /* Where the board rests at each stop: 0 = trail start, 1-5 = the checkpoint
    circle centres, 6 = the mela (Figma page 35 places image 201 there).      */
 const STOP_PARK = [
-  null,                       // 0 — on the trail itself
+  null,                       // 0 — on the trail itself, START_AT along it
   { x:  944, y: 883 },        // 1
   { x: 1605, y: 689 },        // 2   (circle moved left 60 on the new plate)
   { x: 1105, y: 532 },        // 3   (circle moved down 60)
@@ -672,7 +675,52 @@ const STOP_PARK = [
                               //     is also where the last un-erasable scrap
                               //     of trail sits, so he parks right over it.
 
+/* How far along the route the board waits at the start, in route units. Not
+   the route's very first point: the board with Noori and Tez on it is longer
+   than the old one and banks up with the road there, which laid its tail on
+   the bush in the corner. 40 units on, it sits on bare dirt, the dashes
+   running out from its nose — the ones under it are rubbed out as usual.   */
+const START_AT = 40;
+
+/* ------------------------------------------------ the board's two drawings
+   Noori and Tez ride the board, and it comes drawn two ways (index.html):
+
+     side on   "Skateboard horizontal.png" — the pair in profile, facing
+               right. This is the board wherever the road runs across the
+               map: the three long straights, checkpoints 1, 3 and 5, the
+               start and the fair. Ridden leftwards it is mirrored, so they
+               always face the way they are going, and it banks with the road
+               the way the old board did.
+     above     "Skateboard diagonal.png" — the pair seen from overhead, the
+               deck laid at 60° with its nose up and to the left. This is the
+               board in the two U-bends at the map's edges, where the road
+               climbs the screen and a profile would have to stand on its
+               tail. From overhead a board can point any way at all, so it is
+               simply turned to the road; as drawn it already points the way
+               both bends run as they come round.
+
+   Which one shows is decided by the road, never by the clock: side on where
+   the road runs more across the map than up it, from above where it runs
+   more up than across (TURN_AT off the level), and over TURN_FADE units of
+   road either side of the change the two crossfade, deck on deck and pointing
+   the same way.
+
+   Two checkpoints are in those bends. Circle 2 is half way up the right-hand
+   one and simply lies inside it. Circle 4 sits in the very mouth of the
+   left-hand one — the road there is still only 29° off level, so the change
+   would land right on top of it — and a checkpoint caught in a crossfade is
+   taken into its bend: he rolls into that corner already turning, and waits
+   in it seen from above, nose to the climb. The start and the fair are both
+   on road well under TURN_AT, so both are side on.                          */
+const SKATE_NOSE = -120;  // where the overhead drawing points, as drawn (deg)
+const SKATE_BANK = 32;    // the side-on board banks with the road this far, no further
+const TURN_AT    = 45;    // road this far off level or more is ridden seen from above
+const TURN_FADE  = 40;    // route units either side of a change: the crossfade
+const HEAD_SOFT  = 25;    // how far the road's direction is smoothed, in route units
+
 let trailEl = null, trailLen = 0, stopDist = [];
+let heading = null, headStep = 0;   // the road's direction along the route (deg)
+let bends = [];                     // [from, to]: the stretches ridden seen from above
 
 function measureTrail(){
   trailEl  = document.getElementById('trailPath');
@@ -687,7 +735,7 @@ function measureTrail(){
     pts.push({ d, x: q.x + TRAIL_OFF.x, y: q.y + TRAIL_OFF.y });
   }
   stopDist = STOP_PARK.map((park, idx) => {
-    if(idx === 0) return 0;
+    if(idx === 0) return Math.min(START_AT, trailLen);
     if(idx === STOP_PARK.length - 1) return trailLen;
     let best = 0, bestD = Infinity;
     for(const p of pts){
@@ -696,11 +744,87 @@ function measureTrail(){
     }
     return best;
   });
+
+  measureHeading();
+  measureBends();
 }
 
 function pointAt(d){
   const q = trailEl.getPointAtLength(Math.max(0, Math.min(trailLen, d)));
   return { x: q.x + TRAIL_OFF.x, y: q.y + TRAIL_OFF.y };
+}
+
+/* The road's direction, smoothed. The Figma route is a chain of straight
+   pieces and curves, and its direction jumps where two of them meet — by as
+   much as 22° in a single step on the bend up to circle 2. The old board read
+   its tilt off a 6-unit look-ahead and so clicked round at every joint. This
+   is the direction every couple of units, averaged over HEAD_SOFT either side,
+   so the board leans into a bend and out of it instead. It is unwrapped — it
+   runs on past ±180° rather than jumping back — so the overhead board always
+   turns the short way through a bend.                                      */
+function measureHeading(){
+  const n = Math.max(2, Math.ceil(trailLen / 2) + 1);
+  headStep = trailLen / (n - 1);
+  const raw = new Float64Array(n);
+  for(let i = 0; i < n; i++){
+    const a = pointAt(i * headStep - 1), b = pointAt(i * headStep + 1);
+    let ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+    if(i) ang += 360 * Math.round((raw[i - 1] - ang) / 360);
+    raw[i] = ang;
+  }
+  const r = headStep ? Math.ceil(3 * HEAD_SOFT / headStep) : 0;
+  heading = new Float64Array(n);
+  for(let i = 0; i < n; i++){
+    let sum = 0, weight = 0;
+    for(let j = Math.max(0, i - r); j <= Math.min(n - 1, i + r); j++){
+      const g = Math.exp(-0.5 * ((j - i) * headStep / HEAD_SOFT) ** 2);
+      sum += raw[j] * g; weight += g;
+    }
+    heading[i] = sum / weight;
+  }
+}
+
+function headingAt(d){
+  if(!heading || !headStep) return 0;
+  const f = Math.max(0, Math.min(heading.length - 1, d / headStep));
+  const i = Math.min(heading.length - 2, Math.floor(f));
+  return heading[i] + (heading[i + 1] - heading[i]) * (f - i);
+}
+
+/* degrees off the level, 0 (across the map) to 90 (straight up or down it) */
+const offLevel = a => Math.acos(Math.min(1, Math.abs(Math.cos(a * Math.PI / 180)))) * 180 / Math.PI;
+
+/* Where the road runs TURN_AT or more off level — the two U-bends — less
+   any checkpoint the crossfade would otherwise land on, which is taken into
+   the bend whole (see "the board's two drawings" above).                   */
+function measureBends(){
+  bends = [];
+  if(!heading) return;
+  let from = -1;
+  heading.forEach((a, i) => {
+    const steep = offLevel(a) >= TURN_AT;
+    if(steep && from < 0) from = i * headStep;
+    if(!steep && from >= 0){ bends.push([from, i * headStep]); from = -1; }
+  });
+  if(from >= 0) bends.push([from, trailLen]);
+
+  bends.forEach(b => {
+    for(let s = 1; s < stopDist.length - 1; s++){
+      if(Math.abs(stopDist[s] - b[0]) < TURN_FADE) b[0] = stopDist[s] - TURN_FADE;
+      if(Math.abs(stopDist[s] - b[1]) < TURN_FADE) b[1] = stopDist[s] + TURN_FADE;
+    }
+  });
+}
+
+const smoothstep = k => { k = Math.max(0, Math.min(1, k)); return k * k * (3 - 2 * k); };
+
+/* How much of the overhead drawing shows at `d`: 0 side on, 1 from above. */
+function viewAt(d){
+  let w = 0;
+  for(const [a, b] of bends){
+    w = Math.max(w, smoothstep(Math.min(d - (a - TURN_FADE), (b + TURN_FADE) - d) / (2 * TURN_FADE)));
+  }
+  return w;
 }
 
 /* Hide the first `d` units of the dashed route — the part already ridden.
@@ -714,23 +838,43 @@ function setErase(d){
   elErasePath.setAttribute('stroke-dasharray', d + ' 99999');
 }
 
-function placeSkate(x, y, tilt, flip){
-  elSkate.style.transform =
-    `translate(${(x - 74.5).toFixed(2)}px, ${(y - 25).toFixed(2)}px) ` +
-    `rotate(${tilt.toFixed(2)}deg) scaleX(${flip ? -1 : 1})`;
+/* Put the board's deck centre at (x, y), travelling at heading `a` (deg),
+   showing `w` of the overhead drawing and the rest side on. */
+function placeSkate(x, y, a, w){
+  elSkate.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
+
+  /* Side on: mirrored when the road runs leftwards, so the pair face where
+     they are going, and banked with the road. The bank is held to SKATE_BANK
+     on the level but lets go as this drawing fades out, so all through a
+     crossfade it points exactly where the overhead one does. */
+  const right = Math.cos(a * Math.PI / 180) >= 0;
+  const lim   = SKATE_BANK + (90 - SKATE_BANK) * w;
+  const bank  = Math.max(-lim, Math.min(lim, ((right ? a : a + 180) % 360 + 540) % 360 - 180));
+  elSkateSide.style.transform = `rotate(${bank.toFixed(2)}deg) scaleX(${right ? 1 : -1})`;
+  elSkateSide.style.opacity   = (1 - w).toFixed(3);
+
+  /* From above: turned from the way it is drawn to the way the road goes. */
+  elSkateTop.style.transform = `rotate(${(a - SKATE_NOSE).toFixed(2)}deg)`;
+  elSkateTop.style.opacity   = w.toFixed(3);
 }
 
+/* At rest the board keeps the heading and the drawing the road gives it at
+   that stop — the same ones it arrives with and leaves with — so it never
+   turns or changes over while it is standing still. */
 function parkSkate(stop){
-  const p = STOP_PARK[stop] || pointAt(stopDist[stop]);
-  placeSkate(p.x, p.y, 0, false);
-  setErase(stopDist[stop]);
+  const d = stopDist[stop];
+  const p = STOP_PARK[stop] || pointAt(d);
+  placeSkate(p.x, p.y, headingAt(d), viewAt(d));
+  setErase(d);
 }
 
 const easeInOut = t => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 /* Roll from one stop to the next: a short hop out of the circle onto the
-   trail, the ride itself with the board banking into the tangent, then a hop
-   back into the destination circle.                                        */
+   trail, the ride itself with the board turning with the road, then a hop
+   back into the destination circle. The hops are pure movement: the board
+   joins and leaves the route with the heading and drawing the road has right
+   there, which are also the ones it is parked with at either end.          */
 function rideSkate(from, to, ms, my){
   return new Promise(resolve => {
     const d0 = stopDist[from], d1 = stopDist[to];
@@ -738,6 +882,7 @@ function rideSkate(from, to, ms, my){
     const p1 = STOP_PARK[to]   || pointAt(d1);
     const LEAD = 0.09, TAIL = 0.11;
     const dir  = d1 >= d0 ? 1 : -1;
+    const back = dir < 0 ? 180 : 0;                 // ridden against the route
     const t0   = performance.now();
 
     /* the flag is raised for the whole journey and lowered however it ends,
@@ -750,30 +895,28 @@ function rideSkate(from, to, ms, my){
       if(!alive(my)){ done(); return; }
       const t = Math.min(1, (now - t0) / ms);
 
-      let x, y, tilt = 0, flip = false;
+      let x, y, d;
       if(t < LEAD){                                   // hop onto the trail
         const k = easeInOut(t / LEAD), a = pointAt(d0);
         x = p0.x + (a.x - p0.x) * k;
         y = p0.y + (a.y - p0.y) * k;
+        d = d0;
       }else if(t > 1 - TAIL){                         // hop into the circle
         const k = easeInOut((t - (1 - TAIL)) / TAIL), b = pointAt(d1);
         x = b.x + (p1.x - b.x) * k;
         y = b.y + (p1.y - b.y) * k;
+        d = d1;
       }else{                                          // along the route
         const k = easeInOut((t - LEAD) / (1 - LEAD - TAIL));
-        const d = d0 + (d1 - d0) * k;
-        const c = pointAt(d), c2 = pointAt(d + dir * 6);
+        d = d0 + (d1 - d0) * k;
+        const c = pointAt(d);
         x = c.x; y = c.y;
         setErase(d);                                  // the trail goes with him
-        const a = Math.atan2(c2.y - c.y, c2.x - c.x) * 180 / Math.PI;
-        flip = Math.abs(a) > 90;                      // keep the wheels down
-        tilt = flip ? (a > 0 ? a - 180 : a + 180) : a;
-        tilt = Math.max(-32, Math.min(32, tilt));     // bank, never cartwheel
       }
-      placeSkate(x, y, tilt, flip);
+      placeSkate(x, y, headingAt(d) + back, viewAt(d));
 
       if(t < 1) requestAnimationFrame(frame);
-      else { placeSkate(p1.x, p1.y, 0, false); setErase(d1); done(); }
+      else { placeSkate(p1.x, p1.y, headingAt(d1) + back, viewAt(d1)); setErase(d1); done(); }
     }
     requestAnimationFrame(frame);
   });

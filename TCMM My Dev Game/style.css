@@ -119,7 +119,7 @@ html,body{
   transition:opacity .3s ease;
 }
 
-/* ---------- the travelling skateboard (image 201, 149 x 50) ---------- */
+/* ---------- the travelling skateboard: Noori and Tez riding it ---------- */
 /* #trail carries no pixels: it exists so the script can ask the browser for
    points along the Figma route with getPointAtLength().                   */
 #trail{
@@ -128,14 +128,50 @@ html,body{
   opacity:0; overflow:visible; pointer-events:none;
 }
 
+/* #skate is a point — the middle of the deck — and game.js moves it along
+   the route with translate(). The two drawings hang off it, each placed so
+   that its own deck centre lands on that point, and each turns about it.
+
+   --deck is how long the board is on the map, nose to tail. The two files
+   draw the board at different sizes (236px long side on, 214.4px from
+   above), so each is sized from its own deck length: the board stays the
+   same size whichever drawing is showing, and the two line up deck on deck
+   while they crossfade.
+
+   Both drawings come with their own soft shadow painted in, so the old
+   board's CSS drop-shadow is not put back on top of them.                 */
 .skate{
+  --deck:160px;
   position:absolute; left:0; top:0;
-  width:149px; height:50px;
-  transform-origin:50% 50%;
+  width:0; height:0;
   will-change:transform;
-  filter:drop-shadow(0 6px 5px rgba(0,0,0,.38));
-  pointer-events:none; user-select:none; -webkit-user-drag:none;
+  pointer-events:none;
   transition:opacity .3s ease;
+}
+.skate img{
+  position:absolute;
+  display:block;
+  max-width:none;
+  will-change:transform, opacity;
+  user-select:none; -webkit-user-drag:none;
+}
+/* side on — 264 x 125, both facing right; deck 236 long, centred (131, 59) */
+.skate-side{
+  left:  calc(var(--deck) * -131 / 236);
+  top:   calc(var(--deck) *  -59 / 236);
+  width: calc(var(--deck) *  264 / 236);
+  height:calc(var(--deck) *  125 / 236);
+  transform-origin:calc(var(--deck) * 131 / 236) calc(var(--deck) * 59 / 236);
+}
+/* from above — 251 x 277, the deck laid at 60° with its nose up and to the
+   left; deck 214.4 long, centred (123.1, 135.4) */
+.skate-top{
+  left:  calc(var(--deck) * -123.1 / 214.4);
+  top:   calc(var(--deck) * -135.4 / 214.4);
+  width: calc(var(--deck) *  251   / 214.4);
+  height:calc(var(--deck) *  277   / 214.4);
+  transform-origin:calc(var(--deck) * 123.1 / 214.4) calc(var(--deck) * 135.4 / 214.4);
+  opacity:0;
 }
 
 .hidden{ display:none !important; }
