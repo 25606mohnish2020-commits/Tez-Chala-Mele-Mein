@@ -678,11 +678,12 @@ const STOP_PARK = [
 /* How far along the route the board waits at the start, in route units. Not
    the route's very first point: the board with Noori and Tez on it is longer
    than the old one and banks up with the road there, which laid its tail on
-   the bush in the corner. 60 units on, it sits on bare dirt, the dashes
+   the bush in the corner. 70 units on, it sits on bare dirt, the dashes
    running out from its nose — the ones under it are rubbed out as usual.
-   It goes with the board's length (--deck in style.css): half the deck plus
-   this should stay at 160, so a longer board waits further on.           */
-const START_AT = 60;
+   It goes with the board's length (--deck in style.css): half the deck less
+   this should stay at 40, which keeps the tail in the same spot clear of the
+   bush, so a longer board waits further on.                               */
+const START_AT = 70;
 
 /* ------------------------------------------------ the board's two drawings
    Noori and Tez ride the board, and it comes drawn two ways (index.html):
