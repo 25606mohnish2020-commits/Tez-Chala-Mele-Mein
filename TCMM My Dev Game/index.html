@@ -13,6 +13,10 @@
 <link rel="icon" type="image/png" sizes="64x64" href="Assets/Icons/skateboard-64.png">
 <link rel="icon" type="image/png" sizes="180x180" href="Assets/Icons/skateboard-180.png">
 <link rel="apple-touch-icon" sizes="180x180" href="Assets/Icons/skateboard-180.png">
+<!-- The map is the first screen and the biggest thing on it: ask for it
+     before anything else, so it is never left waiting behind the fonts and
+     scripts. Everything after the first screen is loaded by game.js. -->
+<link rel="preload" as="image" href="Assets/Images/Page%2019.jpg" fetchpriority="high">
 <link href="../fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=7">
 </head>
@@ -22,12 +26,16 @@
 <div id="fit">
 
   <!-- the current page art, blown up and blurred, so no bare letterbox shows -->
-  <img id="backdrop" class="backdrop" src="Assets/Images/Page 19.png" alt="" aria-hidden="true">
+  <img id="backdrop" class="backdrop" src="Assets/Images/Page 19.jpg" alt="" aria-hidden="true">
 
   <div id="stage">
 
-    <!-- Page plate: the exact exported Figma artwork for the current page -->
-    <img id="plate" class="plate" src="Assets/Images/Page 19.png" alt="">
+    <!-- Page plate: the exact exported Figma artwork for the current page.
+         Every plate is served as the .jpg made from its .png export by
+         tools/build-jpg.py — a quarter of the size or less, and the same
+         picture. This one is the first thing anyone sees, so it is fetched
+         ahead of everything else on the page. -->
+    <img id="plate" class="plate" src="Assets/Images/Page 19.jpg" alt="" fetchpriority="high">
     <img id="plateNext" class="plate plate-next" src="" alt="" aria-hidden="true">
 
 
@@ -61,7 +69,14 @@
 
          With the plates agreed, the mask is now only the growing stroke.
          Nothing is held back from it, so the route goes completely: no stray
-         ring, and no dash left at a checkpoint the board has already passed. -->
+         ring, and no dash left at a checkpoint the board has already passed.
+
+         Served, like every plate, as the .jpg tools/build-jpg.py makes from
+         that .png — encoded so the two plates stay the same picture, block
+         for block, wherever the stroke's edge can fall. It is not part of the
+         first screen (nothing is rubbed out until the board moves), so it
+         waits in data-href and game.js asks for it the moment the map has
+         arrived, ahead of everything else — see "loading order" there. -->
     <svg id="erase" class="erase" viewBox="0 0 1920 1080" aria-hidden="true" focusable="false">
       <defs>
         <mask id="eraseMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080">
@@ -72,7 +87,7 @@
           </g>
         </mask>
       </defs>
-      <image href="Assets/Images/Page 35 aligned.png" x="0" y="0" width="1920" height="1080"
+      <image id="eraseImg" data-href="Assets/Images/Page 35 aligned.jpg" x="0" y="0" width="1920" height="1080"
              preserveAspectRatio="none" mask="url(#eraseMask)"/>
     </svg>
 
@@ -99,7 +114,9 @@
 
     <!-- ============ QUESTION LAYER (Figma pages 21, 24, 27, 30, 33) ============ -->
     <div id="qLayer" class="layer">
-      <img id="qTmpl" class="q-tmpl" src="Assets/Story elements/Question Template.png" alt="">
+      <!-- data-src, not src: not part of the first screen, so game.js asks for
+           it once the map has arrived ("loading order" in game.js) -->
+      <img id="qTmpl" class="q-tmpl" data-src="Assets/Story elements/Question Template.png" alt="">
       <p id="qText" class="q-text"></p>
       <div id="qOpts" class="q-opts"></div>
     </div>
@@ -124,10 +141,15 @@
          The film is 1920x1080 24fps, exactly the artboard, so it sits inside
          #stage and is scaled by the same transform as every page. Remuxed from
          the supplied .mov into a faststart .mp4 (stream copy, same picture and
-         sound) because .mov is not playable in every browser. -->
+         sound) because .mov is not playable in every browser.
+
+         preload="none": at 7.8 MB it is the heaviest thing in the game and the
+         last thing it shows, so it is not fetched while the page is opening.
+         game.js starts it in the background once everything the questions
+         need has arrived — see "loading order" there. -->
     <video id="finaleVideo" class="finale-video"
            src="Assets/Videos/Happy Ending.mp4"
-           preload="auto" playsinline webkit-playsinline></video>
+           preload="none" playsinline webkit-playsinline></video>
 
   </div><!-- /#stage : nothing below is Figma artwork, it is UI chrome and
                        therefore lives outside the artboard so it can never be
@@ -151,6 +173,6 @@
      then the game, which only ever talks to GameBus — see XAPI_EVENTS.md -->
 <script src="swiftpal-bridge.js?v=1"></script>
 <script src="xapi.js?v=2"></script>
-<script src="game.js?v=7"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>

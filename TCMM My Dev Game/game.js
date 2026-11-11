@@ -68,7 +68,9 @@ const A = {
   wrong:      null
 };
 
-const plate = n => 'Assets/Images/Page ' + n + '.png';
+/* Served as the .jpg tools/build-jpg.py makes from each .png export: the
+   same picture at a quarter of the size or less. */
+const plate = n => 'Assets/Images/Page ' + n + '.jpg';
 
 /* ------------------------------------------------------- map checkpoints */
 
@@ -280,6 +282,7 @@ const elSkateSide = $('skateSide');
 const elSkateTop  = $('skateTop');
 const elErase     = $('erase');
 const elErasePath = $('erasePath');
+const elEraseImg  = $('eraseImg');
 const elBackdrop  = $('backdrop');
 const elVideo     = $('finaleVideo');
 const elReplay    = $('btnReplay');
@@ -352,6 +355,11 @@ const Audio2 = (() => {
     },
     unlock(){
       unlocked = true;
+      // The clips are normally created once the first screen has loaded
+      // (see "loading order"). A start tap that beats that creates them now,
+      // so every one of them is here to be nudged below — on mobile, a clip
+      // missed by this gesture could not be played later.
+      this.preload();
       // Open Web Audio here, inside the start gesture, so the generated
       // wrong-answer tone is ready to fire without a warm-up later.
       try{
@@ -582,22 +590,103 @@ if(EMBED && fsDoc() !== document){
 
 /* ============================================================ plate swaps */
 
+/* ---------------------------------------------------------- loading order
+   Everything past the first screen is fetched in the background, in the
+   order the game will need it, a few files at a time.
+
+   It used to be asked for all at once the moment the page opened — every
+   question and celebration plate, every sticker, all the sound and the
+   7.8 MB film, some 28 MB — and the map the child is actually looking at
+   queued behind all of it: on a phone over 4G it took nine seconds to show
+   and the page half a minute to finish loading. Now the page opens on what
+   the first screen needs and nothing else (the map plate, the board, the
+   question marks on the map), and only once that has arrived does
+   loadTheRest() begin: the two pictures index.html holds back (the eraser's
+   plate, wanted the moment the board sets off, and the question plaque),
+   then the pictures in the order the questions will ask for them — so
+   whatever is needed next is always what arrives next — with the sound
+   joining once the first question's pictures are in, and last of all the
+   film. The sound waits that long because it is 5 MB, more than the first
+   question's pictures several times over, and nothing plays before the
+   start tap anyway; the tap itself creates every clip if it comes first,
+   since that is when mobile browsers need them (Audio2.unlock()).
+
+   The celebration GIFs are in the queue too. They used to be fetched only
+   as their page opened, so on a slow line a celebration could be over
+   before its 2 MB animation had finished arriving.                         */
 const imgCache = [];
+const LOAD_AT_ONCE = 3;         // enough to keep the line busy, few enough to keep the order
+
+let restLoading = false;
+function loadTheRest(){
+  if(restLoading) return;
+  restLoading = true;
+  elEraseImg.setAttribute('href', elEraseImg.getAttribute('data-href'));
+  elQTmpl.src = elQTmpl.getAttribute('data-src');
+  preloadImages();
+}
+
+/* In the picture queue, where the sound joins: everything before it has
+   arrived before Audio2.preload() is called. */
+const SOUND = () => Audio2.preload();
+
 function preloadImages(){
-  const list = [MAP_PLATE];
+  const list = [MAP_PLATE, QMARK_SRC,
+                'Assets/Story elements/Question Template.png',
+                'Assets/Story elements/Skateboard horizontal.png',
+                'Assets/Story elements/Skateboard diagonal.png'];
   FLOW.forEach(s => {
-    if(s.type === 'q')     list.push(plate(QUESTIONS[s.qi].page));
-    if(s.type === 'celeb') list.push(plate(QUESTIONS[s.qi].celebPage));
+    if(s.type === 'q'){
+      const q = QUESTIONS[s.qi];
+      list.push(plate(q.page));
+      q.options.forEach(o => list.push(o.src));
+      if(s.qi === 0) list.push(SOUND);
+      list.push(HAND_SRC);            // only after two wrong answers, so after the cards
+    }
+    if(s.type === 'celeb'){
+      const q = QUESTIONS[s.qi];
+      list.push(plate(q.celebPage), q.gif.src,
+                'Assets/Story elements/image 228.png',      // the leaves it sheds
+                CHECKPOINTS[s.qi].sticker.src);              // won on the map after it
+    }
   });
-  list.push(QMARK_SRC,
-            HAND_SRC,
-            'Assets/Story elements/Question Template.png',
-            'Assets/Story elements/image 228.png',
-            'Assets/Story elements/Skateboard horizontal.png',
-            'Assets/Story elements/Skateboard diagonal.png');
-  CHECKPOINTS.forEach(c => list.push(c.sticker.src));
-  QUESTIONS.forEach(q => q.options.forEach(o => list.push(o.src)));
-  [...new Set(list)].forEach(src => { const i = new Image(); i.src = encodeURI(src); imgCache.push(i); });
+
+  const queue = [...new Set(list)];
+  let busy = 0;
+  const pump = () => {
+    while(busy < LOAD_AT_ONCE && queue.length){
+      if(typeof queue[0] === 'function'){       // a step, not a file: SOUND
+        if(busy) return;                        // runs once all before it is in
+        queue.shift()();
+        continue;
+      }
+      const i = new Image();
+      busy++;
+      i.onload = i.onerror = () => { busy--; pump(); };
+      i.src = encodeURI(queue.shift());
+      imgCache.push(i);
+    }
+    if(!busy && !queue.length) preloadFilm();
+  };
+  pump();
+}
+
+/* The film comes last: it is the heaviest file and the last thing shown.
+   It is started once every picture is in, or when the fourth question opens
+   if a slow line has not got that far — which still leaves it the length of
+   two questions to arrive in. index.html holds it back with preload="none".
+   Raising that to "auto" is enough for most browsers to start; load() is
+   for any that do not, and is only ever called on a film that has neither
+   begun to load nor to play — calling it on one already loading would throw
+   away what had arrived and start again. */
+let filmAsked = false;
+function preloadFilm(){
+  if(filmAsked) return;
+  filmAsked = true;
+  if(elVideo.classList.contains('on') || elVideo.readyState > 0) return;
+  elVideo.preload = 'auto';
+  if(elVideo.networkState === HTMLMediaElement.NETWORK_LOADING) return;
+  try{ elVideo.load(); }catch(e){ /* it will load when it is played */ }
 }
 
 let plateSrc = '';
@@ -1454,6 +1543,7 @@ async function runStep(i){
   /* ------------------------------------------------------ QUESTION pages */
   if(step.type === 'q'){
     currentQi = step.qi;
+    if(step.qi >= 3) preloadFilm();             // at the latest — see "loading order"
     const q = QUESTIONS[step.qi];
     GameBus.emit('question:started', { id: 'P' + q.page, index: i, qi: step.qi,
                                        template: 'CHOOSE_CORRECT_PICTURE', format: 'mcq' });
@@ -1720,6 +1810,7 @@ function beginGame(wantFullscreen){
      So if the music is refused, the gate comes back and one tap fixes it. */
   Audio2.startBgm().catch(() => { if(EMBED) openGate(); });
   closeGate();
+  loadTheRest();                  // normally under way already; a quick tap starts it
   runStep(1);
 }
 
@@ -1758,9 +1849,10 @@ window.TCMMGame = {
   if(EMBED) elGate.classList.add('gone', 'hidden');
   fitStage();
   measureTrail();
-  preloadImages();
-  Audio2.preload();
   parkSkate(0);
   showLayer('map');
   runStep(0);
+  /* the first screen first: nothing else is asked for until it has arrived */
+  if(document.readyState === 'complete') loadTheRest();
+  else window.addEventListener('load', loadTheRest, { once: true });
 })();
